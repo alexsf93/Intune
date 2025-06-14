@@ -6,7 +6,7 @@
     Este script está diseñado para ayudar a los usuarios a desinstalar aplicaciones no deseadas (bloatware) preinstaladas en dispositivos Lenovo. 
     El objetivo es optimizar el rendimiento del sistema y liberar espacio en disco eliminando software innecesario.
 
-    Este script ha sido creado por HPC-Germany y editado/mejorado por Naxvan. 
+    Este script ha sido creado por HPC-Germany y editado/mejorado por @alexsf93. 
     Se recomienda ejecutar este script con privilegios de administrador para asegurar que todas las aplicaciones se desinstalen correctamente.
 
     Para la desinstalación de Dropbox es imprescindible que si se lanza desde Intune se marque la opción "Run this script using the logged on credentials".
