@@ -1,27 +1,39 @@
 ﻿<#
-.SYNOPSIS
-    Script para eliminar el bloatware de Lenovo.
+============================================================
+      Full Desinstalador de Bloatware Lenovo (PowerShell)
+------------------------------------------------------------
+Autor: Alejandro Suárez (@alexsf93)
+Basado en el script original de HPC-Germany
+============================================================
 
-.DESCRIPTION
-    Este script está diseñado para ayudar a los usuarios a desinstalar aplicaciones no deseadas (bloatware) preinstaladas en dispositivos Lenovo. 
-    El objetivo es optimizar el rendimiento del sistema y liberar espacio en disco eliminando software innecesario.
+.DESCRIPCIÓN
+    Este script elimina aplicaciones preinstaladas (bloatware) y utilidades innecesarias en equipos Lenovo,
+    optimizando el rendimiento y liberando espacio en disco. Soporta ejecución interactiva y silenciosa.
+    Incluye la desinstalación automática de McAfee, Dropbox, Intel Unison, Lenovo Vantage y más.
 
-    Este script ha sido creado por HPC-Germany y editado/mejorado por @alexsf93. 
-    Se recomienda ejecutar este script con privilegios de administrador para asegurar que todas las aplicaciones se desinstalen correctamente.
+.NOTAS DE USO
+    - Ejecutar SIEMPRE como administrador para máxima efectividad.
+    - Si usas Intune y quieres desinstalar Dropbox, marca la opción
+      "Run this script using the logged on credentials".
+    - Puedes personalizar la whitelist de apps si lo deseas.
 
-    Para la desinstalación de Dropbox es imprescindible que si se lanza desde Intune se marque la opción "Run this script using the logged on credentials".
+.PARAMETER customwhitelist
+    (Opcional) Lista de aplicaciones a excluir de la desinstalación.
 
-.PARAMETER None
-    Este script no requiere parámetros adicionales.
+.EJEMPLOS
+    # Ejecución estándar:
+    .\Script - Full Desinstalador Bloatware.ps1
 
-.EXAMPLE
-    .\Script Remediation - Full Desinstalador Bloatware.ps1
-    Ejecuta el script para iniciar el proceso de eliminación de bloatware.
+    # Ejecutar con whitelist personalizada:
+    .\Script - Full Desinstalador Bloatware.ps1 -customwhitelist "App1","App2"
 
-.NOTES
-    Asegúrate de revisar la lista de aplicaciones que se eliminarán antes de ejecutar el script.
-    Utiliza este script bajo tu propio riesgo. Se recomienda hacer una copia de seguridad de tus datos importantes.
+.ADVERTENCIAS
+    - Elimina directorios y apps relacionados con McAfee y Lenovo.
+    - Revisa y edita la lista de apps a eliminar según tu entorno.
+    - Haz copia de seguridad antes de ejecutar en equipos de producción.
+    - Usa bajo tu propia responsabilidad.
 
+============================================================
 #>
 
 param (

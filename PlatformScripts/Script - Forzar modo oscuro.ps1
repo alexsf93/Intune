@@ -1,30 +1,35 @@
 <#
-Este script está diseñado para ser utilizado en entornos gestionados con Microsoft Intune.
+============================================================
+        Script: Activar modo oscuro en Windows 10/11
+------------------------------------------------------------
+Autor: Alejandro Suárez (@alexsf93)
+============================================================
 
-**Propósito:**  
-Modifica la apariencia del tema de Windows, activando el modo oscuro tanto para el sistema como para las aplicaciones.
+.DESCRIPCIÓN
+    Este script activa el **modo oscuro** tanto para el sistema como para las aplicaciones en Windows.
+    Está pensado para ser usado en entornos gestionados con Microsoft Intune, pero puede ejecutarse manualmente también.
 
-**Consideraciones y requisitos:**
+.CONSIDERACIONES / REQUISITOS
+    1. **Permisos de Administrador:**  
+       Si no se ejecuta como admin, el script intentará auto-elevarse automáticamente.
+    2. **Exclusión en Intune:**  
+       Antes de desplegarlo, asegúrate de que el dispositivo esté en un grupo de exclusión de políticas que puedan sobrescribir el cambio de tema.
+    3. **Compatibilidad de idioma:**  
+       Detecta idioma del sistema (en-US, en-GB, de-DE) para ciertas variables, usa valores por defecto para otros idiomas.
+    4. **Uso de whitelist personalizada:**  
+       Puedes añadir una lista personalizada de apps a la variable `$customwhitelist` si tu flujo de trabajo lo requiere.
 
-1. **Permisos de Administrador:**  
-   El script requiere ejecución con privilegios de administrador. Si no se ejecuta como administrador, intentará autoelevarse automáticamente.
+.EJEMPLO DE USO
+    # Desplegar como Platform Script en Intune:
+    .\Script - Forzar modo oscuro.ps1
 
-2. **Exclusión en Intune:**  
-   Antes de ejecutar este script, asegúrate de que el equipo esté incluido en un grupo de exclusión dentro de **Intune** para evitar que las políticas de configuración de Intune sobrescriban los cambios realizados por el script.
-
-3. **Compatibilidad de Idioma:**  
-   El script detecta automáticamente el idioma del sistema para establecer variables relacionadas con grupos de seguridad. Si el idioma del sistema no está contemplado (en-US, en-GB, de-DE), se utilizarán los valores en inglés por defecto.
-
-4. **Parámetro opcional:**  
-   Puedes incluir una lista personalizada de aplicaciones en la variable `$customwhitelist` si tu flujo de trabajo lo requiere.
-
-5. **Uso:**
-   Puedes desplegarlo como un PlatformScript en Microsoft Intune
-
-6. **Advertencia:**  
-   Revisa el script antes de desplegarlo masivamente. Ejecuta siempre bajo supervisión.
+.ADVERTENCIAS
+    - **Revisa el script antes de desplegarlo masivamente.**
+    - Ejecuta siempre bajo supervisión.
 
 #>
+
+
 param (
     [string[]]$customwhitelist
 )
