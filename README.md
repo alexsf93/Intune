@@ -7,7 +7,7 @@ Este repositorio está destinado a almacenar y organizar diversos scripts y mét
 - **PlatformScripts:**  
   Scripts para la configuración, automatización y personalización de sistemas Windows en la plataforma administrada.
 
-- **ScriptsRemediations:**  
+- **RemediationsScripts:**  
   Scripts diseñados para remediar problemas detectados en los dispositivos, automatizando correcciones y asegurando el cumplimiento de las políticas de la organización.
 
 - **DetectionMethods:**  
@@ -15,4 +15,3 @@ Este repositorio está destinado a almacenar y organizar diversos scripts y mét
 
 **Propósito:**  
 Facilitar la gestión, mantenimiento y control de aplicaciones y configuraciones en dispositivos Windows mediante la utilización de scripts personalizados, remediaciones automáticas y métodos de detección eficaces para entornos gestionados con Microsoft Intune.
-
