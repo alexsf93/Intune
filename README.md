@@ -14,4 +14,4 @@ Este repositorio está destinado a almacenar y organizar diversos scripts y mét
   Métodos de detección personalizados para determinar la instalación, estado o configuración de aplicaciones Win32 distribuidas mediante Intune.
 
 **Propósito:**  
-Facilitar la gestión, mantenimiento y control de aplicaciones y configuraciones en dispositivos Windows mediante la utilización de scripts personalizados, remediaciones automáticas y métodos de detección eficaces para entornos gestionados con Intune.
+Facilitar la gestión, mantenimiento y control de aplicaciones y configuraciones en dispositivos Windows mediante la utilización de scripts personalizados, remediaciones automáticas y métodos de detección eficaces para entornos gestionados con Microsoft Intune.
