@@ -1,3 +1,37 @@
+<#
+===============================================================================================
+    NOTIFICACIÓN PERSONALIZADA - CREACIÓN DE ACCESO DIRECTO Y NOTIFICACIÓN POWERSHELL (BURNTOAST)
+-----------------------------------------------------------------------------------------------
+Este script crea dinámicamente un acceso directo en el menú inicio con AppUserModelId específico,
+descarga imágenes necesarias, y muestra una notificación moderna usando BurntToast para mostrar
+cualquier mensaje personalizado al usuario (OneDrive es solo un ejemplo).
+
+Pensado para tareas de compliance, onboarding, automatización IT, campañas de recordatorio, etc.
+(Intune compatible).
+
+-----------------------------------------------------------------------------------------------
+¿CÓMO FUNCIONA?
+-----------------------------------------------------------------------------------------------
+- Crea un acceso directo temporal en el menú inicio para registrar la AppUserModelId.
+- Descarga los logos/imágenes necesarias para la notificación.
+- Muestra una notificación moderna (Toast) con texto personalizado e imágenes.
+- Elimina el acceso directo y limpia la configuración al finalizar.
+
+-----------------------------------------------------------------------------------------------
+INSTRUCCIONES DE USO
+-----------------------------------------------------------------------------------------------
+- Personaliza las variables `$title` y `$message` con tu texto.
+- Ejecuta este script como remediation en Intune, script de usuario, o de forma manual.
+- Necesita permisos de usuario y acceso a Internet para descargar imágenes y BurntToast.
+
+-----------------------------------------------------------------------------------------------
+AUTOR
+-----------------------------------------------------------------------------------------------
+- Alejandro Suárez (@alexsf93)
+===============================================================================================
+#>
+
+
 Add-Type -AssemblyName System.Runtime.InteropServices
 
 # Variables de título y mensaje (puedes cambiarlas aquí)
