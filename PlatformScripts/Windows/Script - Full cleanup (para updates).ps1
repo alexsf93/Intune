@@ -1,6 +1,6 @@
 <#
 ===============================================================
-      Script: Limpieza silenciosa con Liberador de espacio
+        Script: Script - Full cleanup (para updates) (Windows)
 ---
 Autor: Alejandro Suárez (@alexsf93)
 ===============================================================
