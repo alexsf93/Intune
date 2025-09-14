@@ -1,28 +1,42 @@
 <#
-===============================================================================================
-       DETECCIÓN: CUENTAS LOCALES "ADMINISTRADOR" O "ADMINISTRATOR" HABILITADAS - POWERSHELL
------------------------------------------------------------------------------------------------
-Este script detecta si existen cuentas locales con nombre "Administrador" o "Administrator"
-y si alguna de ellas está habilitada en el sistema.  
-Pensado para tareas de compliance, hardening y remediación automatizada (Intune compatible).
+=====================================================================================================
+    DETECTION SCRIPT: CUENTAS LOCALES "ADMINISTRADOR" O "ADMINISTRATOR" HABILITADAS
+-----------------------------------------------------------------------------------------------------
+Este script detecta si existen cuentas locales con nombre "Administrador" o "Administrator" y 
+comprueba si alguna de ellas está habilitada en el sistema. Está pensado para tareas de compliance, 
+hardening y remediación automatizada (compatible con Intune).
 
------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- Debe ejecutarse con permisos SYSTEM o privilegios de administrador local.
+- Compatible con PowerShell 5.1 o superior.
+- Requiere el módulo de cuentas locales (`Get-LocalUser`).
+
+-----------------------------------------------------------------------------------------------------
 ¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
 - Busca cuentas locales llamadas exactamente "Administrador" (ES) o "Administrator" (EN).
-- Si alguna está habilitada (Enabled: True), el script devuelve Exit 1.
-- Si no existen o todas están deshabilitadas, devuelve Exit 0.
+- Evalúa el estado de la propiedad Enabled.
+- Devuelve:
+  * Exit code 1 → Alguna cuenta está habilitada.
+  * Exit code 0 → No existen o todas están deshabilitadas.
 
------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → Todas las cuentas "Administrador"/"Administrator" están deshabilitadas o no existen.
+- "NOK" (exit code 1) → Alguna cuenta "Administrador"/"Administrator" está habilitada.
+
+-----------------------------------------------------------------------------------------------------
 INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------
-- Usa este script como Detection Rule en Intune Remediations, o en auditorías de seguridad.
+-----------------------------------------------------------------------------------------------------
+- Usar como Detection Rule en Intune Remediations o auditorías de seguridad.
+- Interpretar exit codes para aplicar el script de remediación correspondiente.
 
------------------------------------------------------------------------------------------------
-AUTOR
------------------------------------------------------------------------------------------------
-- Alejandro Suárez (@alexsf93)
-===============================================================================================
+-----------------------------------------------------------------------------------------------------
+AUTOR: Alejandro Suárez (@alexsf93)
+=====================================================================================================
 #>
 
 $usuarios = @("Administrador", "Administrator")

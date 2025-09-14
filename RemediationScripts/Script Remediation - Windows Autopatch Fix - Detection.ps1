@@ -1,28 +1,45 @@
 <#
-===============================================================================================
-     DETECCION: HAY POLITICAS QUE BLOQUEAN WINDOWS UPDATE / AUTOPATCH? (INTUNE/POWERSHELL)
------------------------------------------------------------------------------------------------
-Este script detecta si existen configuraciones de directiva en el registro que impidan
-la correcta gestion de actualizaciones por parte de Windows Autopatch.
+=====================================================================================================
+    DETECTION SCRIPT: ¿POLÍTICAS QUE BLOQUEAN WINDOWS UPDATE / AUTOPATCH?
+-----------------------------------------------------------------------------------------------------
+Este script detecta si existen configuraciones de directiva en el Registro que impidan la correcta
+gestión de actualizaciones por parte de Windows Update / Windows Autopatch en el dispositivo.
 
-Pensado para Intune Remediations o tareas de compliance en dispositivos gestionados.
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- PowerShell 5.1 o 7.x.
+- Permisos para leer el Registro bajo HKLM.
+- Dispositivo Windows con claves de directiva estándar.
 
------------------------------------------------------------------------------------------------
-COMO FUNCIONA?
------------------------------------------------------------------------------------------------
-- Revisa las siguientes claves de registro:
+-----------------------------------------------------------------------------------------------------
+¿CÓMO FUNCIONA?
+-----------------------------------------------------------------------------------------------------
+- Revisa los valores de estas rutas del Registro:
     • HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\DoNotConnectToWindowsUpdateInternetLocations
     • HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\DisableWindowsUpdateAccess
     • HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\NoAutoUpdate
-- Si alguno de estos valores existe y es distinto de 0 -> se considera no conforme.
-- Devuelve Exit 1 si se detecta alguna configuracion bloqueante.
-- Devuelve Exit 0 si no existen configuraciones que bloqueen Windows Autopatch.
+- Si cualquiera de estos valores existe y es distinto de 0 → se considera NO conforme.
+- Devuelve:
+  * Exit code 1 → Se detecta alguna configuración bloqueante.
+  * Exit code 0 → No existen configuraciones bloqueantes.
 
------------------------------------------------------------------------------------------------
-AUTOR
------------------------------------------------------------------------------------------------
-- Alejandro Suarez (@alexsf93)
-===============================================================================================
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → No hay políticas que bloqueen Windows Update / Autopatch.
+- "NOK" (exit code 1) → Se han encontrado valores de política bloqueantes (se listan en la salida).
+
+-----------------------------------------------------------------------------------------------------
+INSTRUCCIONES DE USO
+-----------------------------------------------------------------------------------------------------
+- Usar como Detection Rule en Intune u otros sistemas de compliance.
+- Interpretar el exit code para decidir si aplicar un script de remediación (eliminar/ajustar claves).
+- Revisar la salida estándar para conocer qué valores exactos producen la no conformidad.
+
+-----------------------------------------------------------------------------------------------------
+AUTOR: Alejandro Suárez (@alexsf93)
+=====================================================================================================
 #>
 
 $ErrorActionPreference = 'SilentlyContinue'
@@ -58,6 +75,6 @@ if ($nonCompliant.Count -gt 0) {
     Exit 1
 }
 else {
-    Write-Output "Cumple: no hay politicas bloqueantes."
+    Write-Output "Cumple: no hay políticas bloqueantes."
     Exit 0
 }

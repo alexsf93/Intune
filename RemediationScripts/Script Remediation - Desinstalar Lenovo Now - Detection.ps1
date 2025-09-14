@@ -1,44 +1,50 @@
 <#
-===============================================================================================
-                         DETECCIÓN: LENOVO NOW INSTALADO - POWERSHELL
------------------------------------------------------------------------------------------------
-Este script detecta si la aplicación **Lenovo Now** está instalada en el sistema mediante PowerShell.
-Pensado para escenarios de detección previa a remediaciones, automatizaciones, o despliegues con Intune.
+=====================================================================================================
+    DETECTION SCRIPT: INSTALACIÓN DE LENOVO NOW
+-----------------------------------------------------------------------------------------------------
+Este script detecta si la aplicación **Lenovo Now** está instalada en el sistema Windows. 
+Está pensado para usarse en escenarios de detección previa a remediaciones, despliegues con Intune 
+o procesos de inventario automatizados.
 
------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- Compatible con PowerShell 5.1 y 7.x.
+- No requiere privilegios de administrador para la detección.
+- Acceso al cmdlet `Get-Package`.
+
+-----------------------------------------------------------------------------------------------------
 ¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------
-- Busca el paquete "Lenovo Now*" usando Get-Package (compatible con nombre parcial).
-- Si está instalado, devuelve el código de salida 1 (detectado).
-- Si no está instalado, devuelve el código de salida 0 (no detectado).
+-----------------------------------------------------------------------------------------------------
+- Busca el paquete "Lenovo Now*" mediante `Get-Package` (acepta coincidencias parciales).
+- Devuelve:
+  * Exit code 1 → Lenovo Now está instalado.
+  * Exit code 0 → Lenovo Now no está instalado.
 
------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → Lenovo Now no está instalado.
+- "NOK" (exit code 1) → Lenovo Now está instalado.
+
+-----------------------------------------------------------------------------------------------------
 INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------
-- Ejecuta el script con:
-      powershell.exe -ExecutionPolicy Bypass -File .\Script Remediation - Desinstalar Lenovo Now - Detection.ps1
+-----------------------------------------------------------------------------------------------------
+- Ejecutar con:
+      powershell.exe -ExecutionPolicy Bypass -File .\Detection-LenovoNow.ps1
+- Usar como Detection Rule en Intune o en scripts de control de inventario.
+- Revisar únicamente el código de salida (no genera salida visual).
 
-- Ideal para políticas de **Detection Rule** en Intune o scripts de control de inventario.
-
------------------------------------------------------------------------------------------------
-NOTAS
------------------------------------------------------------------------------------------------
-- Compatible con PowerShell 5.1/7.x.
-- No requiere privilegios de administrador para detectar la instalación.
-- Silencioso: no genera salida visual, solo código de retorno.
-- Puede personalizarse para detectar otras aplicaciones modificando el filtro de nombre.
-
------------------------------------------------------------------------------------------------
-AUTOR
------------------------------------------------------------------------------------------------
-- Alejandro Suárez (@alexsf93)
-===============================================================================================
+-----------------------------------------------------------------------------------------------------
+AUTOR: Alejandro Suárez (@alexsf93)
+=====================================================================================================
 #>
+
 # Detectar si Lenovo Now está instalado en el sistema
-$lenovoNOW = Get-Package "Lenovo Now*"
+$lenovoNOW = Get-Package "Lenovo Now*" -ErrorAction SilentlyContinue
 
 if ($lenovoNOW) {
-    Exit 1  # Esta instalado
+    Exit 1  # Está instalado
 } else {
-    Exit 0  # No esta instalado
+    Exit 0  # No está instalado
 }

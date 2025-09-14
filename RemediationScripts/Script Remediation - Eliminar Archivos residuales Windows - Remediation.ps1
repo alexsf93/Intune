@@ -1,14 +1,53 @@
 <#
-===============================================================================================
-                     REMEDIACIÓN: LIMPIEZA DE ARCHIVOS/RESIDUOS WINDOWS - POWERSHELL
------------------------------------------------------------------------------------------------
-Este script elimina carpetas y archivos residuales de instalaciones o upgrades antiguos de Windows 
-(Windows.old, $WINDOWS.~BT, $WINDOWS.~WS, carpetas de migración, etc.) del disco del sistema.
+=====================================================================================================
+    REMEDIATION SCRIPT: LIMPIEZA DE ARCHIVOS/RESIDUOS DE WINDOWS
+-----------------------------------------------------------------------------------------------------
+Este script elimina carpetas y archivos residuales de instalaciones o actualizaciones antiguas 
+de Windows (por ejemplo: Windows.old, $WINDOWS.~BT, $WINDOWS.~WS, carpetas de migración, etc.) 
+del disco del sistema. Está pensado para su uso en Intune Remediations o procesos automatizados 
+de limpieza en dispositivos gestionados.
 
-Compatible con Intune Remediations (debe ejecutarse como SYSTEM).
------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- Compatible con PowerShell 5.1 y 7.x.
+- Debe ejecutarse como SYSTEM o con privilegios de administrador.
+- Acceso a las utilidades `takeown` e `icacls` para forzar permisos si es necesario.
+
+-----------------------------------------------------------------------------------------------------
+¿CÓMO FUNCIONA?
+-----------------------------------------------------------------------------------------------------
+- Revisa las siguientes rutas en C:\:
+    * C:\Windows.old
+    * C:\$WINDOWS.~BT
+    * C:\$WINDOWS.~WS
+    * C:\$INPLACE.~TR
+    * C:\$GetCurrent
+    * C:\ESD
+    * C:\$SysReset
+    * C:\Windows10Upgrade
+    * C:\Recovery
+- Si alguna existe:
+  * Toma propiedad y ajusta permisos para garantizar acceso.
+  * Elimina la carpeta/archivo con `Remove-Item`.
+  * Registra en salida estándar el resultado de cada intento.
+
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → Todas las carpetas residuales eliminadas o inexistentes.
+- Mensajes en salida estándar → Confirma cada carpeta eliminada, inexistente o no eliminada.
+
+-----------------------------------------------------------------------------------------------------
+INSTRUCCIONES DE USO
+-----------------------------------------------------------------------------------------------------
+- Ejecutar como Remediation Script en Intune.
+- Requiere permisos de SYSTEM o administrador local.
+- Revisar la salida para verificar qué carpetas fueron eliminadas.
+
+-----------------------------------------------------------------------------------------------------
 AUTOR: Alejandro Suárez (@alexsf93)
-===============================================================================================
+=====================================================================================================
 #>
 
 $paths = @(

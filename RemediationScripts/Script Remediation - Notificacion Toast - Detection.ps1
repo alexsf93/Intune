@@ -1,28 +1,37 @@
 <#
-===============================================================================================
-    REGLA DE DETECCIÓN (DETECTION RULE) - POWERSHELL
------------------------------------------------------------------------------------------------
-Este script está diseñado para usarse como una Detection Rule en Intune Remediations u otros
-sistemas de compliance. Su único propósito es devolver el código de salida `1`, lo que indica
-que la condición de detección **NO se cumple** (estado "no conforme").
+=====================================================================================================
+    DETECTION SCRIPT: DEVOLVER EXIT CODE 1 (REGLA DE PRUEBA/NO CONFORME)
+-----------------------------------------------------------------------------------------------------
+Este script está diseñado para usarse como Detection Rule en Intune Remediations u otros sistemas de
+compliance. Su único propósito es devolver el código de salida `1`, indicando que la condición de
+detección NO se cumple (estado "no conforme"). Útil para pruebas y validación de flujos.
 
-Útil para pruebas, validación de flujos, comprobación de lógica o para forzar la ejecución de
-acciones de remediación en los dispositivos objetivo.
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- PowerShell 5.1 o 7.x.
+- Ninguno adicional.
 
------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
 ¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------
-- Devuelve inmediatamente el código de salida `1` al ejecutarse.
+-----------------------------------------------------------------------------------------------------
+- Finaliza inmediatamente con `exit 1`.
 - No realiza comprobaciones ni acciones adicionales.
 
------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------
-- Usa este script como Detection Rule en Intune o cualquier sistema que interprete exit codes.
-- Un exit code `1` significa que la condición de detección NO está cumplida.
-- Para marcar como "cumplido", utiliza `exit 0` en su lugar.
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "NOK" (exit code 1) → Condición de detección no cumplida.
+- (Para marcar cumplimiento usar `exit 0` en su lugar.)
 
------------------------------------------------------------------------------------------------
-===============================================================================================
+-----------------------------------------------------------------------------------------------------
+INSTRUCCIONES DE USO
+-----------------------------------------------------------------------------------------------------
+- Usar como Detection Rule en Intune o cualquier sistema que interprete exit codes.
+- Emplear para forzar la ejecución de remediaciones o validar flujos de trabajo.
+
+-----------------------------------------------------------------------------------------------------
+AUTOR: Alejandro Suárez (@alexsf93)
+=====================================================================================================
 #>
 exit 1

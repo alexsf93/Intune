@@ -1,8 +1,45 @@
 <#
 =====================================================================================================
-    DETECCIÓN: VERSIÓN DE INTUNE MANAGEMENT EXTENSION DESACTUALIZADA/CORRUPTA
+    DETECTION SCRIPT: VERSIÓN DE INTUNE MANAGEMENT EXTENSION (IME) DESACTUALIZADA O CORRUPTA
 -----------------------------------------------------------------------------------------------------
-Compara la versión instalada localmente de IME con la que viene en el MSI oficial descargado.
+Este script compara la versión instalada localmente de **Intune Management Extension (IME)** con la 
+versión incluida en el instalador MSI oficial descargado desde Microsoft.  
+
+Sirve para detectar instalaciones desactualizadas o corruptas de IME en dispositivos gestionados, 
+lo que puede impactar en la ejecución de políticas, scripts y remediaciones en Intune.
+
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- Compatible con PowerShell 5.1 y 7.x.
+- Requiere conectividad a Internet para descargar el MSI oficial de IME.
+- Acceso a COM objects (`WindowsInstaller.Installer`) para extraer la versión del MSI.
+- Permisos de lectura en:
+    * C:\Program Files (x86)\Microsoft Intune Management Extension\
+
+-----------------------------------------------------------------------------------------------------
+¿CÓMO FUNCIONA?
+-----------------------------------------------------------------------------------------------------
+- Descarga el instalador oficial de IME desde la CDN de Microsoft.
+- Extrae la versión del MSI descargado.
+- Obtiene la versión de IME instalada localmente desde su ejecutable.
+- Compara ambas versiones:
+  * Exit code 0 → La versión local está actualizada o coincide con la del MSI.
+  * Exit code 1 → La versión local es inferior, corrupta, no existe o hubo error en la comprobación.
+
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → IME está instalado y actualizado.
+- "NOK" (exit code 1) → IME no está instalado, está corrupto, o está desactualizado respecto al MSI.
+
+-----------------------------------------------------------------------------------------------------
+INSTRUCCIONES DE USO
+-----------------------------------------------------------------------------------------------------
+- Ejecutar como Detection Script en Intune para validar la instalación de IME.
+- Usar junto a un script de remediación que reinstale IME si se detecta estado NOK.
+- Revisar la salida estándar para logs de versión local, versión MSI y resultado de comparación.
+
 -----------------------------------------------------------------------------------------------------
 AUTOR: Alejandro Suárez (@alexsf93)
 =====================================================================================================

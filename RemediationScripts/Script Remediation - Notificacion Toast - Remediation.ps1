@@ -1,36 +1,44 @@
 <#
-===============================================================================================
-    NOTIFICACIÓN PERSONALIZADA - CREACIÓN DE ACCESO DIRECTO Y NOTIFICACIÓN POWERSHELL (BURNTOAST)
------------------------------------------------------------------------------------------------
-Este script crea dinámicamente un acceso directo en el menú inicio con AppUserModelId específico,
-descarga imágenes necesarias, y muestra una notificación moderna usando BurntToast para mostrar
-cualquier mensaje personalizado al usuario (OneDrive es solo un ejemplo).
+=====================================================================================================
+    NOTIFICATION SCRIPT: CREACIÓN DE ACCESO DIRECTO + TOAST CON BURNTTOAST
+-----------------------------------------------------------------------------------------------------
+Este script crea dinámicamente un acceso directo en el Menú Inicio con un AppUserModelId específico,
+descarga las imágenes necesarias y muestra una notificación moderna (Toast) usando BurntToast con un
+mensaje personalizado. Al finalizar, limpia el acceso directo y los elementos temporales.
 
-Pensado para tareas de compliance, onboarding, automatización IT, campañas de recordatorio, etc.
-(Intune compatible).
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- PowerShell 5.1 o 7.x.
+- Permisos de usuario para crear accesos directos en el Menú Inicio.
+- Acceso a Internet para descargar imágenes y el módulo BurntToast (si no está instalado).
+- Módulo BurntToast disponible o instalable en el ámbito CurrentUser.
 
------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
 ¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------
-- Crea un acceso directo temporal en el menú inicio para registrar la AppUserModelId.
-- Descarga los logos/imágenes necesarias para la notificación.
-- Muestra una notificación moderna (Toast) con texto personalizado e imágenes.
-- Elimina el acceso directo y limpia la configuración al finalizar.
+-----------------------------------------------------------------------------------------------------
+- Crea un acceso directo temporal en el Menú Inicio para registrar la AppUserModelId.
+- Descarga el logo y (opcionalmente) la hero image.
+- Importa/instala el módulo BurntToast y lanza un Toast con título, mensaje e imágenes.
+- Elimina el acceso directo temporal y limpia claves/archivos asociados.
 
------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0 implícito) → Notificación mostrada y limpieza realizada (si procede).
+- Mensajes en salida estándar → Informan del progreso, incidencias y acciones realizadas.
+
+-----------------------------------------------------------------------------------------------------
 INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------
-- Personaliza las variables `$title` y `$message` con tu texto.
-- Ejecuta este script como remediation en Intune, script de usuario, o de forma manual.
-- Necesita permisos de usuario y acceso a Internet para descargar imágenes y BurntToast.
+-----------------------------------------------------------------------------------------------------
+- Personalizar `$title` y `$message` según el caso de uso.
+- Ejecutar como script de usuario, tarea de compliance o remediación en Intune.
+- Verificar conectividad a Internet y permisos de usuario para la instalación de módulos y descarga.
 
------------------------------------------------------------------------------------------------
-AUTOR
------------------------------------------------------------------------------------------------
-- Alejandro Suárez (@alexsf93)
-===============================================================================================
+-----------------------------------------------------------------------------------------------------
+AUTOR: Alejandro Suárez (@alexsf93)
+=====================================================================================================
 #>
-
 
 Add-Type -AssemblyName System.Runtime.InteropServices
 

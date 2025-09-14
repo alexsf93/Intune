@@ -1,16 +1,44 @@
 <#
-===============================================================================================
-     REMEDIACIÓN: CREAR O AJUSTAR LA TAREA "ScheduledTask-Inkoova-CleanUpdates"
------------------------------------------------------------------------------------------------
-Este script crea o corrige la tarea programada "ScheduledTask-Inkoova-CleanUpdates"
-para que ejecute la limpieza de actualizaciones con cleanmgr en todas las unidades.
-Pensado para Intune Proactive Remediations en dispositivos gestionados.
+=====================================================================================================
+    REMEDIATION SCRIPT: CREAR O AJUSTAR LA TAREA "ScheduledTask-Inkoova-CleanUpdates"
+-----------------------------------------------------------------------------------------------------
+Este script crea o corrige la tarea programada **ScheduledTask-Inkoova-CleanUpdates** para ejecutar
+la limpieza de actualizaciones con **cleanmgr** en todas las unidades del equipo. Está orientado a
+Intune Proactive Remediations en dispositivos gestionados.
 
------------------------------------------------------------------------------------------------
-AUTOR
------------------------------------------------------------------------------------------------
-- Alejandro Suárez (@alexsf93)
-===============================================================================================
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- PowerShell 5.1 o 7.x.
+- Ejecución con privilegios SYSTEM o administrador local.
+- Herramienta `cleanmgr.exe` disponible (Windows).
+- Permisos de escritura en `C:\ProgramData\Inkoova\` y en `C:\`.
+
+-----------------------------------------------------------------------------------------------------
+¿CÓMO FUNCIONA?
+-----------------------------------------------------------------------------------------------------
+- Establece un preset de `cleanmgr` (StateFlags).
+- Recorre todas las unidades fijas y ejecuta `cleanmgr /sagerun:<Preset>`.
+- Registra la acción y resultado en un log local.
+- Copia el propio script a `C:\ProgramData\Inkoova\CleanUpdates.ps1`.
+- Crea/actualiza la tarea programada que ejecuta el script con `-RunCleanup`.
+
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → Limpieza ejecutada correctamente o tarea registrada/actualizada con éxito.
+- "NOK" (exit code 1) → Error al crear/actualizar la tarea programada.
+
+-----------------------------------------------------------------------------------------------------
+INSTRUCCIONES DE USO
+-----------------------------------------------------------------------------------------------------
+- Ejecutar manualmente con `-RunCleanup` para limpiar en el momento.
+- Ejecutar sin parámetros para registrar/actualizar la tarea programada.
+- Ajustar la hora/frecuencia del trigger según la política de la organización.
+
+-----------------------------------------------------------------------------------------------------
+AUTOR: Alejandro Suárez (@alexsf93)
+=====================================================================================================
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]

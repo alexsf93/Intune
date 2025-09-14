@@ -1,30 +1,42 @@
 <#
 =====================================================================================================
-    REMEDIACIÓN: RESTAURACIÓN DE PLANES DE ENERGÍA HABITUALES EN WINDOWS
+    REMEDIATION SCRIPT: RESTAURACIÓN DE PLANES DE ENERGÍA HABITUALES EN WINDOWS
 -----------------------------------------------------------------------------------------------------
 Este script restaura los planes de energía estándar de Windows si alguno no está presente:
-
 - Equilibrado (Balanced)
 - Alto rendimiento (High Performance)
 - Economizador (Power Saver)
 
-Está diseñado para ejecutarse con privilegios SYSTEM (por ejemplo, vía Intune Remediations) y
-asegurar que los planes de energía estándar estén disponibles en el sistema.
+Está diseñado para ejecutarse con privilegios SYSTEM (por ejemplo, vía Intune Remediations) y asegurar
+que los planes de energía estándar estén disponibles en el sistema.
+
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- PowerShell 5.1 o 7.x.
+- Ejecución como SYSTEM o administrador local.
+- Herramienta `powercfg` disponible (Windows).
 
 -----------------------------------------------------------------------------------------------------
 ¿CÓMO FUNCIONA?
 -----------------------------------------------------------------------------------------------------
 - Define los planes estándar con sus GUIDs.
-- Obtiene los planes de energía actualmente instalados (independiente del idioma).
-- Restaura los planes faltantes usando `powercfg -duplicatescheme`.
-- Informa el estado de cada plan tras la ejecución.
-- Devuelve siempre código de salida 0.
+- Obtiene los planes de energía instalados (independiente del idioma mediante regex).
+- Restaura los planes faltantes con `powercfg -duplicatescheme`.
+- Informa en la salida el estado de cada plan.
+
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → Planes estándar presentes o restaurados correctamente.
+- Mensajes en salida estándar → Indican “Plan restaurado” / “Plan ya presente” / “Error restaurando …”.
 
 -----------------------------------------------------------------------------------------------------
 INSTRUCCIONES DE USO
 -----------------------------------------------------------------------------------------------------
-- Ejecutar con permisos SYSTEM para garantizar restauración correcta.
-- Usar como script de remediación en Intune o sistemas similares.
+- Ejecutar como Remediation Script en Intune u otros sistemas de gestión.
+- Revisar la salida estándar para confirmar la restauración de cada plan.
+- El script devuelve siempre exit code 0.
 
 -----------------------------------------------------------------------------------------------------
 AUTOR: Alejandro Suárez (@alexsf93)

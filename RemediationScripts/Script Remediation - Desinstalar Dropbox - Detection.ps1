@@ -1,47 +1,50 @@
 <#
-===============================================================================================
-                   DETECTOR DE INSTALACIÓN DE DROPBOX - POWERSHELL
------------------------------------------------------------------------------------------------
-Este script comprueba si la aplicación **Dropbox** está instalada en el sistema Windows.
-Puede ser utilizado en entornos gestionados (Intune, autopilot, remediaciones, etc.)
+=====================================================================================================
+    DETECTION SCRIPT: INSTALACIÓN DE DROPBOX
+-----------------------------------------------------------------------------------------------------
+Este script comprueba si la aplicación **Dropbox** está instalada en el sistema Windows. 
+Está pensado para usarse en entornos gestionados (Intune, Autopilot, remediaciones, etc.) 
 para validar el estado de la instalación de Dropbox de forma silenciosa y automatizable.
 
------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------
-- El script revisa los paquetes instalados con Get-AppxPackage buscando "Dropbox".
-- Código de salida:
-      Exit 1  → Dropbox instalado
-      Exit 0  → Dropbox NO instalado
-
------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------
-- Ejecuta el script con:
-      powershell.exe -ExecutionPolicy Bypass -File .\Script Remediation - Desinstalar Dropbox - Detection.ps1
-
-- El script no genera mensajes en pantalla. Revisa el código de salida
-  para integración en Intune, procesos de remediación o automatizaciones.
-
------------------------------------------------------------------------------------------------
-NOTAS
------------------------------------------------------------------------------------------------
-- Compatible con PowerShell 5.1/7.x.
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- Compatible con PowerShell 5.1 y 7.x.
 - No requiere privilegios de administrador.
-- No elimina ni instala nada: solo comprueba.
-- Puedes integrarlo como script de detección en Intune.
+- Acceso al cmdlet `Get-AppxPackage`.
 
------------------------------------------------------------------------------------------------
-AUTOR
------------------------------------------------------------------------------------------------
-- Alejandro Suárez (@alexsf93)
-===============================================================================================
+-----------------------------------------------------------------------------------------------------
+¿CÓMO FUNCIONA?
+-----------------------------------------------------------------------------------------------------
+- Revisa los paquetes instalados con `Get-AppxPackage` buscando "Dropbox".
+- Devuelve:
+  * Exit code 1 → Dropbox está instalado.
+  * Exit code 0 → Dropbox no está instalado.
+
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → Dropbox no está instalado.
+- "NOK" (exit code 1) → Dropbox está instalado.
+
+-----------------------------------------------------------------------------------------------------
+INSTRUCCIONES DE USO
+-----------------------------------------------------------------------------------------------------
+- Ejecutar con:
+      powershell.exe -ExecutionPolicy Bypass -File .\Detection-Dropbox.ps1
+- Revisar únicamente el código de salida para integración en Intune u otros sistemas.
+- El script no genera mensajes en pantalla, es totalmente silencioso.
+
+-----------------------------------------------------------------------------------------------------
+AUTOR: Alejandro Suárez (@alexsf93)
+=====================================================================================================
 #>
+
 # Detectar si Dropbox está instalado en el sistema
 $dropbox = Get-AppxPackage *Dropbox*
 
 if ($dropbox) {
-    Exit 1  # Esta instalado
+    Exit 1  # Está instalado
 } else {
-    Exit 0  # No esta instalado
+    Exit 0  # No está instalado
 }

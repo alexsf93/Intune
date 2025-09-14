@@ -1,24 +1,46 @@
 <#
-===============================================================================================
-     REMEDIACION: DESBLOQUEAR WINDOWS UPDATE / AUTOPATCH (INTUNE/POWERSHELL)
------------------------------------------------------------------------------------------------
-Este script corrige configuraciones de directiva en el registro que impiden la gestion por
-Windows Autopatch, normalizando los valores a DWORD=0.
+=====================================================================================================
+    REMEDIATION SCRIPT: DESBLOQUEAR WINDOWS UPDATE / AUTOPATCH (INTUNE/POWERSHELL)
+-----------------------------------------------------------------------------------------------------
+Este script corrige configuraciones de directiva en el Registro que impiden la gestión de actualizaciones
+por parte de Windows Update / Windows Autopatch, normalizando los valores a `DWORD=0` en las claves
+objetivo.
 
 Claves objetivo:
     • HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\DoNotConnectToWindowsUpdateInternetLocations
     • HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\DisableWindowsUpdateAccess
     • HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\NoAutoUpdate
 
-Comportamiento:
-    • Crea subclaves si faltan y establece cada valor en 0 (DWORD).
-    • Exit 0 si queda corregido; Exit 1 si persisten valores != 0.
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- PowerShell 5.1 o 7.x.
+- Permisos de administrador/SYSTEM.
+- Acceso de escritura al Registro bajo `HKLM:\SOFTWARE\Policies\Microsoft\Windows\`.
 
------------------------------------------------------------------------------------------------
-AUTOR
------------------------------------------------------------------------------------------------
-- Alejandro Suarez (@alexsf93)
-===============================================================================================
+-----------------------------------------------------------------------------------------------------
+¿CÓMO FUNCIONA?
+-----------------------------------------------------------------------------------------------------
+- Crea las subclaves si faltan.
+- Establece cada valor indicado a `0` (tipo `DWORD`), recreándolo si es necesario.
+- Verifica al final que todos los valores queden en `0`.
+
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → Remediación completada: todos los valores están en `0`.
+- "NOK" (exit code 1) → Remediación incompleta: persisten valores distintos de `0`.
+
+-----------------------------------------------------------------------------------------------------
+INSTRUCCIONES DE USO
+-----------------------------------------------------------------------------------------------------
+- Ejecutar como Remediation Script en Intune u otros sistemas de gestión.
+- Revisar la salida estándar para confirmar las claves ajustadas.
+- Emparejar con una Detection Rule que compruebe estas mismas claves.
+
+-----------------------------------------------------------------------------------------------------
+AUTOR: Alejandro Suarez (@alexsf93)
+=====================================================================================================
 #>
 
 $ErrorActionPreference = 'Stop'
@@ -56,9 +78,9 @@ foreach ($t in $targets) {
 }
 
 if ($remaining -eq 0) {
-    Write-Output "Remediacion completada."
+    Write-Output "Remediación completada."
     Exit 0
 } else {
-    Write-Output "Remediacion incompleta: hay valores != 0."
+    Write-Output "Remediación incompleta: hay valores != 0."
     Exit 1
 }

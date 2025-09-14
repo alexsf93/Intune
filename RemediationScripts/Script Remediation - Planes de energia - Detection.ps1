@@ -12,14 +12,24 @@ Está diseñado para ejecutarse con privilegios SYSTEM (por ejemplo, vía Intune
 activar la remediación en caso de que falte alguno de los planes estándar.
 
 -----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- PowerShell 5.1 o 7.x.
+- Ejecución como SYSTEM o administrador local.
+- Herramienta de línea de comandos `powercfg` disponible (Windows).
+
+-----------------------------------------------------------------------------------------------------
 ¿CÓMO FUNCIONA?
 -----------------------------------------------------------------------------------------------------
 - Define los GUIDs de los planes estándar.
 - Obtiene los planes de energía instalados en el sistema (usando regex para ser independiente del idioma).
 - Compara los planes instalados con los requeridos.
-- Devuelve:
-  * "OK" y código de salida 0 si todos los planes están presentes.
-  * "NOK" y código de salida 1 si falta alguno.
+
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → Todos los planes estándar están presentes.
+- "NOK" (exit code 1) → Falta al menos uno de los planes estándar.
 
 -----------------------------------------------------------------------------------------------------
 INSTRUCCIONES DE USO

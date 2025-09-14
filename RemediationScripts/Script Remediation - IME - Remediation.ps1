@@ -1,10 +1,44 @@
 <#
 =====================================================================================================
-    REMEDIACIÓN: INSTALACIÓN/ACTUALIZACIÓN DE INTUNE MANAGEMENT EXTENSION (IME)
+    REMEDIATION SCRIPT: INSTALACIÓN/ACTUALIZACIÓN DE INTUNE MANAGEMENT EXTENSION (IME)
 -----------------------------------------------------------------------------------------------------
-Descarga e instala silenciosamente la última versión oficial del agente IME y elimina el MSI temporal
-al finalizar. Al terminar, muestra en el output la versión instalada de IME.
-Compatible con Intune Remediations (debe ejecutarse como SYSTEM).
+Este script descarga e instala silenciosamente la última versión oficial del agente **Intune 
+Management Extension (IME)** desde la CDN de Microsoft.  
+
+Tras la instalación o reparación, elimina el archivo MSI temporal y muestra en la salida la versión 
+de IME instalada. Está diseñado para ejecutarse como parte de **Intune Remediations** en dispositivos 
+gestionados.
+
+-----------------------------------------------------------------------------------------------------
+REQUISITOS
+-----------------------------------------------------------------------------------------------------
+- Compatible con PowerShell 5.1 y 7.x.
+- Requiere ejecución con privilegios SYSTEM o administrador local.
+- Acceso a Internet para descargar el instalador oficial.
+- Acceso a `msiexec.exe` para instalación de MSI.
+
+-----------------------------------------------------------------------------------------------------
+¿CÓMO FUNCIONA?
+-----------------------------------------------------------------------------------------------------
+- Descarga el MSI oficial de IME en la carpeta temporal del sistema.
+- Lanza la instalación/reparación en modo silencioso (`/qn /norestart`).
+- Intenta iniciar el servicio `IntuneManagementExtension`.
+- Elimina el MSI temporal al finalizar.
+- Muestra en salida la versión final instalada de IME.
+
+-----------------------------------------------------------------------------------------------------
+RESULTADOS
+-----------------------------------------------------------------------------------------------------
+- "OK" (exit code 0) → IME instalado/actualizado correctamente. La salida incluye la versión instalada.
+- "NOK" (exit code 1) → Error al descargar o instalar IME. Se informa en la salida estándar.
+
+-----------------------------------------------------------------------------------------------------
+INSTRUCCIONES DE USO
+-----------------------------------------------------------------------------------------------------
+- Ejecutar como Remediation Script en Intune.
+- Combinado con un Detection Script que valide la versión de IME.
+- Revisar la salida estándar para confirmar la instalación y versión.
+
 -----------------------------------------------------------------------------------------------------
 AUTOR: Alejandro Suárez (@alexsf93)
 =====================================================================================================
