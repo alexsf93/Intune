@@ -1,50 +1,49 @@
-# 📂 Repositorio de Scripts para Microsoft Intune (Win32Apps & Remediations)
 
-Este repositorio centraliza un conjunto de **scripts de PowerShell** diseñados para mejorar la administración de dispositivos Windows gestionados con **Microsoft Intune**.  
+### 📁 PlatformScripts
+Scripts generales por sistema operativo, orientados a la **configuración, automatización y personalización** de los dispositivos administrados.
 
-El objetivo es proporcionar **herramientas listas para usar** que faciliten tareas de detección, remediación y automatización, contribuyendo al cumplimiento de políticas corporativas y a la eficiencia operativa en entornos empresariales.
+### 📁 RemediationScripts
+Colección de **pares de scripts de Detección y Remediación** listos para usar en **Proactive Remediations de Intune**.  
+Cada conjunto sigue la convención:
 
----
+- `*-Detection.ps1` → Verifica si la condición está presente/no conforme.  
+- `*-Remediation.ps1` → Corrige el problema en caso de detección.  
 
-## 📌 Contenido del repositorio
-
-### 🔹 PlatformScripts
-Scripts orientados a la **configuración, automatización y personalización** de sistemas Windows dentro de la plataforma administrada.
-
-### 🔹 RemediationScripts
-Colección de scripts de **remediación proactiva**, diseñados para:
-- Resolver problemas detectados en dispositivos gestionados.
-- Automatizar acciones correctivas.
-- Garantizar el cumplimiento de configuraciones de seguridad y normativas internas.
-
-### 🔹 DetectionMethods
-Métodos de detección personalizados para:
-- Validar la **instalación** y **estado** de aplicaciones Win32 distribuidas con Intune.
-- Verificar configuraciones específicas de sistema.
-- Determinar condiciones previas antes de ejecutar acciones de remediación.
+Ejemplos incluidos en este repositorio:
+- 🔹 **Dropbox / Lenovo Now** → Detección y desinstalación silenciosa.  
+- 🔹 **Archivos residuales de Windows Update** → Limpieza automática.  
+- 🔹 **Secure Boot** → Registro y auditoría de estado.  
+- 🔹 **Intune Management Extension (IME)** → Detección de versión y reinstalación.  
+- 🔹 **Company Portal** → Instalación y creación de accesos directos.  
+- 🔹 **Notificaciones personalizadas (Toast)** → Mensajes al usuario con BurntToast.  
+- 🔹 **Planes de energía** → Restauración de configuraciones estándar.  
+- 🔹 **Scheduled Tasks (limpieza y escaneo Defender)** → Creación y validación de tareas programadas.  
+- 🔹 **Zona horaria y sincronización** → Configuración de "Romance Standard Time".  
+- 🔹 **Windows Autopatch** → Detección y corrección de políticas bloqueantes.  
 
 ---
 
 ## 🎯 Propósito
 
-Este repositorio busca convertirse en un **catálogo práctico y reutilizable** para administradores de Intune, ofreciendo:
-- Scripts listos para su integración en políticas de **Win32Apps**.
-- **Detección y remediación automatizada** en Intune Proactive Remediations.
-- Ejemplos y plantillas que sirven de base para nuevas implementaciones.
+Este repositorio busca ser un **catálogo reutilizable de buenas prácticas en Intune**, proporcionando:
+
+- ✅ Scripts listos para integrar en **Win32Apps**.  
+- ✅ **Detección y remediación automatizada** con Intune Proactive Remediations.  
+- ✅ Plantillas claras para crear nuevas soluciones personalizadas.  
 
 ---
 
 ## 🛠️ Requisitos
 
-- **Microsoft Intune** para la gestión centralizada de dispositivos.
-- **PowerShell 5.1 o superior** (compatible con 7.x).
-- Permisos adecuados (Administrador local o ejecución como **SYSTEM** en escenarios de Intune).
+- **Microsoft Intune** para la gestión centralizada.  
+- **PowerShell 5.1 o superior** (compatibles con PowerShell 7.x).  
+- Ejecución con permisos adecuados (**SYSTEM** en la mayoría de remediaciones).  
 
 ---
 
 ## 👨‍💻 Autor
 
 **Alejandro Suárez (@alexsf93)**  
-Repositorio mantenido con el objetivo de compartir buenas prácticas y soluciones reutilizables en entornos gestionados con Intune.
+Repositorio mantenido con el objetivo de compartir **scripts reutilizables y probados en entornos reales** de administración con Microsoft Intune.
 
 ---
