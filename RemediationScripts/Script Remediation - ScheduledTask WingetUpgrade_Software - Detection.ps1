@@ -2,9 +2,9 @@
 =====================================================================================================
     DETECTION SCRIPT: EXISTENCIA DE TAREA PROGRAMADA + SYSTEM + SCRIPT PRESENTE
 -----------------------------------------------------------------------------------------------------
-Este script verifica la presencia y configuración mínima de una tarea programada específica, 
-comprobando que exista, que se ejecute bajo la cuenta SYSTEM y que el script de destino esté presente 
-en la ruta indicada.
+Este script verifica la presencia y configuración mínima de la tarea programada
+**ScheduledTask-Inkoova-WingetUpgradeSoftware**, comprobando que exista, que se
+ejecute bajo la cuenta SYSTEM y que el script objetivo esté presente en la ruta indicada.
 
 -----------------------------------------------------------------------------------------------------
 REQUISITOS
@@ -18,7 +18,7 @@ REQUISITOS
 -----------------------------------------------------------------------------------------------------
 - Busca la tarea programada por nombre.
 - Valida que el principal de la tarea sea SYSTEM.
-- Comprueba que el archivo de script exista en `C:\ProgramData\...`.
+- Comprueba que el archivo de script exista en `C:\ProgramData\Inkoova\WingetUpgradeSoftware.ps1`.
 - Devuelve:
   * Exit code 0 → Todo conforme.
   * Exit code 1 → Falta la tarea, el principal no es SYSTEM o el script no existe.
@@ -48,8 +48,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # --- Parámetros mínimos ---
-$TaskName     = 'ScheduledTask-Inkoova-CleanUpdates'
-$ScriptTarget = 'C:\ProgramData\Inkoova\CleanUpdates.ps1'
+$TaskName     = 'ScheduledTask-Inkoova-WingetUpgradeSoftware'
+$ScriptTarget = 'C:\ProgramData\Inkoova\WingetUpgradeSoftware.ps1'
 
 # 1) La tarea existe
 try {
