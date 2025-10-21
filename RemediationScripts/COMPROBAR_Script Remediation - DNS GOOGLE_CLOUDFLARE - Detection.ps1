@@ -5,6 +5,9 @@
 Este script verifica que todos los adaptadores de red con conectividad IPv4 utilicen exclusivamente
 los DNS "8.8.8.8" y "1.1.1.1". Si todos cumplen, devuelve exit code 0; en caso contrario, exit code 1.
 
+Se excluyen de la comprobación los adaptadores virtuales o de VPN (Cisco, Hyper-V, VMware, VirtualBox,
+WireGuard, FortiClient, etc.).
+
 -----------------------------------------------------------------------------------------------------
 REQUISITOS
 -----------------------------------------------------------------------------------------------------
@@ -15,6 +18,7 @@ REQUISITOS
 ¿CÓMO FUNCIONA?
 -----------------------------------------------------------------------------------------------------
 - Identifica adaptadores con IPv4 en estado "Connected" (Get-NetIPInterface).
+- Excluye adaptadores virtuales o VPN según sus propiedades o nombre.
 - Obtiene los DNS configurados por interfaz (Get-DnsClientServerAddress -IPv4).
 - Valida que el conjunto de DNS por interfaz sea exactamente {8.8.8.8, 1.1.1.1} (orden indiferente).
 - Devuelve:
@@ -23,7 +27,7 @@ REQUISITOS
 
 Notas:
 - Si no hay adaptadores IPv4 "Connected", se devuelve exit code 0 (no hay nada que corregir).
-- Solo se evalúan interfaces con IPv4.
+- Solo se evalúan interfaces con IPv4 no virtuales ni de VPN.
 
 -----------------------------------------------------------------------------------------------------
 RESULTADOS
@@ -51,19 +55,41 @@ $ErrorActionPreference = 'Stop'
 # DNS objetivo
 $DesiredDns = @('8.8.8.8','1.1.1.1')
 
+# Patrones de exclusión (regex, sin distinción de mayúsculas/minúsculas)
+$ExcludePatterns = @(
+    'virtual',                 # genérico
+    'hyper-?v',
+    'vmware',
+    'vbox|virtualbox',
+    'npcap|loopback',
+    'wi-?fi\s*direct',
+    'isatap|teredo|6to4',
+    'cisco.*(anyconnect|secure\s*client|vpn)',
+    'globalprotect',
+    'forti(client|gate|net|vpn)',
+    'juniper|pulse\s*secure',
+    'check\s*point|sonicwall',
+    'openvpn|tap-?windows',
+    'wireguard',
+    'tailscale',
+    'zerotier',
+    'hamachi',
+    'nordlynx|protonvpn|expressvpn|surfshark',
+    'gl-?inet'
+) -join '|'
+
 function Test-SetEquality {
     param(
         [string[]]$A,
         [string[]]$B
     )
-    # Compara conjuntos (ignora orden y duplicados)
     $sa = ($A | Where-Object { $_ } | Sort-Object -Unique)
     $sb = ($B | Where-Object { $_ } | Sort-Object -Unique)
     return ($sa -join ',') -eq ($sb -join ',')
 }
 
 try {
-    # Interfaces IPv4 conectadas (se excluye loopback automáticamente)
+    # Interfaces IPv4 conectadas
     $connectedIfs = Get-NetIPInterface -AddressFamily IPv4 |
         Where-Object { $_.ConnectionState -eq 'Connected' }
 
@@ -72,9 +98,28 @@ try {
         exit 0
     }
 
+    # Excluir virtuales o VPN
+    $filteredIfs = @()
+    foreach ($ifi in $connectedIfs) {
+        $na = Get-NetAdapter -InterfaceIndex $ifi.InterfaceIndex -ErrorAction SilentlyContinue
+        if (-not $na) { continue }
+
+        $desc = "$($na.InterfaceDescription) $($na.Name)"
+        $isVirtualish = ($na.Virtual -eq $true) -or ($na.HardwareInterface -ne $true) -or ($desc -match $ExcludePatterns)
+
+        if (-not $isVirtualish) {
+            $filteredIfs += $ifi
+        }
+    }
+
+    if (-not $filteredIfs) {
+        Write-Output "No hay interfaces conectadas válidas para evaluar. OK."
+        exit 0
+    }
+
     $nonCompliant = @()
 
-    foreach ($if in $connectedIfs) {
+    foreach ($if in $filteredIfs) {
         $dnsInfo = Get-DnsClientServerAddress -InterfaceIndex $if.InterfaceIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
         $servers = $dnsInfo.ServerAddresses
 

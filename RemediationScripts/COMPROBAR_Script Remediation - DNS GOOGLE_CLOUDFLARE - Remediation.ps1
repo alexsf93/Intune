@@ -5,6 +5,9 @@
 Este script corrige la configuración de DNS en las interfaces IPv4 conectadas para que usen
 exclusivamente "8.8.8.8" y "1.1.1.1".
 
+Se excluyen de la remediación los adaptadores virtuales o de VPN (Cisco, Hyper-V, VMware, VirtualBox,
+WireGuard, FortiClient, etc.).
+
 -----------------------------------------------------------------------------------------------------
 REQUISITOS
 -----------------------------------------------------------------------------------------------------
@@ -15,6 +18,7 @@ REQUISITOS
 ¿CÓMO FUNCIONA?
 -----------------------------------------------------------------------------------------------------
 - Identifica interfaces IPv4 en estado "Connected".
+- Excluye adaptadores virtuales o VPN según sus propiedades o nombre.
 - Para cada interfaz que no cumpla, aplica:
   Set-DnsClientServerAddress -InterfaceIndex <idx> -ServerAddresses 8.8.8.8,1.1.1.1
 - Al finalizar:
@@ -45,6 +49,29 @@ $ErrorActionPreference = 'Stop'
 # DNS objetivo
 $DesiredDns = @('8.8.8.8','1.1.1.1')
 
+# Patrones de exclusión (regex, sin distinción de mayúsculas/minúsculas)
+$ExcludePatterns = @(
+    'virtual',                 # genérico
+    'hyper-?v',
+    'vmware',
+    'vbox|virtualbox',
+    'npcap|loopback',
+    'wi-?fi\s*direct',
+    'isatap|teredo|6to4',
+    'cisco.*(anyconnect|secure\s*client|vpn)',
+    'globalprotect',
+    'forti(client|gate|net|vpn)',
+    'juniper|pulse\s*secure',
+    'check\s*point|sonicwall',
+    'openvpn|tap-?windows',
+    'wireguard',
+    'tailscale',
+    'zerotier',
+    'hamachi',
+    'nordlynx|protonvpn|expressvpn|surfshark',
+    'gl-?inet'
+) -join '|'
+
 function Test-SetEquality {
     param(
         [string[]]$A,
@@ -59,6 +86,7 @@ $changed = @()
 $failed  = @()
 
 try {
+    # Interfaces IPv4 conectadas
     $connectedIfs = Get-NetIPInterface -AddressFamily IPv4 |
         Where-Object { $_.ConnectionState -eq 'Connected' }
 
@@ -67,7 +95,26 @@ try {
         exit 0
     }
 
-    foreach ($if in $connectedIfs) {
+    # Excluir virtuales o VPN
+    $filteredIfs = @()
+    foreach ($ifi in $connectedIfs) {
+        $na = Get-NetAdapter -InterfaceIndex $ifi.InterfaceIndex -ErrorAction SilentlyContinue
+        if (-not $na) { continue }
+
+        $desc = "$($na.InterfaceDescription) $($na.Name)"
+        $isVirtualish = ($na.Virtual -eq $true) -or ($na.HardwareInterface -ne $true) -or ($desc -match $ExcludePatterns)
+
+        if (-not $isVirtualish) {
+            $filteredIfs += $ifi
+        }
+    }
+
+    if (-not $filteredIfs) {
+        Write-Output "No hay interfaces conectadas válidas para remediar. Nada que hacer."
+        exit 0
+    }
+
+    foreach ($if in $filteredIfs) {
         try {
             $dnsInfo = Get-DnsClientServerAddress -InterfaceIndex $if.InterfaceIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
             $servers = $dnsInfo.ServerAddresses
@@ -92,7 +139,6 @@ try {
     if ($changed.Count -gt 0) {
         # Limpia caché DNS tras cambios (opcional, no crítico)
         try { ipconfig /flushdns | Out-Null } catch { }
-
         Write-Output "Interfaz(es) corregida(s): $($changed -join ', ')"
     }
 
