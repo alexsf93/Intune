@@ -1,47 +1,26 @@
 <#
-=====================================================================================================
+.SYNOPSIS
     REMEDIATION SCRIPT: CREAR O AJUSTAR LA TAREA "ScheduledTask-Inkoova-MSDefender-Simple"
------------------------------------------------------------------------------------------------------
-Este script crea o corrige la tarea programada **ScheduledTask-Inkoova-MSDefender-Simple** para
-ejecutar un escaneo simple de Microsoft Defender (CustomScan) en todas las unidades del equipo.
-Incluye logging local y registro de resultados de detecciones.
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- PowerShell 5.1 o 7.x.
-- Ejecución con privilegios SYSTEM o administrador local.
-- Microsoft Defender activo y accesible (cmdlets `Start-MpScan` / binario `MpCmdRun.exe`).
-- Permisos de escritura en `C:\ProgramData\Inkoova\` y en `C:\` para el log.
+.DESCRIPTION
+    Este script crea o corrige la tarea programada **ScheduledTask-Inkoova-MSDefender-Simple** para
+    ejecutar un escaneo simple de Microsoft Defender (CustomScan) en todas las unidades del equipo.
+    Incluye logging local y registro de resultados de detecciones.
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Detecta unidades fijas y ejecuta un CustomScan por unidad.
-- Prefiere `Start-MpScan`; si no está disponible, usa `MpCmdRun.exe`.
-- Registra inicio/fin por unidad y, al final, resume detecciones (remediadas/no remediadas).
-- Copia el propio script a `C:\ProgramData\Inkoova\MSDefenderSimple.ps1`.
-- Crea/actualiza la tarea programada para ejecutarse el **2º y 4º viernes a las 13:00**.
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0) → Escaneo ejecutado o tarea registrada/actualizada correctamente.
-- "NOK" (exit code 1) → Error al crear/actualizar la tarea programada.
+.EXAMPLE
+    Executes as Intune Remediation Script.
 
------------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------------
-- Ejecutar con `-RunScan` para lanzar el escaneo inmediatamente.
-- Ejecutar sin parámetros para registrar/actualizar la tarea programada.
-- Revisar `C:\MSDefender_Simple.log` para trazabilidad del escaneo y detecciones.
-
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: Script Remediation - ScheduledTask MSDefender_Simple - Remediation.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
-[CmdletBinding(SupportsShouldProcess=$true)]
+[CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [switch]$RunScan
 )
@@ -49,10 +28,10 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$TaskName      = 'ScheduledTask-Inkoova-MSDefender-Simple'
+$TaskName = 'ScheduledTask-Inkoova-MSDefender-Simple'
 $CompanyFolder = Join-Path $env:ProgramData 'Inkoova'
-$ScriptTarget  = Join-Path $CompanyFolder 'MSDefenderSimple.ps1'
-$LogPath       = 'C:\MSDefender_Simple.log'
+$ScriptTarget = Join-Path $CompanyFolder 'MSDefenderSimple.ps1'
+$LogPath = 'C:\MSDefender_Simple.log'
 
 function Write-Log($msg) {
     $line = "[{0}] {1}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $msg
@@ -61,7 +40,7 @@ function Write-Log($msg) {
 }
 
 function Get-FixedDrives {
-    Get-PSDrive -PSProvider FileSystem | Where-Object { $_.DisplayRoot -eq $null -and $_.Root -match '^[A-Z]:\\$' }
+    Get-PSDrive -PSProvider FileSystem | Where-Object { $null -eq $_.DisplayRoot -and $_.Root -match '^[A-Z]:\\$' }
 }
 
 function Get-MpCmdRunPath {
@@ -74,13 +53,14 @@ function Get-MpCmdRunPath {
                 if (Test-Path $candidate) { return $candidate }
             }
         }
-    } catch {}
+    }
+    catch {}
     $fallback = Join-Path ${env:ProgramFiles} 'Windows Defender\MpCmdRun.exe'
     if (Test-Path $fallback) { return $fallback }
     return $null
 }
 
-function Run-DefenderScan-AllFixed {
+function Invoke-DefenderScanAllFixed {
     $scanStart = Get-Date
     $drives = Get-FixedDrives
     if (-not $drives) {
@@ -91,8 +71,8 @@ function Run-DefenderScan-AllFixed {
     $mpcmd = Get-MpCmdRunPath
 
     foreach ($d in $drives) {
-        $letter = $d.Root.Substring(0,1)
-        $path   = "$letter`:\"
+        $letter = $d.Root.Substring(0, 1)
+        $path = "$letter`:\"
         $scanned = $false
         try {
             if (Get-Command -Name Start-MpScan -ErrorAction SilentlyContinue) {
@@ -101,17 +81,19 @@ function Run-DefenderScan-AllFixed {
                 Write-Log "Finalizado escaneo en ${letter}:\ (Start-MpScan)."
                 $scanned = $true
             }
-        } catch {
+        }
+        catch {
             Write-Log "Error en ${letter}:\ con Start-MpScan: $($_.Exception.Message)"
         }
 
         if (-not $scanned -and $mpcmd) {
             try {
                 Write-Log "Iniciando escaneo Defender (CustomScan) en ${letter}:\ con MpCmdRun.exe..."
-                Start-Process -FilePath $mpcmd -ArgumentList "-Scan","-ScanType","3","-File",$path -WindowStyle Hidden -Wait
+                Start-Process -FilePath $mpcmd -ArgumentList "-Scan", "-ScanType", "3", "-File", $path -WindowStyle Hidden -Wait
                 Write-Log "Finalizado escaneo en ${letter}:\ (MpCmdRun.exe)."
                 $scanned = $true
-            } catch {
+            }
+            catch {
                 Write-Log "Error en ${letter}:\ con MpCmdRun.exe: $($_.Exception.Message)"
             }
         }
@@ -134,7 +116,8 @@ function Run-DefenderScan-AllFixed {
             try {
                 $catalog = Get-MpThreat
                 foreach ($t in $catalog) { $sevMap[$t.ThreatID] = $t.Severity }
-            } catch {
+            }
+            catch {
                 Write-Log "No se pudo obtener la severidad desde el catálogo de amenazas: $($_.Exception.Message)"
             }
 
@@ -147,28 +130,30 @@ function Run-DefenderScan-AllFixed {
                 if ($res -is [array]) { $res = ($res -join ', ') }
 
                 $estado = if ($det.ActionSuccess -eq $true) { 'Remediada' }
-                          elseif ($det.ActionSuccess -eq $false) { 'No remediada' }
-                          else { 'Desconocido' }
+                elseif ($det.ActionSuccess -eq $false) { 'No remediada' }
+                else { 'Desconocido' }
 
                 if ($det.ActionSuccess -eq $true) { $remediadas++ }
                 elseif ($det.ActionSuccess -eq $false) { $noRemediadas++ }
 
                 Write-Log ("Detección -> ID:{0} | Amenaza:{1} | Severidad:{2} | Estado:{3} | Hora:{4} | Rutas:{5}" -f `
-                    $det.ThreatID, $det.ThreatName, $sev, $estado, $det.InitialDetectionTime, $res)
+                        $det.ThreatID, $det.ThreatName, $sev, $estado, $det.InitialDetectionTime, $res)
             }
 
             Write-Log ("Resumen detecciones: Remediadas={0}; NoRemediadas={1}" -f $remediadas, $noRemediadas)
-        } else {
+        }
+        else {
             Write-Log "No se detectaron amenazas durante este escaneo."
         }
-    } catch {
+    }
+    catch {
         Write-Log "No se pudieron obtener resultados del escaneo: $($_.Exception.Message)"
     }
 }
 
 # 1. Si se ejecuta con -RunScan, lanzar escaneo directamente
 if ($RunScan) {
-    Run-DefenderScan-AllFixed
+    Invoke-DefenderScanAllFixed
     exit 0
 }
 
@@ -177,14 +162,15 @@ if (-not (Test-Path $CompanyFolder)) { New-Item -ItemType Directory -Path $Compa
 $currentPath = $MyInvocation.MyCommand.Path
 if ($currentPath -and $currentPath -ne $ScriptTarget) {
     Copy-Item -Path $currentPath -Destination $ScriptTarget -Force
-} elseif (-not (Test-Path $ScriptTarget) -and $currentPath) {
+}
+elseif (-not (Test-Path $ScriptTarget) -and $currentPath) {
     Copy-Item -Path $currentPath -Destination $ScriptTarget -Force
 }
 
 # 3. Definir acción, trigger, settings y principal para la tarea
-$action    = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$ScriptTarget`" -RunScan"
-$trigger   = New-ScheduledTaskTrigger -MonthlyDOW -WeeksOfMonth Second, Fourth -DaysOfWeek Friday -At "13:00"
-$settings  = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 6)
+$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$ScriptTarget`" -RunScan"
+$trigger = New-ScheduledTaskTrigger -MonthlyDOW -WeeksOfMonth Second, Fourth -DaysOfWeek Friday -At "13:00"
+$settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 6)
 $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
 
 # 4. Registrar la tarea (si existe, eliminar primero)
@@ -194,7 +180,8 @@ try {
     }
     Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal | Out-Null
     Write-Log "Tarea '$TaskName' creada o actualizada correctamente (2º y 4º viernes a las 13:00)."
-} catch {
+}
+catch {
     Write-Log "ERROR creando la tarea: $($_.Exception.Message)"
     exit 1
 }

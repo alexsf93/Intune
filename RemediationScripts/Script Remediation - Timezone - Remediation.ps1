@@ -1,48 +1,27 @@
 <#
-=====================================================================================================
+.SYNOPSIS
     REMEDIATION SCRIPT: ZONA HORARIA MADRID Y SINCRONIZACIÓN DE HORA (INTUNE)
------------------------------------------------------------------------------------------------------
-Este script configura la zona horaria de Madrid ("Romance Standard Time"), asegura que el servicio
-de hora de Windows esté en inicio automático y en ejecución, y fuerza una sincronización de hora.
 
-Compatible con Intune Remediations. Debe ejecutarse como SYSTEM.
+.DESCRIPTION
+    Este script configura la zona horaria de Madrid ("Romance Standard Time"), asegura que el servicio
+    de hora de Windows esté en inicio automático y en ejecución, y fuerza una sincronización de hora.
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- PowerShell 5.1 o 7.x.
-- Permisos de administrador/SYSTEM.
-- Herramienta `w32tm` disponible (Windows Time Service).
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Verifica que el contexto sea administrador/SYSTEM.
-- Establece la zona horaria a "Romance Standard Time".
-- Configura `W32Time` con inicio `Automatic` y lo inicia si es necesario.
-- Ejecuta `w32tm /resync /nowait` para forzar la sincronización.
+.EXAMPLE
+    Executes as Intune Remediation Script.
 
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0) → Zona horaria aplicada, servicio activo y sincronización solicitada.
-- "NOK" (exit code 1) → El script no se ejecutó con privilegios adecuados.
-
------------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------------
-- Ejecutar como Remediation Script en Intune (contexto SYSTEM).
-- Revisar la salida estándar para confirmar las acciones realizadas.
-- Emparejar con el Detection Script correspondiente para validar conformidad.
-
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: Script Remediation - Timezone - Remediation.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 # Comprobar si el script tiene permisos de administrador/SYSTEM
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).
-    IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
 if (-not $isAdmin) {
     Write-Output "El script necesita ejecutarse con privilegios de administrador o como SYSTEM."
     exit 1

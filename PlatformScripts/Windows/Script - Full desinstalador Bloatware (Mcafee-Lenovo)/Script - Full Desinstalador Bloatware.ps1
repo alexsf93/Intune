@@ -1,39 +1,23 @@
 ﻿<#
-============================================================
-      Full Desinstalador de Bloatware Lenovo (PowerShell)
-------------------------------------------------------------
-Autor: Alejandro Suárez (@alexsf93)
-Basado en el script original de HPC-Germany
-============================================================
+.SYNOPSIS
+    Full Desinstalador de Bloatware Lenovo.
 
-.DESCRIPCIÓN
-    Este script elimina aplicaciones preinstaladas (bloatware) y utilidades innecesarias en equipos Lenovo,
-    optimizando el rendimiento y liberando espacio en disco. Soporta ejecución interactiva y silenciosa.
-    Incluye la desinstalación automática de McAfee, Dropbox, Intel Unison, Lenovo Vantage y más.
-
-.NOTAS DE USO
-    - Ejecutar SIEMPRE como administrador para máxima efectividad.
-    - Si usas Intune y quieres desinstalar Dropbox, marca la opción
-      "Run this script using the logged on credentials".
-    - Puedes personalizar la whitelist de apps si lo deseas.
+.DESCRIPTION
+    Elimina aplicaciones preinstaladas (bloatware) y utilidades innecesarias en equipos Lenovo,
+    optimizando el rendimiento y liberando espacio. Incluye desinstalación de McAfee, Dropbox, Intel Unison, etc.
 
 .PARAMETER customwhitelist
     (Opcional) Lista de aplicaciones a excluir de la desinstalación.
 
-.EJEMPLOS
-    # Ejecución estándar:
+.EXAMPLE
     .\Script - Full Desinstalador Bloatware.ps1
-
-    # Ejecutar con whitelist personalizada:
     .\Script - Full Desinstalador Bloatware.ps1 -customwhitelist "App1","App2"
 
-.ADVERTENCIAS
-    - Elimina directorios y apps relacionados con McAfee y Lenovo.
-    - Revisa y edita la lista de apps a eliminar según tu entorno.
-    - Haz copia de seguridad antes de ejecutar en equipos de producción.
-    - Usa bajo tu propia responsabilidad.
-
-============================================================
+.NOTES
+    Name: Script - Full Desinstalador Bloatware.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 param (
@@ -86,93 +70,93 @@ switch ($locale) {
 write-host "Detectando McAfee"
 $mcafeeinstalled = "false"
 $InstalledSoftware = Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall"
-foreach($obj in $InstalledSoftware){
-     $name = $obj.GetValue('DisplayName')
-     if ($name -like "*McAfee*") {
-         $mcafeeinstalled = "true"
-     }
+foreach ($obj in $InstalledSoftware) {
+    $name = $obj.GetValue('DisplayName')
+    if ($name -like "*McAfee*") {
+        $mcafeeinstalled = "true"
+    }
 }
 
 $InstalledSoftware32 = Get-ChildItem "HKLM:\Software\WOW6432NODE\Microsoft\Windows\CurrentVersion\Uninstall"
-foreach($obj32 in $InstalledSoftware32){
-     $name32 = $obj32.GetValue('DisplayName')
-     if ($name32 -like "*McAfee*") {
-         $mcafeeinstalled = "true"
-     }
+foreach ($obj32 in $InstalledSoftware32) {
+    $name32 = $obj32.GetValue('DisplayName')
+    if ($name32 -like "*McAfee*") {
+        $mcafeeinstalled = "true"
+    }
 }
 
 if ($mcafeeinstalled -eq "true") {
     Write-Host "McAfee detectado"
 
-## McAfee
-write-host "Descargando McAfee Removal Tool"
-## Origen descarga
-$URL = 'https://raw.githubusercontent.com/alexsf93/Intune/refs/heads/main/PlatformScripts/Script%20-%20Full%20desinstalador%20Bloatware%20(Mcafee-Lenovo)/mcafeeclean.zip'
+    ## McAfee
+    write-host "Descargando McAfee Removal Tool"
+    ## Origen descarga
+    $URL = 'https://raw.githubusercontent.com/alexsf93/Intune/refs/heads/main/PlatformScripts/Script%20-%20Full%20desinstalador%20Bloatware%20(Mcafee-Lenovo)/mcafeeclean.zip'
 
-## Set variable donde guardar zip
-$destination = 'C:\ProgramData\Debloat\mcafee.zip'
+    ## Set variable donde guardar zip
+    $destination = 'C:\ProgramData\Debloat\mcafee.zip'
 
-## Descargar
-Invoke-WebRequest -Uri $URL -OutFile $destination -Method Get
+    ## Descargar
+    Invoke-WebRequest -Uri $URL -OutFile $destination -Method Get
   
-Expand-Archive $destination -DestinationPath "C:\ProgramData\Debloat" -Force
+    Expand-Archive $destination -DestinationPath "C:\ProgramData\Debloat" -Force
 
-write-host "Eliminando McAfee"
-## Automatización de desinstalación y matar los servicios
-start-process "C:\ProgramData\Debloat\Mccleanup.exe" -ArgumentList "-p StopServices,MFSY,PEF,MXD,CSP,Sustainability,MOCP,MFP,APPSTATS,Auth,EMproxy,FWdiver,HW,MAS,MAT,MBK,MCPR,McProxy,McSvcHost,VUL,MHN,MNA,MOBK,MPFP,MPFPCU,MPS,SHRED,MPSCU,MQC,MQCCU,MSAD,MSHR,MSK,MSKCU,MWL,NMC,RedirSvc,VS,REMEDIATION,MSC,YAP,TRUEKEY,LAM,PCB,Symlink,SafeConnect,MGS,WMIRemover,RESIDUE -v -s"
-write-host "McAfee Removal Tool se esta ejecutando"
+    write-host "Eliminando McAfee"
+    ## Automatización de desinstalación y matar los servicios
+    start-process "C:\ProgramData\Debloat\Mccleanup.exe" -ArgumentList "-p StopServices,MFSY,PEF,MXD,CSP,Sustainability,MOCP,MFP,APPSTATS,Auth,EMproxy,FWdiver,HW,MAS,MAT,MBK,MCPR,McProxy,McSvcHost,VUL,MHN,MNA,MOBK,MPFP,MPFPCU,MPS,SHRED,MPSCU,MQC,MQCCU,MSAD,MSHR,MSK,MSKCU,MWL,NMC,RedirSvc,VS,REMEDIATION,MSC,YAP,TRUEKEY,LAM,PCB,Symlink,SafeConnect,MGS,WMIRemover,RESIDUE -v -s"
+    write-host "McAfee Removal Tool se esta ejecutando"
 
-## New MCCleanup
-write-host "Descargando McAfee Removal Tool"
-## Origen descarga
-$URL = 'https://raw.githubusercontent.com/alexsf93/bloatwarelenovomcpr/refs/heads/main/mcafeeclean.zip'
+    ## New MCCleanup
+    write-host "Descargando McAfee Removal Tool"
+    ## Origen descarga
+    $URL = 'https://raw.githubusercontent.com/alexsf93/bloatwarelenovomcpr/refs/heads/main/mcafeeclean.zip'
 
-## Set variable donde guardar zip
-$destination = 'C:\ProgramData\Debloat\mcafeenew.zip'
+    ## Set variable donde guardar zip
+    $destination = 'C:\ProgramData\Debloat\mcafeenew.zip'
 
-## Descargar
-Invoke-WebRequest -Uri $URL -OutFile $destination -Method Get
+    ## Descargar
+    Invoke-WebRequest -Uri $URL -OutFile $destination -Method Get
   
-New-Item -Path "C:\ProgramData\Debloat\mcnew" -ItemType Directory
-Expand-Archive $destination -DestinationPath "C:\ProgramData\Debloat\mcnew" -Force
+    New-Item -Path "C:\ProgramData\Debloat\mcnew" -ItemType Directory
+    Expand-Archive $destination -DestinationPath "C:\ProgramData\Debloat\mcnew" -Force
 
-write-host "Eliminando McAfee"
-## Automatización de desinstalación y matar los servicios
-start-process "C:\ProgramData\Debloat\mcnew\Mccleanup.exe" -ArgumentList "-p StopServices,MFSY,PEF,MXD,CSP,Sustainability,MOCP,MFP,APPSTATS,Auth,EMproxy,FWdiver,HW,MAS,MAT,MBK,MCPR,McProxy,McSvcHost,VUL,MHN,MNA,MOBK,MPFP,MPFPCU,MPS,SHRED,MPSCU,MQC,MQCCU,MSAD,MSHR,MSK,MSKCU,MWL,NMC,RedirSvc,VS,REMEDIATION,MSC,YAP,TRUEKEY,LAM,PCB,Symlink,SafeConnect,MGS,WMIRemover,RESIDUE -v -s"
-write-host "McAfee Removal Tool se esta ejecutando"
+    write-host "Eliminando McAfee"
+    ## Automatización de desinstalación y matar los servicios
+    start-process "C:\ProgramData\Debloat\mcnew\Mccleanup.exe" -ArgumentList "-p StopServices,MFSY,PEF,MXD,CSP,Sustainability,MOCP,MFP,APPSTATS,Auth,EMproxy,FWdiver,HW,MAS,MAT,MBK,MCPR,McProxy,McSvcHost,VUL,MHN,MNA,MOBK,MPFP,MPFPCU,MPS,SHRED,MPSCU,MQC,MQCCU,MSAD,MSHR,MSK,MSKCU,MWL,NMC,RedirSvc,VS,REMEDIATION,MSC,YAP,TRUEKEY,LAM,PCB,Symlink,SafeConnect,MGS,WMIRemover,RESIDUE -v -s"
+    write-host "McAfee Removal Tool se esta ejecutando"
 
-$InstalledPrograms = $allstring | Where-Object {($_.Name -like "*McAfee*")}
-$InstalledPrograms | ForEach-Object {
+    $InstalledPrograms = $allstring | Where-Object { ($_.Name -like "*McAfee*") }
+    $InstalledPrograms | ForEach-Object {
 
-    Write-Host -Object "Intentando desinstalar: [$($_.Name)]..."
-    $uninstallcommand = $_.String
+        Write-Host -Object "Intentando desinstalar: [$($_.Name)]..."
+        $uninstallcommand = $_.String
 
-    Try {
-        if ($uninstallcommand -match "^msiexec*") {
-            ## Eliminar msiexec ya que necesitamos dividirnos para la desinstalación.
-            $uninstallcommand = $uninstallcommand -replace "msiexec.exe", ""
-            $uninstallcommand = $uninstallcommand + " /quiet /norestart"
-            $uninstallcommand = $uninstallcommand -replace "/I", "/X "   
-            ## Desinstalar con parámetros string2
-            Start-Process 'msiexec.exe' -ArgumentList $uninstallcommand -NoNewWindow -Wait
+        Try {
+            if ($uninstallcommand -match "^msiexec*") {
+                ## Eliminar msiexec ya que necesitamos dividirnos para la desinstalación.
+                $uninstallcommand = $uninstallcommand -replace "msiexec.exe", ""
+                $uninstallcommand = $uninstallcommand + " /quiet /norestart"
+                $uninstallcommand = $uninstallcommand -replace "/I", "/X "   
+                ## Desinstalar con parámetros string2
+                Start-Process 'msiexec.exe' -ArgumentList $uninstallcommand -NoNewWindow -Wait
             }
             else {
-            $string2 = $uninstallcommand
-            start-process $string2
+                $string2 = $uninstallcommand
+                start-process $string2
             }
-        Write-Host -Object "Desinstalado satisfactoriamente: [$($_.Name)]"
+            Write-Host -Object "Desinstalado satisfactoriamente: [$($_.Name)]"
+        }
+        Catch { Write-Warning -Message "Fallo al desinstalar: [$($_.Name)]" }
     }
-    Catch {Write-Warning -Message "Fallo al desinstalar: [$($_.Name)]"}
-}
 
-## Eliminar Safeconnect
-$safeconnects = Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match "McAfee Safe Connect" } | Select-Object -Property UninstallString
+    ## Eliminar Safeconnect
+    $safeconnects = Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match "McAfee Safe Connect" } | Select-Object -Property UninstallString
  
-ForEach ($sc in $safeconnects) {
-    If ($sc.UninstallString) {
-        cmd.exe /c $sc.UninstallString /quiet /norestart
+    ForEach ($sc in $safeconnects) {
+        If ($sc.UninstallString) {
+            cmd.exe /c $sc.UninstallString /quiet /norestart
+        }
     }
-}
 }
 
 write-host "Completado"
@@ -199,78 +183,70 @@ $reg32 = Get-ChildItem -Path HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\Curren
 $reg64 = Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall
 
 foreach ($app32 in $reg32) {
-	Set-Location HKLM:
-	if (Get-ItemProperty -Path $app32 | Where-Object {
-			$_.Displayname -like "*$AppName*" -and [version]$_.DisplayVersion -lt $TargetVersion
-		}) {
-		Set-Location c:
-		Start-Process -FilePath "$env:SystemRoot\System32\msiexec.exe" -ArgumentList "/x $($app32.PsChildName) /qn /noreboot" -Wait
-	}
+    Set-Location HKLM:
+    if (Get-ItemProperty -Path $app32 | Where-Object {
+            $_.Displayname -like "*$AppName*" -and [version]$_.DisplayVersion -lt $TargetVersion
+        }) {
+        Set-Location c:
+        Start-Process -FilePath "$env:SystemRoot\System32\msiexec.exe" -ArgumentList "/x $($app32.PsChildName) /qn /noreboot" -Wait
+    }
 	
 }
 
 foreach ($app64 in $reg64) {
-	Set-Location HKLM:
-	if (Get-ItemProperty -Path $app64 | Where-Object {
-			$_.Displayname -like "*$AppName*" -and [version]$_.DisplayVersion -lt $TargetVersion
-		}) {
-		Set-Location c:
-		Start-Process -FilePath "$env:SystemRoot\System32\msiexec.exe" -ArgumentList "/x $($app64.PsChildName) /qn /noreboot" -Wait
-	}
+    Set-Location HKLM:
+    if (Get-ItemProperty -Path $app64 | Where-Object {
+            $_.Displayname -like "*$AppName*" -and [version]$_.DisplayVersion -lt $TargetVersion
+        }) {
+        Set-Location c:
+        Start-Process -FilePath "$env:SystemRoot\System32\msiexec.exe" -ArgumentList "/x $($app64.PsChildName) /qn /noreboot" -Wait
+    }
 	
 }
 
 ## Eliminar Lenovo Vantage Microsoft Store
 $AppList = "E046963F.LenovoCompanion",           
-           "LenovoCorporation.LenovoSettings",
-           "E046963F.LenovoSettingsforEnterprise"
-           "E0469640.LenovoUtility"
+"LenovoCorporation.LenovoSettings",
+"E046963F.LenovoSettingsforEnterprise"
+"E0469640.LenovoUtility"
 
-ForEach ($App in $AppList)
-{
-   $PackageFullName = (Get-AppxPackage -allusers $App).PackageFullName
-   $ProPackageFullName = (Get-AppxProvisionedPackage -online | where {$_.Displayname -eq $App}).PackageName
+ForEach ($App in $AppList) {
+    $PackageFullName = (Get-AppxPackage -allusers $App).PackageFullName
+    $ProPackageFullName = (Get-AppxProvisionedPackage -online | where { $_.Displayname -eq $App }).PackageName
   
-   ForEach ($AppToRemove in $PackageFullName)
-   {
-     Write-Host "Removing Package: $AppToRemove"
-     try
-     {
-        remove-AppxPackage -package $AppToRemove -allusers
-     }
-     catch
-     {
-        ## A partir de Win10 20H1
-        $PackageBundleName = (Get-AppxPackage -packagetypefilter bundle -allusers $App).PackageFullName
-        ForEach ($BundleAppToRemove in $PackageBundleName)
-        {
-           remove-AppxPackage -package $BundleAppToRemove -allusers
+    ForEach ($AppToRemove in $PackageFullName) {
+        Write-Host "Removing Package: $AppToRemove"
+        try {
+            remove-AppxPackage -package $AppToRemove -allusers
         }
-     }
-   }
+        catch {
+            ## A partir de Win10 20H1
+            $PackageBundleName = (Get-AppxPackage -packagetypefilter bundle -allusers $App).PackageFullName
+            ForEach ($BundleAppToRemove in $PackageBundleName) {
+                remove-AppxPackage -package $BundleAppToRemove -allusers
+            }
+        }
+    }
 
-   ForEach ($AppToRemove in $ProPackageFullName)
-   {
-     Write-Host "Removing Provisioned Package: $AppToRemove"
-     try
-     {
-        Remove-AppxProvisionedPackage -online -packagename $AppToRemove
-     }
-     catch
-     {
-        ## las aplicaciones empaquetadas/aprovisionadas ya han sido eliminadas por "remove-AppxPackage -allusers""
-     }
-   }
+    ForEach ($AppToRemove in $ProPackageFullName) {
+        Write-Host "Removing Provisioned Package: $AppToRemove"
+        try {
+            Remove-AppxProvisionedPackage -online -packagename $AppToRemove
+        }
+        catch {
+            ## las aplicaciones empaquetadas/aprovisionadas ya han sido eliminadas por "remove-AppxPackage -allusers""
+        }
+    }
 
 }
 
 ## Eliminar Lenovo Vantage Cliente Escritorio
 $lvs = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*", "HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" | Where-Object DisplayName -eq "Lenovo Vantage Service"
-    if (!([string]::IsNullOrEmpty($lvs.QuietUninstallString))) {
-        $uninstall = "cmd /c " + $lvs.QuietUninstallString
-        write-output $uninstall
-        Invoke-Expression $uninstall
-    }
+if (!([string]::IsNullOrEmpty($lvs.QuietUninstallString))) {
+    $uninstall = "cmd /c " + $lvs.QuietUninstallString
+    write-output $uninstall
+    Invoke-Expression $uninstall
+}
 
 ## BORRAR DIRECTORIOS MCAFEE Y LENOVO
 ## Definir la ruta para buscar
@@ -299,7 +275,8 @@ if ($directoriesToDelete) {
         Remove-Item -Path $_.FullName -Recurse -Force
     }
     Write-Host "Eliminación completa."
-} else {
+}
+else {
     Write-Host "No se encontraron directorios relacionados con 'McAfee' o 'Lenovo'."
 }
 

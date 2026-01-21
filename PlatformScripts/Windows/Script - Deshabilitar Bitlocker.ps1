@@ -1,24 +1,23 @@
 <#
-===============================================================
-      Script: Desactivar BitLocker en equipos Windows
----------------------------------------------------------------
-Autor: Alejandro Suárez (@alexsf93)
-===============================================================
+.SYNOPSIS
+    Desactivar BitLocker en equipos Windows.
 
-.DESCRIPCIÓN
+.DESCRIPTION
     Desactiva BitLocker en todas las unidades cifradas del equipo.
-    Antes de ejecutar, **asegúrate de que el dispositivo está en un grupo de exclusión de BitLocker en Intune**
+    Antes de ejecutar, asegúrate de que el dispositivo está en un grupo de exclusión de BitLocker en Intune
     para evitar que se apliquen políticas de cifrado automáticamente.
 
-.INSTRUCCIONES DE USO
-    1. Añade el equipo al grupo de exclusión en Intune y espera la aplicación de la política.
-    2. Ejecuta este script como Administrador en el dispositivo objetivo.
+.PARAMETER
+    Ninguno.
 
-.NOTAS
-    - Solo desactivará BitLocker en volúmenes donde esté habilitado.
-    - Se mostrará el progreso de cada unidad.
-    - Puedes ejecutar este script de manera local o como Platform Script en Intune.
-===============================================================
+.EXAMPLE
+    .\Script - Deshabilitar BitLocker.ps1
+
+.NOTES
+    Name: Script - Deshabilitar BitLocker.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 # Obtener todas las unidades con BitLocker habilitado

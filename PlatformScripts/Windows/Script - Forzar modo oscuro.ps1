@@ -1,32 +1,22 @@
 <#
-============================================================
-        Script: Activar modo oscuro en Windows 10/11
-------------------------------------------------------------
-Autor: Alejandro Suárez (@alexsf93)
-============================================================
+.SYNOPSIS
+    Activar modo oscuro en Windows 10/11.
 
-.DESCRIPCIÓN
-    Este script activa el **modo oscuro** tanto para el sistema como para las aplicaciones en Windows.
+.DESCRIPTION
+    Este script activa el modo oscuro tanto para el sistema como para las aplicaciones en Windows.
     Está pensado para ser usado en entornos gestionados con Microsoft Intune, pero puede ejecutarse manualmente también.
 
-.CONSIDERACIONES / REQUISITOS
-    1. **Permisos de Administrador:**  
-       Si no se ejecuta como admin, el script intentará auto-elevarse automáticamente.
-    2. **Exclusión en Intune:**  
-       Antes de desplegarlo, asegúrate de que el dispositivo esté en un grupo de exclusión de políticas que puedan sobrescribir el cambio de tema.
-    3. **Compatibilidad de idioma:**  
-       Detecta idioma del sistema (en-US, en-GB, de-DE) para ciertas variables, usa valores por defecto para otros idiomas.
-    4. **Uso de whitelist personalizada:**  
-       Puedes añadir una lista personalizada de apps a la variable `$customwhitelist` si tu flujo de trabajo lo requiere.
+.PARAMETER CustomWhitelist
+    Lista personalizada de aplicaciones a excluir (opcional).
 
-.EJEMPLO DE USO
-    # Desplegar como Platform Script en Intune:
+.EXAMPLE
     .\Script - Forzar modo oscuro.ps1
 
-.ADVERTENCIAS
-    - **Revisa el script antes de desplegarlo masivamente.**
-    - Ejecuta siempre bajo supervisión.
-
+.NOTES
+    Name: Script - Forzar modo oscuro.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 

@@ -1,36 +1,22 @@
 <#
-=====================================================================================================
-    REMEDIATION SCRIPT: CREAR O AJUSTAR LA TAREA "ScheduledTask-Inkoova-CleanUpdates"
------------------------------------------------------------------------------------------------------
-Este script instala y configura el idioma **en-US** como UI de Windows, mantiene formatos regionales
-en **es-ES**, y ajusta el teclado a Español (España). Está orientado a Intune Proactive Remediations.
+.SYNOPSIS
+    REMEDIATION SCRIPT: CONFIGURAR IDIOMA INGLÉS (en-US) Y TECLADO ESPAÑOL (ES)
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- PowerShell 5.1 o 7.x.
-- Ejecución con privilegios SYSTEM o administrador local.
-- Acceso a Windows Update para descargar paquetes de idioma/capacidades.
+.DESCRIPTION
+    Este script instala y configura el idioma **en-US** como UI de Windows, mantiene formatos regionales
+    en **es-ES**, y ajusta el teclado a Español (España). Está orientado a Intune Proactive Remediations.
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Usa Install-Language para instalar el paquete de idioma en-US.
-- Instala capacidades adicionales (Basic, OCR, Speech, TTS, Handwriting).
-- Configura UI en inglés (US).
-- Configura formatos de España (es-ES).
-- Configura teclado único en Español (España).
-- Copia configuraciones a Welcome Screen y nuevas cuentas.
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0) → Configuración aplicada correctamente.
-- "NOK" (exit code 1) → Error en instalación o configuración de idioma.
+.EXAMPLE
+    Executes as Intune Remediation Script.
 
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: Script Remediation - Idioma Inglés - Remediation.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 $want = "en-US"
@@ -38,18 +24,19 @@ $want = "en-US"
 # 1) Instalar paquete de idioma desde Windows Update
 try {
     Install-Language -Language $want -ErrorAction Stop
-} catch {
+}
+catch {
     Write-Error "Error instalando el paquete de idioma $want $_"
     exit 1
 }
 
 # 2) Instalar capacidades adicionales
 $caps = @(
-  "Language.Basic~~~en-US~0.0.1.0",
-  "Language.Handwriting~~~en-US~0.0.1.0",
-  "Language.OCR~~~en-US~0.0.1.0",
-  "Language.Speech~~~en-US~0.0.1.0",
-  "Language.TextToSpeech~~~en-US~0.0.1.0"
+    "Language.Basic~~~en-US~0.0.1.0",
+    "Language.Handwriting~~~en-US~0.0.1.0",
+    "Language.OCR~~~en-US~0.0.1.0",
+    "Language.Speech~~~en-US~0.0.1.0",
+    "Language.TextToSpeech~~~en-US~0.0.1.0"
 )
 foreach ($c in $caps) {
     try { Add-WindowsCapability -Online -Name $c -ErrorAction SilentlyContinue | Out-Null } catch {}

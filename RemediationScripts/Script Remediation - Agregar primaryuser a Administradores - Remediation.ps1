@@ -1,41 +1,22 @@
 <#
-=====================================================================================================
-    REMEDIATION SCRIPT: AÑADIR “PRIMARY USER” AL GRUPO DE ADMINISTRADORES LOCALES
------------------------------------------------------------------------------------------------------
-Este script añade el "primary user" (usuario más frecuente o último logueado) al grupo de 
-administradores locales si aún no lo está. Está pensado para usarse en conjunto con reglas 
-de detección y remediación en entornos gestionados con Intune u otras plataformas MDM.
+.SYNOPSIS
+    REMEDIATION SCRIPT: AÑADIR "PRIMARY USER" AL GRUPO DE ADMINISTRADORES LOCALES
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- Debe ejecutarse con permisos SYSTEM o con privilegios de administrador local.
-- Compatible con PowerShell 5.1 o superior.
-- El cmdlet `Add-LocalGroupMember` debe estar disponible.
+.DESCRIPTION
+    Este script añade el "primary user" (usuario más frecuente o último logueado) al grupo de 
+    administradores locales si aún no lo está.
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Obtiene el "primary user" del dispositivo (usuario con más sesiones o último logueado).
-- Verifica si el usuario ya pertenece al grupo de administradores locales.
-- Si no pertenece, lo añade al grupo "Administradores" (o "Administrators" en sistemas en inglés).
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0 implícito) → El usuario se añade correctamente o ya pertenece al grupo.
-- "NOK" (mensajes en salida estándar) → No se pudo añadir al grupo de administradores.
+.EXAMPLE
+    Executes as Intune Remediation Script.
 
------------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------------
-- Ejecutar como parte de una Remediation Script en Intune.
-- Asegurarse de combinarlo con el script de detección correspondiente.
-- Revisar la salida del script para confirmar si la acción se aplicó.
-
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: Script Remediation - Agregar primaryuser a Administradores - Remediation.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 # 1. Obtener el primary user como en el detection
@@ -46,7 +27,8 @@ if (-not $users) {
     if ($primaryUser) {
         $primaryUser = $primaryUser -replace "^.+\\", ""
     }
-} else {
+}
+else {
     $primaryUser = $users -replace "^.+\\", ""
 }
 
@@ -54,10 +36,12 @@ if ($primaryUser) {
     # 2. Añadirlo como administrador local (soporta dominio/local/AAD)
     try {
         Add-LocalGroupMember -Group "Administradores" -Member $primaryUser -ErrorAction Stop
-    } catch {
+    }
+    catch {
         try {
             Add-LocalGroupMember -Group "Administrators" -Member $primaryUser -ErrorAction Stop
-        } catch {
+        }
+        catch {
             Write-Host "No se pudo añadir a $primaryUser al grupo de administradores locales."
         }
     }

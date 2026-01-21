@@ -1,21 +1,31 @@
 <#
-=====================================================================================================
+.SYNOPSIS
     SCRIPT: CREAR TAREA PROGRAMADA PARA WINGET UPGRADE (OCULTA, VIERNES 12:00)
------------------------------------------------------------------------------------------------------
-Crea o actualiza la tarea "ScheduledTask-Inkoova-WingetUpgradeSoftware" que ejecuta:
 
-winget upgrade --all --silent --accept-source-agreements --accept-package-agreements --disable-interactivity
+.DESCRIPTION
+    Crea o actualiza la tarea "ScheduledTask-Inkoova-WingetUpgradeSoftware" que ejecuta:
+    winget upgrade --all --silent --accept-source-agreements --accept-package-agreements --disable-interactivity
+    Ejecuta en el contexto del usuario logeado, cada viernes a las 12:00,
+    sin mostrar ventana, y guarda la salida en: C:\Winget_Upgrade.log
 
-Ejecuta en el contexto del usuario logeado, cada viernes a las 12:00,
-sin mostrar ventana, y guarda la salida en: C:\Winget_Upgrade.log
-=====================================================================================================
+.PARAMETER
+    Ninguno.
+
+.EXAMPLE
+    Executes as Intune Remediation Script.
+
+.NOTES
+    Name: COMPROBAR_Script Remediation - ScheduledTask WingetUpgrade_Software - Remediation.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $TaskName = 'ScheduledTask-Inkoova-WingetUpgradeSoftware'
-$LogPath  = 'C:\Winget_Upgrade.log'
+$LogPath = 'C:\Winget_Upgrade.log'
 
 # Comando PowerShell que se ejecutará de forma oculta
 $PsCommand = @"
@@ -39,8 +49,8 @@ $Principal = New-ScheduledTaskPrincipal -GroupId 'S-1-5-32-545' -RunLevel Highes
 
 # Configuración de la tarea
 $Settings = New-ScheduledTaskSettingsSet `
-  -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable `
-  -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 6) -Hidden
+    -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable `
+    -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 6) -Hidden
 
 # Crear o actualizar la tarea
 try {
@@ -49,7 +59,7 @@ try {
     }
 
     Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger `
-      -Settings $Settings -Principal $Principal | Out-Null
+        -Settings $Settings -Principal $Principal | Out-Null
 
     Write-Host "Tarea '$TaskName' creada o actualizada correctamente."
     Write-Host "Se ejecutará cada viernes a las 12:00 sin mostrar ventana."

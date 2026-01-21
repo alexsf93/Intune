@@ -1,25 +1,15 @@
 #!/bin/bash
-# ===============================================================
-#      Script: Verificar, instalar y habilitar SSH en Ubuntu Desktop
-# ---------------------------------------------------------------
-#      Autor: Alejandro Suárez (@alexsf93)
-# ===============================================================
-#
-# DESCRIPCIÓN:
-#     Verifica si el servicio SSH está instalado, lo instala si es necesario,
-#     y asegura que esté activo y habilitado en Ubuntu Desktop 24.04.
-#     Pensado para ejecución automática mediante Microsoft Intune.
-#
-# INSTRUCCIONES DE USO:
-#     1. Asigna este script como Shell Script en Intune a los dispositivos objetivo.
-#     2. El script debe ejecutarse como root (Intune ejecuta los scripts con privilegios).
-#
-# NOTAS:
-#     - Guarda el log en /var/log/ssh_deployment.log
-#     - Compatible con Ubuntu Desktop 24.04 (adaptable a versiones similares).
-#     - No afecta la configuración personalizada de SSH (solo instala y habilita el servicio).
-#
-# ===============================================================
+
+# ==============================================================================
+# Nombre:       Script - Check SSH.sh
+# Descripción:  Verifica si el servicio SSH está instalado, lo instala si es necesario,
+#               y asegura que esté activo y habilitado en Ubuntu Desktop 24.04.
+#               Pensado para ejecución automática mediante Microsoft Intune.
+# Autor:        Alejandro Suárez (@alexsf93)
+# Versión:      1.0.0
+# Uso:          ./Script - Check SSH.sh
+# Notas:        Guarda el log en /var/log/ssh_deployment.log. Compatible con Ubuntu Desktop.
+# ==============================================================================
 
 # Definir archivo de log
 LOG_FILE="/var/log/ssh_deployment.log"

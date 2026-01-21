@@ -1,24 +1,14 @@
 #!/bin/bash
-# ===============================================================
-#      Script: Verificar e instalar Visual Studio Code en Ubuntu
-# ---------------------------------------------------------------
-#      Autor: Alejandro Suárez (@alexsf93)
-# ===============================================================
-#
-# DESCRIPCIÓN:
-#     Comprueba si Visual Studio Code está instalado (por binario, DEB o Snap).
-#     Si no está presente, lo instala desde el repositorio oficial de Microsoft.
-#
-# INSTRUCCIONES DE USO:
-#     1. Ejecuta este script como root en un sistema Ubuntu Desktop.
-#     2. Recomendado para despliegue mediante Microsoft Intune.
-#
-# NOTAS:
-#     - Compatible con Ubuntu Desktop 20.04, 22.04, 24.04 y derivadas.
-#     - Detecta y evita instalaciones duplicadas (idempotente).
-#     - No elimina versiones Snap, Flatpak ni VSCodium, pero las detecta.
-#
-# ===============================================================
+
+# ==============================================================================
+# Nombre:       Script - Detectar e Instalar VSCode.sh
+# Descripción:  Comprueba si Visual Studio Code está instalado (por binario, DEB o Snap).
+#               Si no está presente, lo instala desde el repositorio oficial de Microsoft.
+# Autor:        Alejandro Suárez (@alexsf93)
+# Versión:      1.0.0
+# Uso:          ./Script - Detectar e Instalar VSCode.sh
+# Notas:        Compatible con Ubuntu Desktop 20.04+. Detecta instalaciones tipo Snap/Flatpak para evitar duplicados.
+# ==============================================================================
 set -e
 
 # Buscar VS Code binario

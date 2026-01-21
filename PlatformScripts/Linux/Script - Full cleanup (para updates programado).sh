@@ -1,41 +1,15 @@
 #!/bin/bash
-# ===============================================================
-#      Script: Script - Full cleanup (para updates) (Linux)
-# ---------------------------------------------------------------
-#      Autor: Alejandro Suárez (@alexsf93)
-# ===============================================================
-#
-# DESCRIPCIÓN:
-#     Limpia silenciosamente en Linux únicamente artefactos
-#     de actualizaciones obsoletos y recreables:
-#       - Cachés/descargas de gestores de paquetes (APT/DNF/YUM/
-#         Zypper/Pacman/APK) y metadatos de PackageKit
-#       - Revisiones antiguas de Snap y Flatpak sin uso
-#       - Journal de systemd (vacuum prudente)
-#     Crea una tarea temporal one-shot:
-#       - Preferencia: 'systemd-run' TRANSIENTE (no deja unidad en disco)
-#       - Alternativa: unidad .service temporal en /etc/systemd/system
-#       - Sin systemd: ejecuta limpieza directa
-#     Tras completar, elimina el binario auxiliar y (si aplica) la unidad.
-#
-# INSTRUCCIONES DE USO:
-#     1. Guarda este archivo con el nombre que desees, por ejemplo:
-#          Script - Full cleanup (para updates) (Linux)
-#     2. Concede permisos de ejecución:
-#          chmod +x "Script - Full cleanup (para updates) (Linux)"
-#     3. Ejecútalo como root (instala y lanza tarea one-shot):
-#          sudo "./Script - Full cleanup (para updates) (Linux)"
-#     4. Para ejecutar la limpieza directamente (sin crear tarea):
-#          sudo "./Script - Full cleanup (para updates) (Linux)" --run
-#
-# NOTAS:
-#     - Log de la limpieza:
-#         /var/log/cleanup_linux_updates.log
-#     - Con systemd puedes ver salida con:
-#         journalctl -u com.inkoova.cleanup.updates.<uuid>.service
-#     - Por diseño, sólo se toca contenido recreable de updates.
-#
-# ===============================================================
+
+# ==============================================================================
+# Nombre:       Script - Full cleanup (para updates programado).sh
+# Descripción:  Limpia silenciosamente en Linux artefactos de actualizaciones obsoletos
+#               y recreables (APT, DNF, Snap, Flatpak, Journal).
+#               Crea una tarea temporal one-shot (systemd) para la limpieza.
+# Autor:        Alejandro Suárez (@alexsf93)
+# Versión:      1.0.0
+# Uso:          ./Script - Full cleanup (para updates programado).sh [--run]
+# Notas:        Log en /var/log/cleanup_linux_updates.log. Usa systemd-run transient si es posible.
+# ==============================================================================
 
 set -euo pipefail
 

@@ -1,42 +1,23 @@
 <#
-=====================================================================================================
+.SYNOPSIS
     REMEDIATION SCRIPT: DESINSTALAR DROPBOX
------------------------------------------------------------------------------------------------------
-Este script elimina la aplicación **Dropbox** instalada como AppxPackage en sistemas Windows. 
-Está pensado para escenarios de remediación, despliegue con Intune o automatizaciones de limpieza 
-en dispositivos gestionados.
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- Compatible con PowerShell 5.1 y 7.x.
-- Recomendado ejecutarlo con privilegios de administrador o SYSTEM.
-- Acceso al cmdlet `Remove-AppxPackage`.
+.DESCRIPTION
+    Este script elimina la aplicación **Dropbox** instalada como AppxPackage en sistemas Windows.
+    Está pensado para escenarios de remediación, despliegue con Intune o automatizaciones de limpieza 
+    en dispositivos gestionados.
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Genera un script temporal en "C:\UninstallDropbox.ps1" que ejecuta la desinstalación de Dropbox.
-- Lanza el script temporal con ExecutionPolicy Bypass para evitar bloqueos de ejecución.
-- Una vez finalizado, elimina el script temporal para no dejar rastro en el sistema.
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0 implícito) → Dropbox desinstalado correctamente o no presente.
-- Mensajes en salida estándar → Solo si ocurre algún error durante la desinstalación.
+.EXAMPLE
+    Executes as Intune Remediation Script.
 
------------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------------
-- Ejecutar con:
-      powershell.exe -ExecutionPolicy Bypass -File .\Remediation-Dropbox.ps1
-- Integrar como Remediation Script en Intune/MEM para desinstalar Dropbox de forma automática.
-- No requiere interacción manual, funciona de manera silenciosa.
-
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: Script Remediation - Desinstalar Dropbox - Remediation.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 # Define la ruta del script temporal

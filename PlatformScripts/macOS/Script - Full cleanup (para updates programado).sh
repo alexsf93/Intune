@@ -1,39 +1,17 @@
 #!/bin/bash
-# ===============================================================
-#      Script: Script - Full cleanup (para updates) (macOS)
-# ---------------------------------------------------------------
-#      Autor: Alejandro Suárez (@alexsf93)
-# ===============================================================
-#
-# DESCRIPCIÓN:
-#     Limpia silenciosamente en macOS únicamente artefactos de
-#     actualizaciones obsoletos y recreables:
-#       - Descargas de softwareupdate en /Library/Updates
-#       - Caches de softwareupdate bajo /private/var/folders
-#       - Caches de softwareupdate por usuario (si existieran)
-#     Se ejecuta mediante una tarea temporal (LaunchDaemon one-shot)
-#     Tras completar, también elimina el binario auxiliar que se autocopia.
-#
-# INSTRUCCIONES DE USO:
-#     1. Guarda este archivo exactamente con el nombre:
-#          Script - Full cleanup (para updates)
-#     2. Concede permisos de ejecución:
-#          chmod +x "Script - Full cleanup (para updates)"
-#     3. Ejecútalo como root (instala y lanza la tarea one-shot):
-#          sudo "./Script - Full cleanup (para updates)"
-#     4. Para ejecutar la limpieza directamente (sin crear tarea):
-#          sudo "./Script - Full cleanup (para updates)" --run
-#
-# NOTAS:
-#     - Log de la limpieza:
-#         /var/log/cleanup_macos.log
-#     - Logs del LaunchDaemon:
-#         /var/log/inkoova_cleanup.stdout.log
-#         /var/log/inkoova_cleanup.stderr.log
-#     - Compatible con macOS 11+ (Big Sur o superior).
-#     - No modifica recibos ni preferencias del sistema.
-#
-# ===============================================================
+
+# ==============================================================================
+# Nombre:       Script - Full cleanup (para updates programado).sh
+# Descripción:  Limpia silenciosamente en macOS únicamente artefactos de
+#               actualizaciones obsoletos y recreables:
+#                 - Descargas de softwareupdate en /Library/Updates
+#                 - Caches de softwareupdate bajo /private/var/folders
+#               Se ejecuta mediante una tarea temporal (LaunchDaemon one-shot).
+# Autor:        Alejandro Suárez (@alexsf93)
+# Versión:      1.0.0
+# Uso:          ./Script - Full cleanup (para updates programado).sh [--run]
+# Notas:        Log limpieza: /var/log/cleanup_macos.log. Log daemon: /var/log/inkoova_cleanup.*.log.
+# ==============================================================================
 
 set -euo pipefail
 

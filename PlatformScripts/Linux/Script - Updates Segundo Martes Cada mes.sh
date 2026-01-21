@@ -1,25 +1,15 @@
 #!/bin/bash
-# ===============================================================
-#      Script: Actualización mensual alineada al segundo martes
-# ---------------------------------------------------------------
-#      Autor: Alejandro Suárez (@alexsf93)
-# ===============================================================
-#
-# DESCRIPCIÓN:
-#     Ejecuta la actualización del sistema (apt update/upgrade/autoremove) solo
-#     si es el segundo martes del mes, registrando todo en /var/log/intune.log.
-#     Pensado para su uso en despliegues automatizados con Microsoft Intune.
-#
-# INSTRUCCIONES DE USO:
-#     1. Asigna este script como Shell Script en Intune para Ubuntu Desktop.
-#     2. El script debe ejecutarse como root (Intune ejecuta scripts con privilegios).
-#
-# NOTAS:
-#     - Guarda todos los eventos y errores detallados en /var/log/intune.log.
-#     - Compatible con Ubuntu Desktop 20.04, 22.04, 24.04 y derivadas.
-#     - Solo ejecuta la actualización si coincide con el segundo martes del mes.
-#
-# ===============================================================
+
+# ==============================================================================
+# Nombre:       Script - Updates Segundo Martes Cada mes.sh
+# Descripción:  Ejecuta la actualización del sistema (apt update/upgrade/autoremove) solo
+#               si es el segundo martes del mes, registrando todo en /var/log/intune.log.
+#               Pensado para su uso en despliegues automatizados con Microsoft Intune.
+# Autor:        Alejandro Suárez (@alexsf93)
+# Versión:      1.0.0
+# Uso:          ./Script - Updates Segundo Martes Cada mes.sh
+# Notas:        Log: /var/log/intune.log. Compatible con Ubuntu Desktop.
+# ==============================================================================
 
 # Script profesional para la actualización mensual alineada al segundo martes, con registro detallado en /var/log/intune.log
 

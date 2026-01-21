@@ -1,48 +1,22 @@
 <#
-=====================================================================================================
+.SYNOPSIS
     DETECTION SCRIPT: VERSIÓN DE INTUNE MANAGEMENT EXTENSION (IME) DESACTUALIZADA O CORRUPTA
------------------------------------------------------------------------------------------------------
-Este script compara la versión instalada localmente de **Intune Management Extension (IME)** con la 
-versión incluida en el instalador MSI oficial descargado desde Microsoft.  
 
-Sirve para detectar instalaciones desactualizadas o corruptas de IME en dispositivos gestionados, 
-lo que puede impactar en la ejecución de políticas, scripts y remediaciones en Intune.
+.DESCRIPTION
+    Este script compara la versión instalada localmente de **Intune Management Extension (IME)** con la 
+    versión incluida en el instalador MSI oficial descargado desde Microsoft.
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- Compatible con PowerShell 5.1 y 7.x.
-- Requiere conectividad a Internet para descargar el MSI oficial de IME.
-- Acceso a COM objects (`WindowsInstaller.Installer`) para extraer la versión del MSI.
-- Permisos de lectura en:
-    * C:\Program Files (x86)\Microsoft Intune Management Extension\
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Descarga el instalador oficial de IME desde la CDN de Microsoft.
-- Extrae la versión del MSI descargado.
-- Obtiene la versión de IME instalada localmente desde su ejecutable.
-- Compara ambas versiones:
-  * Exit code 0 → La versión local está actualizada o coincide con la del MSI.
-  * Exit code 1 → La versión local es inferior, corrupta, no existe o hubo error en la comprobación.
+.EXAMPLE
+    Executes as Intune Detection Script.
 
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0) → IME está instalado y actualizado.
-- "NOK" (exit code 1) → IME no está instalado, está corrupto, o está desactualizado respecto al MSI.
-
------------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------------
-- Ejecutar como Detection Script en Intune para validar la instalación de IME.
-- Usar junto a un script de remediación que reinstale IME si se detecta estado NOK.
-- Revisar la salida estándar para logs de versión local, versión MSI y resultado de comparación.
-
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: Script Remediation - IME - Detection.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 Function Get-MsiVersion($msiPath) {
@@ -57,7 +31,8 @@ Function Get-MsiVersion($msiPath) {
             $version = $record.GetType().InvokeMember("StringData", "GetProperty", $null, $record, 1)
         }
         return $version
-    } catch {
+    }
+    catch {
         Write-Output "Error extrayendo versión del MSI: $($_.Exception.Message)"
         return $null
     }
@@ -71,7 +46,8 @@ try {
     Write-Output "Descargando MSI de IME..."
     Invoke-WebRequest -Uri $installerUrl -OutFile $tempMsi -UseBasicParsing -ErrorAction Stop
     Write-Output "MSI descargado en $tempMsi"
-} catch {
+}
+catch {
     Write-Output "Error descargando MSI de IME: $($_.Exception.Message)"
     if (Test-Path $tempMsi) { Remove-Item $tempMsi -Force -ErrorAction SilentlyContinue }
     Exit 1
@@ -93,7 +69,8 @@ $msiVerLimpio = $null
 if ($msiVer -match '(\d+\.\d+\.\d+\.\d+)') {
     $msiVerLimpio = $matches[1]
     Write-Output "Versión numérica limpia del MSI: '$msiVerLimpio'"
-} else {
+}
+else {
     Write-Output "No se pudo extraer versión numérica limpia del MSI: '$msiVer'"
     if (Test-Path $tempMsi) { Remove-Item $tempMsi -Force -ErrorAction SilentlyContinue }
     Exit 1
@@ -107,12 +84,14 @@ if (Test-Path $imePath) {
     if ($localVerFull -match '(\d+\.\d+\.\d+\.\d+)') {
         $localVerLimpio = $matches[1]
         Write-Output "Versión local numérica limpia: '$localVerLimpio'"
-    } else {
+    }
+    else {
         Write-Output "No se pudo extraer versión local numérica: $localVerFull"
         if (Test-Path $tempMsi) { Remove-Item $tempMsi -Force -ErrorAction SilentlyContinue }
         Exit 1
     }
-} else {
+}
+else {
     Write-Output "IME no instalado"
     if (Test-Path $tempMsi) { Remove-Item $tempMsi -Force -ErrorAction SilentlyContinue }
     Exit 1
@@ -127,12 +106,14 @@ if ($localVerLimpio -and $msiVerLimpio) {
             if (Test-Path $tempMsi) { Remove-Item $tempMsi -Force -ErrorAction SilentlyContinue }
             Exit 1
         }
-    } catch {
+    }
+    catch {
         Write-Output "Error comparando versiones: $localVerLimpio / $msiVerLimpio"
         if (Test-Path $tempMsi) { Remove-Item $tempMsi -Force -ErrorAction SilentlyContinue }
         Exit 1
     }
-} else {
+}
+else {
     Write-Output "No se pudo obtener una versión válida para comparar. Local='$localVerLimpio', MSI='$msiVerLimpio'"
     if (Test-Path $tempMsi) { Remove-Item $tempMsi -Force -ErrorAction SilentlyContinue }
     Exit 1

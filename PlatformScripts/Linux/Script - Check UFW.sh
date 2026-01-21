@@ -1,26 +1,15 @@
 #!/bin/bash
-# ===============================================================
-#      Script: Verificar, instalar y habilitar UFW en Linux
-# ---------------------------------------------------------------
-#      Autor: Alejandro Suárez (@alexsf93)
-# ===============================================================
-#
-# DESCRIPCIÓN:
-#     Verifica si el firewall UFW está instalado en el sistema Linux.
-#     Si no está instalado, lo instala automáticamente.
-#     Si no está habilitado, configura las reglas básicas y lo habilita.
-#
-# INSTRUCCIONES DE USO:
-#     1. Ejecuta este script como root (o con sudo) en la máquina objetivo.
-#     2. Es compatible con múltiples gestores de paquetes (apt, dnf, yum, pacman, zypper).
-#     3. Ideal para despliegue mediante Microsoft Intune en entornos mixtos de Linux.
-#
-# NOTAS:
-#     - Permite conexiones SSH antes de habilitar UFW para no perder acceso remoto.
-#     - Puedes agregar más reglas personalizadas según tus necesidades.
-#     - Muestra el estado final del firewall tras la ejecución.
-#
-# ===============================================================
+
+# ==============================================================================
+# Nombre:       Script - Check UFW.sh
+# Descripción:  Verifica si el firewall UFW está instalado en el sistema Linux.
+#               Si no está instalado, lo instala automáticamente.
+#               Si no está habilitado, configura las reglas básicas y lo habilita.
+# Autor:        Alejandro Suárez (@alexsf93)
+# Versión:      1.0.0
+# Uso:          ./Script - Check UFW.sh
+# Notas:        Permite conexiones SSH antes de habilitar UFW. Compatible con apt, dnf, yum, pacman, zypper.
+# ==============================================================================
 
 echo "Verificando UFW..."
 

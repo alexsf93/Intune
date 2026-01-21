@@ -1,47 +1,26 @@
 <#
-=====================================================================================================
+.SYNOPSIS
     REMEDIATION SCRIPT: CREAR O AJUSTAR LA TAREA "ScheduledTask-Inkoova-CleanUpdates"
------------------------------------------------------------------------------------------------------
-Este script crea o corrige la tarea programada **ScheduledTask-Inkoova-CleanUpdates** para ejecutar
-la limpieza de actualizaciones con **cleanmgr** en todas las unidades del equipo. Está orientado a
-Intune Proactive Remediations en dispositivos gestionados.
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- PowerShell 5.1 o 7.x.
-- Ejecución con privilegios SYSTEM o administrador local.
-- Herramienta `cleanmgr.exe` disponible (Windows).
-- Permisos de escritura en `C:\ProgramData\Inkoova\` y en `C:\`.
+.DESCRIPTION
+    Este script crea o corrige la tarea programada **ScheduledTask-Inkoova-CleanUpdates** para ejecutar
+    la limpieza de actualizaciones con **cleanmgr** en todas las unidades del equipo. Está orientado a
+    Intune Proactive Remediations en dispositivos gestionados.
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Establece un preset de `cleanmgr` (StateFlags).
-- Recorre todas las unidades fijas y ejecuta `cleanmgr /sagerun:<Preset>`.
-- Registra la acción y resultado en un log local.
-- Copia el propio script a `C:\ProgramData\Inkoova\CleanUpdates.ps1`.
-- Crea/actualiza la tarea programada que ejecuta el script con `-RunCleanup`.
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0) → Limpieza ejecutada correctamente o tarea registrada/actualizada con éxito.
-- "NOK" (exit code 1) → Error al crear/actualizar la tarea programada.
+.EXAMPLE
+    Executes as Intune Remediation Script.
 
------------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------------
-- Ejecutar manualmente con `-RunCleanup` para limpiar en el momento.
-- Ejecutar sin parámetros para registrar/actualizar la tarea programada.
-- Ajustar la hora/frecuencia del trigger según la política de la organización.
-
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: Script Remediation - ScheduledTask Cleanup_Updates - Remediation.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
-[CmdletBinding(SupportsShouldProcess=$true)]
+[CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [switch]$RunCleanup
 )
@@ -49,11 +28,11 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$TaskName      = 'ScheduledTask-Inkoova-CleanUpdates'
+$TaskName = 'ScheduledTask-Inkoova-CleanUpdates'
 $CompanyFolder = Join-Path $env:ProgramData 'Inkoova'
-$ScriptTarget  = Join-Path $CompanyFolder 'CleanUpdates.ps1'
-$LogPath       = 'C:\Limpieza_cleanmgr.log'
-$Preset        = 9999
+$ScriptTarget = Join-Path $CompanyFolder 'CleanUpdates.ps1'
+$LogPath = 'C:\Limpieza_cleanmgr.log'
+$Preset = 9999
 
 function Write-Log($msg) {
     $line = "[{0}] {1}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $msg
@@ -61,24 +40,26 @@ function Write-Log($msg) {
     try { Add-Content -Path $LogPath -Value $line -Encoding UTF8 } catch {}
 }
 
-function Ensure-Preset {
+function Set-CleanMgrPreset {
     $vcKey = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches'
     Get-ChildItem $vcKey | ForEach-Object {
         try {
             New-ItemProperty -Path $_.PSPath -Name ("StateFlags{0}" -f $Preset) -Value 2 -PropertyType DWord -Force | Out-Null
-        } catch {}
+        }
+        catch {}
     }
 }
 
-function Run-CleanMgr-AllFixed {
-    Ensure-Preset
-    $fixed = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.DisplayRoot -eq $null -and $_.Root -match '^[A-Z]:\\$' }
+function Invoke-CleanMgrAllFixed {
+    Set-CleanMgrPreset
+    $fixed = Get-PSDrive -PSProvider FileSystem | Where-Object { $null -eq $_.DisplayRoot -and $_.Root -match '^[A-Z]:\\$' }
     foreach ($d in $fixed) {
-        $letter = $d.Root.Substring(0,1)
+        $letter = $d.Root.Substring(0, 1)
         try {
             Start-Process -FilePath 'cleanmgr.exe' -ArgumentList "/d $letter /sagerun:$Preset" -WindowStyle Hidden -Wait
             Write-Log "Finalizado cleanmgr en ${letter}:"
-        } catch {
+        }
+        catch {
             Write-Log "Error en ${letter}: $($_.Exception.Message)"
         }
     }
@@ -87,7 +68,7 @@ function Run-CleanMgr-AllFixed {
 
 # 1. Si se ejecuta con -RunCleanup, lanzar limpieza directamente
 if ($RunCleanup) {
-    Run-CleanMgr-AllFixed
+    Invoke-CleanMgrAllFixed
     exit 0
 }
 
@@ -96,14 +77,15 @@ if (-not (Test-Path $CompanyFolder)) { New-Item -ItemType Directory -Path $Compa
 $currentPath = $MyInvocation.MyCommand.Path
 if ($currentPath -and $currentPath -ne $ScriptTarget) {
     Copy-Item -Path $currentPath -Destination $ScriptTarget -Force
-} elseif (-not (Test-Path $ScriptTarget) -and $currentPath) {
+}
+elseif (-not (Test-Path $ScriptTarget) -and $currentPath) {
     Copy-Item -Path $currentPath -Destination $ScriptTarget -Force
 }
 
 # 3. Definir acción, trigger, settings y principal para la tarea
-$action    = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$ScriptTarget`" -RunCleanup"
-$trigger   = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Friday -At "11:00"
-$settings  = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 6)
+$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$ScriptTarget`" -RunCleanup"
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Friday -At "11:00"
+$settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 6)
 $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
 
 # 4. Registrar la tarea (si existe, eliminar primero)
@@ -113,7 +95,8 @@ try {
     }
     Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal | Out-Null
     Write-Log "Tarea '$TaskName' creada o actualizada correctamente."
-} catch {
+}
+catch {
     Write-Log "ERROR creando la tarea: $($_.Exception.Message)"
     exit 1
 }

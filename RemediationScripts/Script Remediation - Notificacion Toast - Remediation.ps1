@@ -1,43 +1,23 @@
 <#
-=====================================================================================================
+.SYNOPSIS
     NOTIFICATION SCRIPT: CREACIÓN DE ACCESO DIRECTO + TOAST CON BURNTTOAST
------------------------------------------------------------------------------------------------------
-Este script crea dinámicamente un acceso directo en el Menú Inicio con un AppUserModelId específico,
-descarga las imágenes necesarias y muestra una notificación moderna (Toast) usando BurntToast con un
-mensaje personalizado. Al finalizar, limpia el acceso directo y los elementos temporales.
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- PowerShell 5.1 o 7.x.
-- Permisos de usuario para crear accesos directos en el Menú Inicio.
-- Acceso a Internet para descargar imágenes y el módulo BurntToast (si no está instalado).
-- Módulo BurntToast disponible o instalable en el ámbito CurrentUser.
+.DESCRIPTION
+    Este script crea dinámicamente un acceso directo en el Menú Inicio con un AppUserModelId específico,
+    descarga las imágenes necesarias y muestra una notificación moderna (Toast) usando BurntToast con un
+    mensaje personalizado. Al finalizar, limpia el acceso directo y los elementos temporales.
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Crea un acceso directo temporal en el Menú Inicio para registrar la AppUserModelId.
-- Descarga el logo y (opcionalmente) la hero image.
-- Importa/instala el módulo BurntToast y lanza un Toast con título, mensaje e imágenes.
-- Elimina el acceso directo temporal y limpia claves/archivos asociados.
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0 implícito) → Notificación mostrada y limpieza realizada (si procede).
-- Mensajes en salida estándar → Informan del progreso, incidencias y acciones realizadas.
+.EXAMPLE
+    Executes as Intune Remediation Script.
 
------------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------------
-- Personalizar `$title` y `$message` según el caso de uso.
-- Ejecutar como script de usuario, tarea de compliance o remediación en Intune.
-- Verificar conectividad a Internet y permisos de usuario para la instalación de módulos y descarga.
-
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: Script Remediation - Notificacion Toast - Remediation.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 Add-Type -AssemblyName System.Runtime.InteropServices
@@ -230,9 +210,9 @@ Import-Module BurntToast -ErrorAction Stop
 
 # Preparar parámetros notificación
 $params = @{
-    Text = @($title, $message)
+    Text    = @($title, $message)
     AppLogo = $appLogoPath
-    AppId = $foundAppId
+    AppId   = $foundAppId
 }
 
 if ($useHeroImage -eq 1) {

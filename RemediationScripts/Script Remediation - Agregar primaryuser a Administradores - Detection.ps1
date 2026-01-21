@@ -1,43 +1,22 @@
 <#
-=====================================================================================================
-    DETECTION SCRIPT: ¿ES EL “PRIMARY USER” ADMINISTRADOR LOCAL? (INTUNE COMPATIBLE)
------------------------------------------------------------------------------------------------------
-Este script detecta si el usuario principal ("primary user") del dispositivo pertenece al grupo de 
-administradores locales. Está pensado para usarse en escenarios de compliance o remediaciones 
-proactivas con Microsoft Intune en dispositivos gestionados.
+.SYNOPSIS
+    DETECTION SCRIPT: ¿ES EL "PRIMARY USER" ADMINISTRADOR LOCAL?
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- Debe ejecutarse con privilegios de administrador/SYSTEM.
-- Compatible con PowerShell 5.1 o superior.
-- Requiere acceso a los grupos locales del sistema.
+.DESCRIPTION
+    Este script detecta si el usuario principal ("primary user") del dispositivo pertenece al grupo de 
+    administradores locales. 
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Obtiene el usuario más habitual del dispositivo (“primary user” aproximado).
-- Comprueba si el usuario está en el grupo de administradores locales.
-- Devuelve:
-  * Exit code 0 → El usuario es administrador o no hay usuario detectado.
-  * Exit code 1 → El usuario no es administrador.
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0) → El primary user ya es administrador local o no se ha podido determinar usuario.
-- "NOK" (exit code 1) → El primary user no es administrador local.
+.EXAMPLE
+    Executes as Intune Detection Script.
 
------------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------------
-- Usar como Detection Rule en Intune u otras plataformas de compliance.
-- Interpretar los códigos de salida para decidir si aplicar un script de remediación.
-- Debe ejecutarse en contexto SYSTEM para garantizar una detección correcta.
-
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: Script Remediation - Agregar primaryuser a Administradores - Detection.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 # 1. Obtener el usuario con más sesiones (aproximación "primary user")
@@ -49,7 +28,8 @@ if (-not $users) {
     if ($primaryUser) {
         $primaryUser = $primaryUser -replace "^.+\\", "" # Solo el nombre, sin dominio
     }
-} else {
+}
+else {
     $primaryUser = $users -replace "^.+\\", "" # Solo el nombre, sin dominio
 }
 
@@ -63,6 +43,7 @@ $alreadyAdmin = $localAdmins -contains $primaryUser
 
 if ($alreadyAdmin) {
     Exit 0  # Ya es administrador
-} else {
+}
+else {
     Exit 1  # No es administrador, requiere remediation
 }

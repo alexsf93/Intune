@@ -1,47 +1,24 @@
 <#
-=====================================================================================================
+.SYNOPSIS
     DETECTION SCRIPT: PLANES DE ENERGÍA HABITUALES EN WINDOWS
------------------------------------------------------------------------------------------------------
-Este script detecta si los planes de energía estándar de Windows están presentes en el sistema:
 
-- Equilibrado (Balanced)
-- Alto rendimiento (High Performance)
-- Economizador (Power Saver)
+.DESCRIPTION
+    Este script detecta si los planes de energía estándar de Windows están presentes en el sistema:
+    - Equilibrado (Balanced)
+    - Alto rendimiento (High Performance)
+    - Economizador (Power Saver)
 
-Está diseñado para ejecutarse con privilegios SYSTEM (por ejemplo, vía Intune) y
-activar la remediación en caso de que falte alguno de los planes estándar.
+.PARAMETER
+    Ninguno.
 
------------------------------------------------------------------------------------------------------
-REQUISITOS
------------------------------------------------------------------------------------------------------
-- PowerShell 5.1 o 7.x.
-- Ejecución como SYSTEM o administrador local.
-- Herramienta de línea de comandos `powercfg` disponible (Windows).
+.EXAMPLE
+    Executes as Intune Detection Script.
 
------------------------------------------------------------------------------------------------------
-¿CÓMO FUNCIONA?
------------------------------------------------------------------------------------------------------
-- Define los GUIDs de los planes estándar.
-- Obtiene los planes de energía instalados en el sistema (usando regex para ser independiente del idioma).
-- Compara los planes instalados con los requeridos.
-
------------------------------------------------------------------------------------------------------
-RESULTADOS
------------------------------------------------------------------------------------------------------
-- "OK" (exit code 0) → Todos los planes estándar están presentes.
-- "NOK" (exit code 1) → Falta al menos uno de los planes estándar.
-
------------------------------------------------------------------------------------------------------
-INSTRUCCIONES DE USO
------------------------------------------------------------------------------------------------------
-- Ejecutar con permisos SYSTEM para garantizar la detección correcta.
-- Usar como Detection Rule en Intune u otros sistemas que interpreten exit codes.
-- Un exit code 0 indica que los planes de energía estándar están presentes.
-- Un exit code 1 indica que falta al menos un plan y se debe aplicar el script de remediación.
-
------------------------------------------------------------------------------------------------------
-AUTOR: Alejandro Suárez (@alexsf93)
-=====================================================================================================
+.NOTES
+    Name: CORREGIR_Script Remediation - Planes de energia - Detection.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-01-21
 #>
 
 # GUIDs de planes de energía esperados
@@ -56,9 +33,9 @@ $guidRegex = '[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}'
 
 # Obtener GUIDs de planes instalados
 $installedPlans = powercfg /list |
-    Select-String -Pattern $guidRegex -AllMatches |
-    ForEach-Object { $_.Matches.Value.ToLowerInvariant() } |
-    Select-Object -Unique
+Select-String -Pattern $guidRegex -AllMatches |
+ForEach-Object { $_.Matches.Value.ToLowerInvariant() } |
+Select-Object -Unique
 
 # Verificar si falta alguno
 $missing = $requiredPlans | Where-Object { $_ -notin $installedPlans }
@@ -66,7 +43,8 @@ $missing = $requiredPlans | Where-Object { $_ -notin $installedPlans }
 if (-not $missing -or $missing.Count -eq 0) {
     Write-Output "OK"
     exit 0
-} else {
+}
+else {
     Write-Output "NOK - Faltan planes de energía: $($missing -join ', ')"
     exit 1
 }
