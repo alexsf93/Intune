@@ -80,8 +80,8 @@ Log "Parametros: ExcludePatterns=$joinedExclusions, LogFile=$LogFile"
 try {
     # Obtener listado de Winget
     Write-Info "Obteniendo lista de aplicaciones..."
-    $env:WINGET_DISABLE_PROGRESS = $true
-    $wingetOutput = winget upgrade
+    $env:WINGET_DISABLE_PROGRESS = "1"
+    $wingetOutput = winget upgrade --accept-source-agreements
 
     if ($null -ne $wingetOutput) {
         foreach ($line in $wingetOutput) {
@@ -100,6 +100,10 @@ try {
             if ($line -match "A newer version") { continue }
             if ($line -match "upgrades available") { continue }
 
+            # Omitir artefactos de progreso de descarga
+            if ($line -match "[█▓▒░┌ûê]") { continue }
+            if ($line -match "\d+(\.\d+)?\s*(KB|MB|GB|B|Bytes)") { continue }
+
             $tokens = $line.Trim() -split '\s+'
             
             # Una linea real de app tiene al menos: Name, Id, Version, Available, Source
@@ -112,6 +116,7 @@ try {
             $appName = ($tokens[0..($tokens.Count - 5)]) -join ' '
 
             if ([string]::IsNullOrWhiteSpace($appId)) { continue }
+            if ($appId -match '^(KB|MB|GB|Bytes|/)$' -or $appName -match '[█▓▒░┌ûê]') { continue }
 
             # Filtro de exclusion
             $shouldSkip = $false
@@ -166,17 +171,5 @@ catch {
 }
 finally {
     Write-Info "Fin del script. Log en: $LogFile"
-    Write-Host ""
-}
-    Write-Host ("--------------------------------") -ForegroundColor DarkCyan
-    Write-Done "Proceso completado."
-}
-catch {
-    $err = $_.Exception.Message
-    Write-ErrorRed "ERROR FATAL: $err"
-    Write-Log "EXCEPTION: $($_ | Out-String)"
-}
-finally {
-    Write-Info "Fin del script. Log en: $LogPath"
     Write-Host ""
 }
