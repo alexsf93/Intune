@@ -101,7 +101,7 @@ try {
             if ($line -match "upgrades available") { continue }
 
             # Omitir artefactos de progreso de descarga
-            if ($line -match "[█▓▒░┌ûê]") { continue }
+            if ($line -match "[\u2588\u2593\u2592\u2591\u250C\u00FB\u00EA]") { continue }
             if ($line -match "\d+(\.\d+)?\s*(KB|MB|GB|B|Bytes)") { continue }
 
             $tokens = $line.Trim() -split '\s+'
@@ -116,7 +116,7 @@ try {
             $appName = ($tokens[0..($tokens.Count - 5)]) -join ' '
 
             if ([string]::IsNullOrWhiteSpace($appId)) { continue }
-            if ($appId -match '^(KB|MB|GB|Bytes|/)$' -or $appName -match '[█▓▒░┌ûê]') { continue }
+            if ($appId -match '^(KB|MB|GB|Bytes|/)$' -or $appName -match '[\u2588\u2593\u2592\u2591\u250C\u00FB\u00EA]') { continue }
 
             # Filtro de exclusion
             $shouldSkip = $false
