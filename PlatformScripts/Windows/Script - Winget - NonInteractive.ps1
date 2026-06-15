@@ -4,14 +4,14 @@
 
 .DESCRIPTION
     Realiza la actualizacion desatendida de aplicaciones instaladas en el sistema utilizando Winget.
-    Esta optimizado para ejecutarse bajo el contexto de SYSTEM en Intune, gestionando exclusiones
-    de software critico y mantenimiento de los ficheros de log generados.
+    Gestiona exclusiones de software critico, evita bucles infinitos de instalacion mediante telemetria
+    local y mantiene los ficheros de log generados.
 
 .NOTES
     Nombre:     Script - Winget - NonInteractive.ps1
     Autor:      Alejandro Suarez (@alexsf93)
-    Fecha:      2026-05-30
-    Version:    1.6
+    Fecha:      2026-06-15
+    Version:    2.0
 #>
 
 $ExcludePatterns = @(
@@ -21,18 +21,31 @@ $ExcludePatterns = @(
     "Skype", "Zoom", "Office", "SSMS", "SQL Server Management Studio"
 )
 
-$CompanyFolder = Join-Path $env:ProgramData 'Inkoova'
+$CompanyFolder = Join-Path $env:ProgramData 'Naxvan'
 $LogFile = Join-Path $CompanyFolder 'winget_upgrade_log.txt'
+$TelemetryFile = Join-Path $CompanyFolder 'winget_telemetry.json'
+$MaxRetriesBeforeBlock = 3       
+$BlockDurationDays = 7           
+
+if ([System.Security.Principal.WindowsIdentity]::GetCurrent().IsSystem) {
+    $env:XDG_CONFIG_HOME = Join-Path $env:ProgramData "WingetConfig"
+}
 
 if (-not (Test-Path $CompanyFolder)) { 
     New-Item -ItemType Directory -Path $CompanyFolder -Force | Out-Null 
 }
 
+$Telemetry = @{}
+if (Test-Path $TelemetryFile) {
+    try { $Telemetry = Get-Content -Path $TelemetryFile -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json -AsHashtable } catch { $Telemetry = @{} }
+}
+
+function Save-Telemetry {
+    try { $Telemetry | ConvertTo-Json -Depth 5 | Set-Content -Path $TelemetryFile -Force } catch {}
+}
+
 function Remove-OldLogs {
-    param(
-        [string]$path,
-        [int]$monthsToKeep = 1
-    )
+    param([string]$path, [int]$monthsToKeep = 1)
     if (Test-Path $path) {
         try {
             $limitDate = (Get-Date).AddMonths(-$monthsToKeep)
@@ -41,27 +54,14 @@ function Remove-OldLogs {
                 $newLines = New-Object System.Collections.Generic.List[string]
                 foreach ($line in $lines) {
                     if ($line -match '^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]') {
-                        $dateStr = $Matches[1]
-                        $parsedDate = [datetime]::MinValue
-                        if ([DateTime]::TryParseExact($dateStr, 'yyyy-MM-dd HH:mm:ss', [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None, [ref]$parsedDate)) {
-                            if ($parsedDate -ge $limitDate) {
-                                [void]$newLines.Add($line)
-                            }
-                        }
-                        else {
-                            [void]$newLines.Add($line)
-                        }
-                    }
-                    else {
-                        [void]$newLines.Add($line)
-                    }
+                        if ([DateTime]::TryParseExact($Matches[1], 'yyyy-MM-dd HH:mm:ss', [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None, [ref]$parsedDate)) {
+                            if ($parsedDate -ge $limitDate) { [void]$newLines.Add($line) }
+                        } else { [void]$newLines.Add($line) }
+                    } else { [void]$newLines.Add($line) }
                 }
                 Set-Content -Path $path -Value $newLines -Encoding UTF8 -Force -ErrorAction Stop
             }
-        }
-        catch {
-            # Ignorar errores de acceso/bloqueo en entorno desatendido (SYSTEM)
-        }
+        } catch {}
     }
 }
 
@@ -77,46 +77,34 @@ function Write-Info { param([string]$m); Log "INFO : $m" }
 function Write-Skip { param([string]$m); Log "SKIP : $m" }
 function Write-Update { param([string]$m); Log "UPDT : $m" }
 function Write-Success { param([string]$m); Log "OK   : $m" }
-function Write-ErrorRed { param([string]$m); Write-Host "[FAIL] $m"; Log "ERROR: $m" }
-function Write-Summary { param([string]$m); Write-Host "[====] $m" }
-function Write-Done { param([string]$m); Write-Host "[DONE] $m" }
+function Write-ErrorRed { param([string]$m); Log "ERROR: $m" }
 
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
-    Write-ErrorRed "El script requiere permisos de administrador para ejecutarse."
+    Write-Error "El script requiere permisos de administrador."
     exit 1
 }
 
-# Resolucion de la ruta de winget.exe para el contexto SYSTEM
 function Get-WingetPath {
     $winget = Get-Command winget -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
-    if ($winget -and (Test-Path $winget)) {
-        return $winget
-    }
-
+    if ($winget -and (Test-Path $winget)) { return $winget }
     $windowsAppsPath = Join-Path $env:ProgramFiles "WindowsApps"
     if (Test-Path $windowsAppsPath) {
         $installerPaths = Get-ChildItem -Path $windowsAppsPath -Filter "Microsoft.DesktopAppInstaller*_*_8wekyb3d8bbwe" -Directory -ErrorAction SilentlyContinue
         if ($installerPaths) {
             $latestInstaller = $installerPaths | Sort-Object Name -Descending | Select-Object -First 1
             $wingetPath = Join-Path $latestInstaller.FullName "winget.exe"
-            if (Test-Path $wingetPath) {
-                return $wingetPath
-            }
+            if (Test-Path $wingetPath) { return $wingetPath }
         }
     }
-
     $systemAppInstallerPath = "C:\Windows\System32\winget.exe"
-    if (Test-Path $systemAppInstallerPath) {
-        return $systemAppInstallerPath
-    }
-
+    if (Test-Path $systemAppInstallerPath) { return $systemAppInstallerPath }
     return $null
 }
 
 $WingetPath = Get-WingetPath
 if (-not $WingetPath) {
-    Write-ErrorRed "No se pudo encontrar el ejecutable de winget.exe en el sistema."
+    Write-Error "No se pudo encontrar winget.exe."
     exit 1
 }
 
@@ -125,98 +113,128 @@ $Stats_Skipped = 0
 $Stats_Errors = 0
 
 Write-Info "Inicio del proceso de actualizacion mediante Winget."
-Write-Info "Ejecutable de Winget detectado en: $WingetPath"
-Log "Parametros: ExcludePatterns=$($ExcludePatterns -join ','), LogFile=$LogFile, WingetPath=$WingetPath"
 
-# Verificacion y restablecimiento de fuentes de Winget si es necesario
 try {
     $env:WINGET_DISABLE_PROGRESS = "1"
     $testRun = & $WingetPath list --accept-source-agreements -n 1 --disable-interactivity 2>&1
     if ($LASTEXITCODE -ne 0 -and ($testRun -match "0x8a15000f" -or $testRun -match "source" -or $testRun -match "origen")) {
-        Write-Skip "Se detectaron problemas con los origenes de datos de Winget. Intentando restablecer (source reset)..."
+        Write-Skip "Problemas con origenes de Winget. Restableciendo..."
         & $WingetPath source reset --force | Out-Null
     }
-}
-catch {
-    Write-Skip "Error al validar los origenes de Winget. Intentando restablecer (source reset)..."
+} catch {
     try { & $WingetPath source reset --force | Out-Null } catch {}
 }
 
 try {
     Write-Info "Consultando actualizaciones disponibles..."
     $env:WINGET_DISABLE_PROGRESS = "1"
-    $wingetOutput = & $WingetPath upgrade --accept-source-agreements
+    $wingetOutput = & $WingetPath upgrade --accept-source-agreements --legacy 2>&1
 
     if ($null -ne $wingetOutput) {
-        foreach ($line in $wingetOutput) {
-            # Remover secuencias de color ANSI
-            $line = $line -replace "`e\[[0-9;]*m", ""
+        $headerProcessed = $false
+        $idIdx = $null
+        $versionIdx = $null
 
-            if ([string]::IsNullOrWhiteSpace($line)) { continue }
-            if ($line.Length -lt 15) { continue }
-            if ($line -match '^-+$') { continue }
-            
-            if ($line -match "^Name\s+" -or $line -match "^Nombre\s+") { continue }
-            if ($line -match "The following packages" -or $line -match "Los siguientes paquetes") { continue }
-            if ($line -match "A newer version" -or $line -match "upgrades available") { continue }
+        foreach ($rawLine in $wingetOutput) {
+            $line = $rawLine -replace "`e\[[0-9;]*m", "" 
+            if ([string]::IsNullOrWhiteSpace($line) -or $line -match '^-+$' -or $line -match "[\u2588\u2593\u2592\u2591\u250C\u00FB\u00EA]") { continue }
 
-            if ($line -match "[\u2588\u2593\u2592\u2591\u250C\u00FB\u00EA]") { continue }
-            if ($line -match "\d+(\.\d+)?\s*(KB|MB|GB|B|Bytes)") { continue }
+            if ($line -match "^Name\s+Id\s+" -or $line -match "^Nombre\s+Id\s+") {
+                $idIdx = $line.IndexOf("Id")
+                if ($line -match "Vers") { $versionIdx = $line.IndexOf($Matches[0]) }
+                $headerProcessed = $true
+                continue
+            }
 
-            $tokens = $line.Trim() -split '\s+'
-            if ($tokens.Count -lt 5) { continue }
+            if (-not $headerProcessed -or $line -match "The following packages" -or $line -match "Los siguientes paquetes" -or $line -match "A newer version" -or $line -match "upgrades available") { continue }
 
-            $appId = $tokens[-4]
-            $appName = ($tokens[0..($tokens.Count - 5)]) -join ' '
+            try {
+                if ($null -ne $idIdx -and $null -ne $versionIdx -and $line.Length -gt $versionIdx) {
+                    $appName = $line.Substring(0, $idIdx).Trim()
+                    $appId = $line.Substring($idIdx, ($versionIdx - $idIdx)).Trim()
+                } else {
+                    $tokens = $line.Trim() -split '\s+'
+                    if ($tokens.Count -lt 3) { continue }
+                    $appId = $tokens[1]; $appName = $tokens[0]
+                }
+            } catch { continue }
 
-            if ([string]::IsNullOrWhiteSpace($appId)) { continue }
-            if ($appId -match '^(KB|MB|GB|Bytes|/)$' -or $appName -match '[\u2588\u2593\u2592\u2591\u250C\u00FB\u00EA]') { continue }
+            if ([string]::IsNullOrWhiteSpace($appId) -or $appId -eq "Id") { continue }
 
+            # 1. Validación estática
             $shouldSkip = $false
             foreach ($pattern in $ExcludePatterns) {
                 if ($appName -match [regex]::Escape($pattern) -or $appId -match [regex]::Escape($pattern)) {
-                    $shouldSkip = $true
-                    break
+                    $shouldSkip = $true; break
                 }
             }
 
             if ($shouldSkip) {
-                Write-Skip "Omitido: $appName ($appId)"
-                $Stats_Skipped++
-                continue
+                Write-Skip "Omitido (Lista estatica): $appName ($appId)"
+                $Stats_Skipped++; continue
             }
 
+            # 2. Validación de telemetría anti-bucles
+            if ($Telemetry.ContainsKey($appId)) {
+                $appData = $Telemetry[$appId]
+                
+                if ($appData.BlockUntil) {
+                    $blockDate = [datetime]::Parse($appData.BlockUntil)
+                    if ((Get-Date) -lt $blockDate) {
+                        Write-Skip "Omitido Dinamicamente (Bloqueado hasta $blockDate): $appName ($appId)"
+                        $Stats_Skipped++; continue
+                    } else {
+                        $Telemetry.Remove($appId)
+                    }
+                }
+                
+                if ($appData.LastSuccessDate) {
+                    $lastSuccess = [datetime]::Parse($appData.LastSuccessDate)
+                    if ($lastSuccess.Date -eq (Get-Date).Date) {
+                        Write-Skip "Omitido Dinamicamente (Ya actualizado hoy): $appName ($appId)"
+                        $Stats_Skipped++; continue
+                    }
+                }
+            }
+
+            # Ejecutar actualización
             Write-Update "Actualizando: $appName ($appId)"
-            $null = & $WingetPath upgrade --id "$appId" --silent --accept-source-agreements --accept-package-agreements --disable-interactivity
+            & $WingetPath upgrade --id "$appId" --silent --accept-source-agreements --accept-package-agreements --disable-interactivity > $null 2>&1
             
+            if (-not $Telemetry.ContainsKey($appId)) {
+                $Telemetry[$appId] = @{ "ConsecutiveErrors" = 0; "LastSuccessDate" = $null; "BlockUntil" = $null }
+            }
+
             if ($LASTEXITCODE -eq 0 -or $LASTEXITCODE -eq -1978335189) {
                 $Stats_Updated++
-                Write-Success "  -> Actualizado correctamente"
+                Write-Success "  -> Actualizado correctamente."
+                $Telemetry[$appId].LastSuccessDate = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+                $Telemetry[$appId].ConsecutiveErrors = 0
+                $Telemetry[$appId].BlockUntil = $null
             }
             else {
                 $Stats_Errors++
                 Write-ErrorRed "  -> Error al actualizar (ExitCode: $LASTEXITCODE)"
+                $Telemetry[$appId].ConsecutiveErrors = [int]$Telemetry[$appId].ConsecutiveErrors + 1
+                
+                if ($Telemetry[$appId].ConsecutiveErrors -ge $MaxRetriesBeforeBlock) {
+                    $blockUntilDate = (Get-Date).AddDays($BlockDurationDays).ToString('yyyy-MM-dd HH:mm:ss')
+                    $Telemetry[$appId].BlockUntil = $blockUntilDate
+                    Write-ErrorRed "  -> Excluido dinamicamente hasta: $blockUntilDate"
+                }
             }
+            Save-Telemetry
         }
     }
 
-    Write-Host ""
-    Write-Summary "RESUMEN DE ACTUALIZACION"
-    Write-Host "--------------------------------"
-
-    Write-Host "[OK]   Actualizados : $Stats_Updated"
-    Write-Host "[SKIP] Omitidos     : $Stats_Skipped"
-    Write-Host "[FAIL] Errores      : $Stats_Errors"
-
-    Write-Host "--------------------------------"
-    Write-Done "Proceso completado."
+    if ($Stats_Updated -gt 0 -or $Stats_Errors -gt 0) {
+        Write-Output "Winget Summary - Updated: $Stats_Updated | Skipped: $Stats_Skipped | Errors: $Stats_Errors"
+    }
 }
 catch {
-    $err = $_.Exception.Message
-    Write-ErrorRed "ERROR FATAL: $err"
-    Log "EXCEPTION: $($_ | Out-String)"
+    Write-Error "Fatal Error: $_"
+    exit 1
 }
 finally {
-    Write-Host "Fin del script. Log local en: $LogFile"
-    Write-Host ""
+    Save-Telemetry
 }
