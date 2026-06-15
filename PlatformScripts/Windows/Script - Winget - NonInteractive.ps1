@@ -11,7 +11,7 @@
     Nombre:     Script - Winget - NonInteractive.ps1
     Autor:      Alejandro Suarez (@alexsf93)
     Fecha:      2026-06-15
-    Version:    2.0
+    Version:    2.2 (Sin acentos)
 #>
 
 $ExcludePatterns = @(
@@ -128,7 +128,7 @@ try {
 try {
     Write-Info "Consultando actualizaciones disponibles..."
     $env:WINGET_DISABLE_PROGRESS = "1"
-    $wingetOutput = & $WingetPath upgrade --accept-source-agreements --legacy 2>&1
+    $wingetOutput = & $WingetPath upgrade --accept-source-agreements 2>&1
 
     if ($null -ne $wingetOutput) {
         $headerProcessed = $false
@@ -137,16 +137,18 @@ try {
 
         foreach ($rawLine in $wingetOutput) {
             $line = $rawLine -replace "`e\[[0-9;]*m", "" 
-            if ([string]::IsNullOrWhiteSpace($line) -or $line -match '^-+$' -or $line -match "[\u2588\u2593\u2592\u2591\u250C\u00FB\u00EA]") { continue }
+            $line = $line -replace "[\u2588\u2593\u2592\u2591\u250C\u00FB\u00EA\u2550\u2502]", ""
+            if ([string]::IsNullOrWhiteSpace($line) -or $line -match '^-+$') { continue }
 
-            if ($line -match "^Name\s+Id\s+" -or $line -match "^Nombre\s+Id\s+") {
+            if ($line -match "^Name\s+Id\s+" -or $line -match "^Nombre\s+Id\s+" -or $line -match "^\s*Name\s+Id" -or $line -match "^\s*Nombre\s+Id") {
                 $idIdx = $line.IndexOf("Id")
                 if ($line -match "Vers") { $versionIdx = $line.IndexOf($Matches[0]) }
                 $headerProcessed = $true
                 continue
             }
 
-            if (-not $headerProcessed -or $line -match "The following packages" -or $line -match "Los siguientes paquetes" -or $line -match "A newer version" -or $line -match "upgrades available") { continue }
+            if (-not $headerProcessed) { continue }
+            if ($line -match "The following packages" -or $line -match "Los siguientes paquetes" -or $line -match "A newer version" -or $line -match "upgrades available" -or $line -match "disponibles\.") { continue }
 
             try {
                 if ($null -ne $idIdx -and $null -ne $versionIdx -and $line.Length -gt $versionIdx) {
@@ -159,9 +161,9 @@ try {
                 }
             } catch { continue }
 
-            if ([string]::IsNullOrWhiteSpace($appId) -or $appId -eq "Id") { continue }
+            if ([string]::IsNullOrWhiteSpace($appId) -or $appId -eq "Id" -or $appId -match "---") { continue }
 
-            # 1. Validación estática
+            # 1. Validacion estatica
             $shouldSkip = $false
             foreach ($pattern in $ExcludePatterns) {
                 if ($appName -match [regex]::Escape($pattern) -or $appId -match [regex]::Escape($pattern)) {
@@ -174,7 +176,7 @@ try {
                 $Stats_Skipped++; continue
             }
 
-            # 2. Validación de telemetría anti-bucles
+            # 2. Validacion de telemetria anti-bucles
             if ($Telemetry.ContainsKey($appId)) {
                 $appData = $Telemetry[$appId]
                 
@@ -197,7 +199,7 @@ try {
                 }
             }
 
-            # Ejecutar actualización
+            # Ejecutar actualizacion
             Write-Update "Actualizando: $appName ($appId)"
             & $WingetPath upgrade --id "$appId" --silent --accept-source-agreements --accept-package-agreements --disable-interactivity > $null 2>&1
             
