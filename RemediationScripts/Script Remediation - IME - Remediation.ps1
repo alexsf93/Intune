@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     REMEDIATION SCRIPT: INSTALACIÓN/ACTUALIZACIÓN DE INTUNE MANAGEMENT EXTENSION (IME)
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 $installerUrl = "https://approdimedatapri.azureedge.net/IntuneWindowsAgent.msi"

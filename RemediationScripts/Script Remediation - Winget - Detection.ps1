@@ -1,16 +1,23 @@
-<#
+﻿<#
 .SYNOPSIS
-    Script de deteccion para actualizacion automatizada de software mediante Winget en Intune.
+    DETECTION SCRIPT: ACTUALIZACIÓN AUTOMATIZADA DE SOFTWARE MEDIANTE WINGET
 
 .DESCRIPTION
-    Determina si existen aplicaciones en el sistema que requieran actualizacion mediante Winget,
-    respetando las exclusiones estaticas y dinamicas del script de remediacion.
+    Determina si existen aplicaciones en el sistema que requieran actualización mediante Winget,
+    respetando las exclusiones estáticas y dinámicas del script de remediación.
+
+.PARAMETER
+    Ninguno.
+
+.EXAMPLE
+    Executes as Intune Detection Script.
 
 .NOTES
-    Nombre:     Script - Winget - Detection.ps1
-    Autor:      Alejandro Suarez (@alexsf93)
-    Fecha:      2026-06-15
-    Version:    1.0
+    Name: Script Remediation - Winget - Detection.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-06-15
+    Context: System
 #>
 
 $ExcludePatterns = @(

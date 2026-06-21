@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     REMEDIATION SCRIPT: ZONA HORARIA MADRID Y SINCRONIZACIÓN DE HORA (INTUNE)
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 # Comprobar si el script tiene permisos de administrador/SYSTEM

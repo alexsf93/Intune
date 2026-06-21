@@ -1,17 +1,24 @@
-<#
+﻿<#
 .SYNOPSIS
-    Script de mantenimiento para actualizacion automatizada de software mediante Winget en Intune.
+    REMEDIATION SCRIPT: ACTUALIZACIÓN AUTOMATIZADA DE SOFTWARE MEDIANTE WINGET
 
 .DESCRIPTION
-    Realiza la actualizacion desatendida de aplicaciones instaladas en el sistema utilizando Winget.
-    Gestiona exclusiones de software critico, evita bucles infinitos de instalacion mediante telemetria
+    Realiza la actualización desatendida de aplicaciones instaladas en el sistema utilizando Winget.
+    Gestiona exclusiones de software crítico, evita bucles infinitos de instalación mediante telemetría
     local y mantiene los ficheros de log generados.
 
+.PARAMETER
+    Ninguno.
+
+.EXAMPLE
+    Executes as Intune Remediation Script.
+
 .NOTES
-    Nombre:     Script - Winget - NonInteractive.ps1
-    Autor:      Alejandro Suarez (@alexsf93)
-    Fecha:      2026-06-15
-    Version:    2.8 (Sanitized Key Fix)
+    Name: Script Remediation - Winget - Remediation.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 2.8.0
+    Date: 2026-06-15
+    Context: System
 #>
 
 $ExcludePatterns = @(

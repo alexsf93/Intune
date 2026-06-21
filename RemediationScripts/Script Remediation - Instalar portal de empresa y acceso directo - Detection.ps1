@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     DETECTION SCRIPT: ¿ESTÁ INSTALADO EL COMPANY PORTAL (PORTAL DE EMPRESA)?
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 $cp = Get-AppxPackage -Name "Microsoft.CompanyPortal" -ErrorAction SilentlyContinue

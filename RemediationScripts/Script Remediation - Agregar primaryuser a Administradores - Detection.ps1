@@ -1,6 +1,6 @@
-<#
+﻿<#
 .SYNOPSIS
-    DETECTION SCRIPT: ¿ES EL "PRIMARY USER" ADMINISTRADOR LOCAL?
+    DETECTION SCRIPT: Â¿ES EL "PRIMARY USER" ADMINISTRADOR LOCAL?
 
 .DESCRIPTION
     Este script detecta si el usuario principal ("primary user") del dispositivo pertenece al grupo de 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 # 1. Obtener el usuario con más sesiones (aproximación "primary user")

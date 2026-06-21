@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     REMEDIATION SCRIPT: CONFIGURAR IDIOMA INGLÉS (en-US) Y TECLADO ESPAÑOL (ES)
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: User
 #>
 
 $want = "en-US"

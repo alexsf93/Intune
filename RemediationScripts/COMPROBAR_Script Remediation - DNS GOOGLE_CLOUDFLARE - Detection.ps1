@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     DETECTION SCRIPT: DNS DE ADAPTADORES DE RED (8.8.8.8 y 1.1.1.1)
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 [CmdletBinding()]

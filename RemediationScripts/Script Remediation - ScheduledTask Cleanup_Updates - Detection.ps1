@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     DETECTION SCRIPT: EXISTENCIA DE TAREA PROGRAMADA + SYSTEM + SCRIPT PRESENTE
 
@@ -18,6 +18,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 [CmdletBinding()]

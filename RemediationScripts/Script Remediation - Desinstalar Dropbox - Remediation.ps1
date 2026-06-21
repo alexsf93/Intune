@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     REMEDIATION SCRIPT: DESINSTALAR DROPBOX
 
@@ -18,6 +18,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: User
 #>
 
 # Define la ruta del script temporal

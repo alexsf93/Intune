@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     REMEDIATION SCRIPT: RESTAURACIÓN DE PLANES DE ENERGÍA HABITUALES EN WINDOWS
 
@@ -19,6 +19,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 # Detener en errores no controlados dentro de los try/catch

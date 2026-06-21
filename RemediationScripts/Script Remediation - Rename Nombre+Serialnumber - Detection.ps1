@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Detección para verificar la nomenclatura estándar del equipo.
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-05-27
+    Context: System
 #>
 
 $ErrorActionPreference = "Stop"

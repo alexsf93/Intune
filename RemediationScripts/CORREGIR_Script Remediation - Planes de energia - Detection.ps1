@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     DETECTION SCRIPT: PLANES DE ENERGÍA HABITUALES EN WINDOWS
 
@@ -19,6 +19,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 # GUIDs de planes de energía esperados

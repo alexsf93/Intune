@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Remediación para aplicar la nomenclatura estándar al equipo.
 
@@ -18,6 +18,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-05-27
+    Context: System
 #>
 
 $ErrorActionPreference = "Stop"

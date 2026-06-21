@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Script de deteccion para la limpieza de almacenamiento.
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suarez (@alexsf93)
     Version: 3.6.1
     Date: 2026-06-15
+    Context: System
 #>
 
 $storageThresholdMB = 400

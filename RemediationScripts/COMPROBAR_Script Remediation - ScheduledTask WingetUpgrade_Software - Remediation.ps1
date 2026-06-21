@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     SCRIPT: CREAR TAREA PROGRAMADA PARA WINGET UPGRADE (OCULTA, VIERNES 12:00)
 
@@ -19,6 +19,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 Set-StrictMode -Version Latest

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     DETECTION SCRIPT: VERSIÓN DE INTUNE MANAGEMENT EXTENSION (IME) DESACTUALIZADA O CORRUPTA
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 Function Get-MsiVersion($msiPath) {

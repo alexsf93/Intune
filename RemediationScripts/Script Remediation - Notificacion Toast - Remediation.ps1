@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     NOTIFICATION SCRIPT: CREACIÓN DE ACCESO DIRECTO + TOAST CON BURNTTOAST
 
@@ -18,6 +18,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: User
 #>
 
 Add-Type -AssemblyName System.Runtime.InteropServices

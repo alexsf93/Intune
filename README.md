@@ -20,11 +20,21 @@ Conjunto de pares de scripts (**Detección** y **Remediación**) optimizados par
 
 | Detección (`detection.ps1`) | Remediación (`remediation.ps1`) | Propósito |
 | :--- | :--- | :--- |
+| **Bloatware** | Desinstala Apps | Elimina software preinstalado no deseado de los dispositivos (Dropbox, Lenovo Now). |
+| **Company Portal** | Instala Portal | Verifica la instalación del Portal de Empresa de Microsoft y crea los accesos directos necesarios. |
+| **Device Renaming** | Renombra Equipo | Valida y renombra el equipo para cumplir con la nomenclatura estándar (NOMBRE + sufijo de Serial/UUID). |
 | **DNS Config** | Corrige DNS | Asegura el uso de DNS corporativos o específicos (Google/Cloudflare). |
-| **Scheduled Tasks** | Crea/Corrige Tarea | Garantiza que tareas críticas (limpieza, escaneo Defender) existan y corran como SYSTEM. |
+| **Intune Agent (IME)** | Actualiza IME | Compara la versión local de Intune Management Extension con la última oficial y la actualiza si está obsoleta. |
+| **Language Packs** | Instala Idioma | Instala y configura el idioma inglés (en-US) como predeterminado en el sistema. |
+| **OneDrive Startup** | Corrige Inicio | Asegura que OneDrive se inicie con Windows y configura SilentAccountConfig para M365. |
+| **Power Plans** | Restaura Planes | Detecta e importa los planes de energía predeterminados de Windows (Equilibrado, Alto rendimiento, Economizador) si faltan. |
+| **Scheduled Tasks** | Crea/Corrige Tarea | Garantiza que tareas críticas (limpieza de actualizaciones, actualización de software, escaneo Defender) existan y corran como SYSTEM. |
+| **Security** | Configura Seguridad | Verifica Secure Boot, gestiona cuentas locales (deshabilita Administrator) y agrega el usuario primario a administradores. |
 | **Timezone** | Ajusta Zona Horaria | Estandariza la zona horaria a *Romance Standard Time* y sincroniza reloj. |
-| **Bloatware** | Desinstala Apps | Elimina software preinstalado no deseado (Dropbox, Lenovo Now). |
-| **Security** | Configura Seguridad | Verifica Secure Boot, añade usuarios a administradores, deshabilita cuentas locales. |
+| **Toast Notifications** | Muestra Notificación | Envía notificaciones Toast dinámicas interactivas a los usuarios utilizando BurntToast. |
+| **Windows Autopatch** | Corrige Políticas | Identifica y elimina directivas del registro que bloquean el funcionamiento correcto de Windows Update / Autopatch. |
+| **Windows Cleanup** | Limpia Espacio | Detecta y elimina archivos y carpetas residuales de actualizaciones anteriores de Windows para liberar almacenamiento. |
+| **Winget Update** | Actualiza Software | Ejecuta actualizaciones silenciosas y desatendidas de software de terceros instalado mediante Winget. |
 
 ---
 

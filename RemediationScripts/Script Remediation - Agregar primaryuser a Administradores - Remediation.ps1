@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     REMEDIATION SCRIPT: AÑADIR "PRIMARY USER" AL GRUPO DE ADMINISTRADORES LOCALES
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 # 1. Obtener el primary user como en el detection

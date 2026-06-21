@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     DETECTION SCRIPT: DEVOLVER EXIT CODE 1 (REGLA DE PRUEBA/NO CONFORME)
 
@@ -18,5 +18,6 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: User
 #>
 exit 1

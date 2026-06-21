@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     DETECTION SCRIPT: CUENTAS LOCALES "ADMINISTRADOR" O "ADMINISTRATOR" HABILITADAS
 
@@ -17,6 +17,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
+    Context: System
 #>
 
 $usuarios = @("Administrador", "Administrator")
