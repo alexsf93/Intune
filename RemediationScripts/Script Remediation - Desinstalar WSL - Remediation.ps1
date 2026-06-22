@@ -108,7 +108,7 @@ if (Test-Path $profilesPath) {
     }
 }
 
-# 3. Desinstalar el paquete AppX de WSL (Moderno)
+# 3. Desinstalar el paquete AppX del componente WSL (Moderno)
 try {
     $wslAppx = Get-AppxPackage -AllUsers -Name "MicrosoftCorporationII.WindowsSubsystemforLinux" -ErrorAction SilentlyContinue
     if ($wslAppx) {
@@ -123,7 +123,36 @@ try {
     Write-Error "Error al desinstalar el paquete AppX de WSL: $_"
 }
 
-# 4. Desinstalar el instalador MSI de WSL (Clasico) si se encuentra registrado
+# 4. Desinstalar distribuciones de Linux instaladas via Microsoft Store o sideload
+$linuxDistroPatterns = @(
+    "CanonicalGroupLimited*",   # Ubuntu (todas las versiones)
+    "*Debian*",
+    "*Kali*",
+    "*openSUSE*",
+    "*SUSE*",
+    "*OracleLinux*",
+    "*AlmaLinux*",
+    "*Fedora*",
+    "*Pengwin*"                 # Whitewater Foundry
+)
+try {
+    foreach ($pattern in $linuxDistroPatterns) {
+        # Desinstalar para todos los usuarios activos
+        $pkgs = Get-AppxPackage -AllUsers -Name $pattern -ErrorAction SilentlyContinue
+        if ($pkgs) {
+            $pkgs | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
+        }
+        # Desprovisionar de la imagen de Windows
+        $provPkgs = Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like $pattern }
+        foreach ($provPkg in $provPkgs) {
+            Remove-AppxProvisionedPackage -Online -PackageName $provPkg.PackageName -ErrorAction SilentlyContinue
+        }
+    }
+} catch {
+    Write-Error "Error al desinstalar distribuciones Linux AppX: $_"
+}
+
+# 5. Desinstalar el instalador MSI de WSL (Clasico) si se encuentra registrado
 $msiKeys = @(
     "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall",
     "HKLM:\Software\Wow6432Node\Software\Microsoft\Windows\CurrentVersion\Uninstall"
@@ -144,7 +173,7 @@ foreach ($keyPath in $msiKeys) {
     }
 }
 
-# 5. Deshabilitar la caracteristica opcional de Windows para WSL
+# 6. Deshabilitar la caracteristica opcional de Windows para WSL
 try {
     $wslFeature = Get-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -ErrorAction SilentlyContinue
     if ($null -ne $wslFeature -and $wslFeature.State -eq "Enabled") {
@@ -154,7 +183,7 @@ try {
     Write-Error "Error al deshabilitar la caracteristica opcional de WSL: $_"
 }
 
-# 6. Limpieza de binarios residuales
+# 7. Limpieza de binarios residuales
 $wslInstallDir = "C:\Program Files\WSL"
 if (Test-Path $wslInstallDir) {
     Remove-Item -Path $wslInstallDir -Recurse -Force -ErrorAction SilentlyContinue
