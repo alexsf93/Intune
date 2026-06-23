@@ -123,21 +123,17 @@ foreach ($procName in $ProcessNamesToKill) {
     } catch { }
 }
 
-# Esperar a que msiexec quede libre (si habia una instalacion en curso)
-Write-Host "Esperando a que msiexec quede libre..."
-$maxWait = 60  # segundos maximos de espera
-$elapsed = 0
-do {
-    $msiRunning = Get-Process -Name "msiexec" -ErrorAction SilentlyContinue |
-        Where-Object { $_.MainWindowTitle -ne "" -or $_.SessionId -eq 0 }
-    if ($msiRunning) {
-        Write-Host "  msiexec en ejecucion (PID: $($msiRunning.Id -join ', ')). Esperando..."
-        Start-Sleep -Seconds 5
-        $elapsed += 5
+# Cerrar msiexec si esta en ejecucion (bloquea cualquier msiexec /x siguiente)
+Write-Host "Cerrando instancias de msiexec en ejecucion..."
+try {
+    Get-Process -Name "msiexec" -ErrorAction SilentlyContinue | ForEach-Object {
+        Write-Host "  Cerrando msiexec (PID: $($_.Id))..."
+        Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue
     }
-} while ($msiRunning -and $elapsed -lt $maxWait)
-
-Start-Sleep -Seconds 2
+} catch {
+    Write-Host "Advertencia al cerrar msiexec: $_"
+}
+Start-Sleep -Seconds 3
 
 # =============================================================================
 # PASO 2: Recopilar todos los GUIDs de TODAS las fuentes del registro
