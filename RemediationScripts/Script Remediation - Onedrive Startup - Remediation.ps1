@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     REMEDIATION SCRIPT: INICIO AUTOMÁTICO Y CONFIGURACIÓN DE ONEDRIVE (M365 / ENTERPRISE)
 
@@ -18,7 +18,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.1.1
     Date: 2026-06-21
-    Context: User (o System)
+    Context: User
 #>
 
 # 1. Comprobar si OneDrive está instalado

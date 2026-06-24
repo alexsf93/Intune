@@ -1,6 +1,6 @@
-﻿<#
+<#
 .SYNOPSIS
-    NOTIFICATION SCRIPT: CREACIÓN DE ACCESO DIRECTO + TOAST CON BURNTTOAST
+    REMEDIATION SCRIPT: CREACIÓN DE ACCESO DIRECTO + TOAST CON BURNTTOAST
 
 .DESCRIPTION
     Este script crea dinámicamente un acceso directo en el Menú Inicio con un AppUserModelId específico,

@@ -1,6 +1,6 @@
-﻿<#
+<#
 .SYNOPSIS
-    Remediación para aplicar la nomenclatura estándar al equipo.
+    REMEDIATION SCRIPT: Remediación para aplicar la nomenclatura estándar al equipo.
 
 .DESCRIPTION
     Aplica el renombrado del equipo al patrón 'NOMBRE' + los últimos 8 caracteres del número de serie.
@@ -11,10 +11,10 @@
     Ninguno.
 
 .EXAMPLE
-    & ".\Script Remediation - Rename NOMBRE+Serialnumber - Remediation.ps1"
+    Executes as Intune Remediation Script.
 
 .NOTES
-    Name: Script Remediation - Rename NOMBRE+Serialnumber - Remediation.ps1
+    Name: Script Remediation - Rename Nombre+Serialnumber - Remediation.ps1
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-05-27

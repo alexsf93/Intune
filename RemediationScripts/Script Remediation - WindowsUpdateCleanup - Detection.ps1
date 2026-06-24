@@ -1,6 +1,6 @@
-﻿<#
+<#
 .SYNOPSIS
-    Script de deteccion para la limpieza de almacenamiento.
+    DETECTION SCRIPT: Script de deteccion para la limpieza de almacenamiento.
 
 .DESCRIPTION
     Calcula el espacio ocupado por componentes de Windows Update, cache de entrega,

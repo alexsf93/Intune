@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     DETECTION SCRIPT: INICIO AUTOMÁTICO Y CONFIGURACIÓN DE ONEDRIVE (M365 / ENTERPRISE)
 
@@ -19,7 +19,7 @@
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.1.0
     Date: 2026-06-21
-    Context: User (o System)
+    Context: User
 #>
 
 # 1. Comprobar si OneDrive está instalado (soporta instalación de usuario y de máquina/M365)

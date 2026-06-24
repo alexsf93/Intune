@@ -7,6 +7,12 @@
     (tanto la version UWP/Store como ejecutables independientes) para todos los usuarios.
     Realiza una post-auditoria para asegurar la efectividad de la remediacion.
 
+.PARAMETER
+    Ninguno.
+
+.EXAMPLE
+    Executes as Intune Remediation Script.
+
 .NOTES
     Name: Script Remediation - Desinstalar Move Mouse - Remediation.ps1
     Author: Alejandro Suarez (@alexsf93)

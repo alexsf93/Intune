@@ -7,6 +7,12 @@
     "Move Mouse" esta presente. Busca en perfiles de usuario, paquetes AppX/MSIX,
     procesos activos y directorios comunes.
 
+.PARAMETER
+    Ninguno.
+
+.EXAMPLE
+    Executes as Intune Detection Script.
+
 .NOTES
     Name: Script Remediation - Desinstalar Move Mouse - Detection.ps1
     Author: Alejandro Suarez (@alexsf93)

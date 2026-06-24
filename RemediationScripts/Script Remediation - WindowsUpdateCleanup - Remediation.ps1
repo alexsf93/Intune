@@ -1,6 +1,6 @@
-﻿<#
+<#
 .SYNOPSIS
-    Script de remediacion para la limpieza de almacenamiento.
+    REMEDIATION SCRIPT: Script de remediacion para la limpieza de almacenamiento.
 
 .DESCRIPTION
     Libera bloqueos de servicios, ejecuta DISM, remueve firmas viejas de Defender

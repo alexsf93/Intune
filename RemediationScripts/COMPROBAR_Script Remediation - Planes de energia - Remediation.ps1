@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     REMEDIATION SCRIPT: RESTAURACIÓN DE PLANES DE ENERGÍA HABITUALES EN WINDOWS
 
@@ -25,12 +25,36 @@
 # Detener en errores no controlados dentro de los try/catch
 $ErrorActionPreference = 'Stop'
 
-# Lista de planes: GUID y nombre
-$powerPlans = @(
-    @{ Name = "Balanced"; GUID = "381b4222-f694-41f0-9685-ff5bb260df2e" }
-    @{ Name = "High Performance"; GUID = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c" }
-    @{ Name = "Power Saver"; GUID = "a1841308-3541-4fab-bc81-f71556f20b4a" }
-)
+# Detectar si el sistema utiliza Modern Standby (S0 Low Power Idle)
+$states = powercfg /a
+$notAvailableIndex = 0
+for ($i = 0; $i -lt $states.Count; $i++) {
+    if ($states[$i] -match "not available|no disponibles|no están disponibles") {
+        $notAvailableIndex = $i
+        break
+    }
+}
+$availableStates = if ($notAvailableIndex -gt 0) { $states[0..($notAvailableIndex - 1)] } else { $states }
+$isModernStandby = $false
+foreach ($line in $availableStates) {
+    if ($line -match "S0") {
+        $isModernStandby = $true
+        break
+    }
+}
+
+# Lista de planes: GUID y nombre según el tipo de standby
+if ($isModernStandby) {
+    $powerPlans = @(
+        @{ Name = "Balanced"; GUID = "381b4222-f694-41f0-9685-ff5bb260df2e" }
+    )
+} else {
+    $powerPlans = @(
+        @{ Name = "Balanced"; GUID = "381b4222-f694-41f0-9685-ff5bb260df2e" }
+        @{ Name = "High Performance"; GUID = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c" }
+        @{ Name = "Power Saver"; GUID = "a1841308-3541-4fab-bc81-f71556f20b4a" }
+    )
+}
 
 # Regex para extraer GUIDs (independiente del idioma de la salida)
 $guidRegex = '[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}'
@@ -45,7 +69,7 @@ foreach ($plan in $powerPlans) {
     $planGuidLower = $plan.GUID.ToLowerInvariant()
     if ($existingGUIDs -notcontains $planGuidLower) {
         try {
-            powercfg -duplicatescheme $plan.GUID | Out-Null
+            powercfg -duplicatescheme $plan.GUID $plan.GUID | Out-Null
             Write-Output "Plan restaurado: $($plan.Name)"
         }
         catch {

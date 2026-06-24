@@ -1,6 +1,6 @@
-﻿<#
+<#
 .SYNOPSIS
-    Detección para verificar la nomenclatura estándar del equipo.
+    DETECTION SCRIPT: Detección para verificar la nomenclatura estándar del equipo.
 
 .DESCRIPTION
     Valida si el nombre actual coincide con 'NOMBRE' + los últimos 8 caracteres del número de serie.
@@ -10,10 +10,10 @@
     Ninguno.
 
 .EXAMPLE
-    & ".\Script Remediation - Rename NOMBRE+Serialnumber - Detection.ps1"
+    Executes as Intune Detection Script.
 
 .NOTES
-    Name: Script Remediation - Rename NOMBRE+Serialnumber - Detection.ps1
+    Name: Script Remediation - Rename Nombre+Serialnumber - Detection.ps1
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-05-27
