@@ -19,6 +19,9 @@
       - Porofessor Standalone (Overwolf)
       - WeMod / Wand
       - Wargaming Group (World of Tanks, World of Warships, World of Warplanes)
+      - Hakchi2 CE
+      - Transmission (P2P Torrent Downloader)
+      - SideQuest
 
     Pasos de remediacion:
       1. Finalizar procesos activos de los juegos
@@ -42,7 +45,7 @@
 .NOTES
     Name: Script Remediation - Desinstalar Juegos No Permitidos - Remediation.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.1.0
+    Version: 1.4.0
     Date: 2026-06-27
     Context: System
 #>
@@ -97,7 +100,10 @@ $WildcardAppxNames = @(
     "*World of Tanks*",
     "*World of Warships*",
     "*WorldOfTanks*",
-    "*WorldOfWarships*"
+    "*WorldOfWarships*",
+    "*hakchi*",
+    "*transmission*",
+    "*sidequest*"
 )
 
 # Nombres de procesos a finalizar
@@ -113,7 +119,8 @@ $ProcessNamesToKill = @(
     "RocketLeague", "hytale-launcher", "hytale", "windspro", "windsprox",
     "WinDSpro2", "WinDSpro3", "config", "Overwolf", "OverwolfLauncher",
     "Porofessor", "Porofessor.gg", "WeMod", "Wand", "WeModAuxiliaryService",
-    "wgc", "wgc_api", "WorldOfWarships", "WorldOfTanks", "WorldOfWarplanes"
+    "wgc", "wgc_api", "WorldOfWarships", "WorldOfTanks", "WorldOfWarplanes",
+    "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "SideQuest"
 )
 
 $DisallowedAppNames = @(
@@ -133,7 +140,11 @@ $DisallowedAppNames = @(
     "Wargaming",
     "World of Tanks",
     "World of Warships",
-    "World of Warplanes"
+    "World of Warplanes",
+    "Hakchi2",
+    "Hakchi2 CE",
+    "Transmission",
+    "SideQuest"
 )
 
 # =============================================================================
@@ -256,9 +267,9 @@ if (Test-Path $riotClientPath) {
     }
 }
 
-# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes)
-Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships y World of Warplanes en el Registro..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes")
+# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, SideQuest)
+Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission y SideQuest en el Registro..."
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "SideQuest")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
@@ -438,7 +449,14 @@ $FoldersToDelete = @(
     "C:\Games\World_of_Tanks_EU",
     "C:\Games\World_of_Warships",
     "C:\Games\World_of_Warships_EU",
-    "C:\Games\World_of_Warplanes"
+    "C:\Games\World_of_Warplanes",
+    "${env:ProgramFiles(x86)}\Team Shinkansen",
+    "$env:ProgramFiles\Team Shinkansen",
+    "$env:ProgramData\Team Shinkansen",
+    "$env:ProgramFiles\Transmission",
+    "${env:ProgramFiles(x86)}\Transmission",
+    "$env:ProgramFiles\SideQuest",
+    "${env:ProgramFiles(x86)}\SideQuest"
 )
 
 # Obtener perfiles de usuarios locales para AppData y Documentos
@@ -467,7 +485,14 @@ foreach ($profile in $userProfiles) {
             "C:\Users\$username\AppData\Local\Wand",
             "C:\Users\$username\AppData\Roaming\Wand",
             "C:\Users\$username\AppData\Local\Wargaming.net",
-            "C:\Users\$username\AppData\Roaming\Wargaming.net"
+            "C:\Users\$username\AppData\Roaming\Wargaming.net",
+            "C:\Users\$username\Documents\Hakchi2",
+            "C:\Users\$username\AppData\Local\hakchi2-ce",
+            "C:\Users\$username\AppData\Local\Transmission",
+            "C:\Users\$username\AppData\Roaming\Transmission",
+            "C:\Users\$username\AppData\Local\Programs\SideQuest",
+            "C:\Users\$username\AppData\Local\SideQuest",
+            "C:\Users\$username\AppData\Roaming\SideQuest"
         )
     }
 }
@@ -546,7 +571,16 @@ $softwareKeys = @(
     "HKCU:\Software\Wand",
     "HKLM:\SOFTWARE\Wargaming.net",
     "HKLM:\SOFTWARE\Wow6432Node\Wargaming.net",
-    "HKCU:\Software\Wargaming.net"
+    "HKCU:\Software\Wargaming.net",
+    "HKLM:\SOFTWARE\Team Shinkansen",
+    "HKLM:\SOFTWARE\Wow6432Node\Team Shinkansen",
+    "HKCU:\Software\Team Shinkansen",
+    "HKLM:\SOFTWARE\Transmission",
+    "HKLM:\SOFTWARE\Wow6432Node\Transmission",
+    "HKCU:\Software\Transmission",
+    "HKLM:\SOFTWARE\SideQuest",
+    "HKLM:\SOFTWARE\Wow6432Node\SideQuest",
+    "HKCU:\Software\SideQuest"
 )
 
 foreach ($key in $softwareKeys) {
@@ -578,7 +612,10 @@ $ShortcutPatterns = @(
     "*World of Tanks*",
     "*World of Warships*",
     "*WorldOfTanks*",
-    "*WorldOfWarships*"
+    "*WorldOfWarships*",
+    "*hakchi*",
+    "*transmission*",
+    "*sidequest*"
 )
 
 $ShortcutPaths = @(
@@ -706,7 +743,18 @@ $PhysicalPathsToCheck = @(
     "C:\Games\World_of_Tanks_EU\WorldOfTanks.exe",
     "C:\Games\World_of_Warships\WorldOfWarships.exe",
     "C:\Games\World_of_Warships_EU\WorldOfWarships.exe",
-    "C:\Games\World_of_Warplanes\WorldOfWarplanes.exe"
+    "C:\Games\World_of_Warplanes\WorldOfWarplanes.exe",
+    "${env:ProgramFiles(x86)}\Team Shinkansen\Hakchi2 CE\hakchi.exe",
+    "$env:ProgramFiles\Team Shinkansen\Hakchi2 CE\hakchi.exe",
+    "C:\Users\*\Documents\Hakchi2\hakchi.exe",
+    "C:\Users\*\AppData\Local\hakchi2-ce\hakchi.exe",
+    "$env:ProgramFiles\Transmission\transmission-qt.exe",
+    "${env:ProgramFiles(x86)}\Transmission\transmission-qt.exe",
+    "$env:ProgramFiles\Transmission\transmission-daemon.exe",
+    "${env:ProgramFiles(x86)}\Transmission\transmission-daemon.exe",
+    "$env:ProgramFiles\SideQuest\SideQuest.exe",
+    "${env:ProgramFiles(x86)}\SideQuest\SideQuest.exe",
+    "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe"
 )
 
 foreach ($path in $PhysicalPathsToCheck) {

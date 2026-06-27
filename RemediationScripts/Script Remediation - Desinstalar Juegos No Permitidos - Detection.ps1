@@ -19,6 +19,9 @@
       - Porofessor Standalone (Overwolf)
       - WeMod / Wand
       - Wargaming Group (World of Tanks, World of Warships, World of Warplanes)
+      - Hakchi2 CE
+      - Transmission (P2P Torrent Downloader)
+      - SideQuest
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
     provisionados en la imagen del sistema, registros de desinstalacion y rutas de ejecutables comunes.
@@ -36,7 +39,7 @@
 .NOTES
     Name: Script Remediation - Desinstalar Juegos No Permitidos - Detection.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.1.0
+    Version: 1.4.0
     Date: 2026-06-27
     Context: System
 #>
@@ -88,7 +91,10 @@ $WildcardAppxNames = @(
     "*World of Tanks*",
     "*World of Warships*",
     "*WorldOfTanks*",
-    "*WorldOfWarships*"
+    "*WorldOfWarships*",
+    "*hakchi*",
+    "*transmission*",
+    "*sidequest*"
 )
 
 Write-Host "Comprobando paquetes AppX instalados (todos los usuarios)..."
@@ -175,7 +181,12 @@ $DisallowedAppNames = @(
     "Wargaming",
     "World of Tanks",
     "World of Warships",
-    "World of Warplanes"
+    "World of Warplanes",
+    "Hakchi2",
+    "Hakchi2 CE",
+    "hakchi2",
+    "Transmission",
+    "SideQuest"
 )
 
 foreach ($path in $RegistryPaths) {
@@ -214,7 +225,10 @@ $PhysicalPaths = @(
     [PSCustomObject]@{ Name = "Wargaming Game Center"; Paths = @("$env:ProgramFiles\Wargaming.net\GameCenter\wgc.exe", "${env:ProgramFiles(x86)}\Wargaming.net\GameCenter\wgc.exe", "C:\Games\Wargaming.net\GameCenter\wgc.exe") },
     [PSCustomObject]@{ Name = "World of Tanks"; Paths = @("C:\Games\World_of_Tanks\WorldOfTanks.exe", "C:\Games\World_of_Tanks_EU\WorldOfTanks.exe") },
     [PSCustomObject]@{ Name = "World of Warships"; Paths = @("C:\Games\World_of_Warships\WorldOfWarships.exe", "C:\Games\World_of_Warships_EU\WorldOfWarships.exe") },
-    [PSCustomObject]@{ Name = "World of Warplanes"; Paths = @("C:\Games\World_of_Warplanes\WorldOfWarplanes.exe") }
+    [PSCustomObject]@{ Name = "World of Warplanes"; Paths = @("C:\Games\World_of_Warplanes\WorldOfWarplanes.exe") },
+    [PSCustomObject]@{ Name = "Hakchi2 CE"; Paths = @("${env:ProgramFiles(x86)}\Team Shinkansen\Hakchi2 CE\hakchi.exe", "$env:ProgramFiles\Team Shinkansen\Hakchi2 CE\hakchi.exe", "C:\Users\*\Documents\Hakchi2\hakchi.exe", "C:\Users\*\AppData\Local\hakchi2-ce\hakchi.exe") },
+    [PSCustomObject]@{ Name = "Transmission"; Paths = @("$env:ProgramFiles\Transmission\transmission-qt.exe", "${env:ProgramFiles(x86)}\Transmission\transmission-qt.exe", "$env:ProgramFiles\Transmission\transmission-daemon.exe", "${env:ProgramFiles(x86)}\Transmission\transmission-daemon.exe") },
+    [PSCustomObject]@{ Name = "SideQuest"; Paths = @("$env:ProgramFiles\SideQuest\SideQuest.exe", "${env:ProgramFiles(x86)}\SideQuest\SideQuest.exe", "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe") }
 )
 
 foreach ($app in $PhysicalPaths) {
