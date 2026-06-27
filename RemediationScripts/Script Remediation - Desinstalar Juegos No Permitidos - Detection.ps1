@@ -4,15 +4,24 @@
 
 .DESCRIPTION
     Este script comprueba si alguna de las siguientes aplicaciones de juego esta
-    instalada en el sistema como paquete UWP/AppX:
+    instalada en el sistema como paquete UWP/AppX, registro o ejecutable fisico:
 
       - Microsoft.MinecraftJavaEdition  (Minecraft Java Edition)
       - Microsoft.MinecraftUWP          (Minecraft para Windows)
       - Microsoft.MicrosoftSolitaireCollection (Microsoft Solitaire Collection)
       - Microsoft.MicrosoftSudoku       (Microsoft Sudoku)
+      - Steam
+      - Epic Games Launcher
+      - Riot Client / Riot Vanguard / Valorant / League of Legends
+      - Rocket League
+      - Hytale Launcher
+      - WinDS Pro
+      - Porofessor Standalone (Overwolf)
+      - WeMod / Wand
+      - Wargaming Group (World of Tanks, World of Warships, World of Warplanes)
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
-    provisionados en la imagen del sistema.
+    provisionados en la imagen del sistema, registros de desinstalacion y rutas de ejecutables comunes.
 
     Salida:
       - Exit 1: Al menos una aplicacion detectada -> Intune lanza Remediation
@@ -27,10 +36,11 @@
 .NOTES
     Name: Script Remediation - Desinstalar Juegos No Permitidos - Detection.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.0.0
-    Date: 2026-06-24
+    Version: 1.1.0
+    Date: 2026-06-27
     Context: System
 #>
+
 
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
@@ -67,7 +77,18 @@ $WildcardAppxNames = @(
     "*Valorant*",
     "*LeagueOfLegends*",
     "*RocketLeague*",
-    "*Rocket League*"
+    "*Rocket League*",
+    "*Hytale*",
+    "*WinDS*",
+    "*Porofessor*",
+    "*Overwolf*",
+    "*WeMod*",
+    "*Wand*",
+    "*Wargaming*",
+    "*World of Tanks*",
+    "*World of Warships*",
+    "*WorldOfTanks*",
+    "*WorldOfWarships*"
 )
 
 Write-Host "Comprobando paquetes AppX instalados (todos los usuarios)..."
@@ -144,7 +165,17 @@ $DisallowedAppNames = @(
     "Riot Vanguard",
     "League of Legends",
     "Valorant",
-    "Rocket League"
+    "Rocket League",
+    "Hytale",
+    "WinDS Pro",
+    "Porofessor",
+    "Overwolf",
+    "WeMod",
+    "Wand",
+    "Wargaming",
+    "World of Tanks",
+    "World of Warships",
+    "World of Warplanes"
 )
 
 foreach ($path in $RegistryPaths) {
@@ -175,7 +206,15 @@ $PhysicalPaths = @(
     [PSCustomObject]@{ Name = "Epic Games Launcher"; Paths = @("$env:ProgramFiles\Epic Games\Launcher\Portal\Binaries\Win64\EpicGamesLauncher.exe", "${env:ProgramFiles(x86)}\Epic Games\Launcher\Portal\Binaries\Win64\EpicGamesLauncher.exe") },
     [PSCustomObject]@{ Name = "Riot Client"; Paths = @("C:\Riot Games\Riot Client\RiotClientServices.exe") },
     [PSCustomObject]@{ Name = "Riot Vanguard"; Paths = @("$env:ProgramFiles\Riot Vanguard\vgtray.exe") },
-    [PSCustomObject]@{ Name = "Rocket League"; Paths = @("$env:ProgramFiles\Epic Games\rocketleague\Binaries\Win64\RocketLeague.exe", "${env:ProgramFiles(x86)}\Epic Games\rocketleague\Binaries\Win64\RocketLeague.exe", "$env:ProgramFiles\Steam\steamapps\common\rocketleague\Binaries\Win64\RocketLeague.exe", "${env:ProgramFiles(x86)}\Steam\steamapps\common\rocketleague\Binaries\Win64\RocketLeague.exe") }
+    [PSCustomObject]@{ Name = "Rocket League"; Paths = @("$env:ProgramFiles\Epic Games\rocketleague\Binaries\Win64\RocketLeague.exe", "${env:ProgramFiles(x86)}\Epic Games\rocketleague\Binaries\Win64\RocketLeague.exe", "$env:ProgramFiles\Steam\steamapps\common\rocketleague\Binaries\Win64\RocketLeague.exe", "${env:ProgramFiles(x86)}\Steam\steamapps\common\rocketleague\Binaries\Win64\RocketLeague.exe") },
+    [PSCustomObject]@{ Name = "Hytale Launcher"; Paths = @("$env:LocalAppData\Hytale\hytale-launcher.exe", "$env:ProgramFiles\Hytale\hytale-launcher.exe", "${env:ProgramFiles(x86)}\Hytale\hytale-launcher.exe") },
+    [PSCustomObject]@{ Name = "WinDS Pro"; Paths = @("$env:ProgramFiles\WinDS PRO\windspro.exe", "${env:ProgramFiles(x86)}\WinDS PRO\windspro.exe", "$env:ProgramFiles\WinDS PRO\windsprox.exe", "${env:ProgramFiles(x86)}\WinDS PRO\windsprox.exe") },
+    [PSCustomObject]@{ Name = "Porofessor / Overwolf"; Paths = @("$env:LocalAppData\Overwolf\Overwolf.exe", "$env:ProgramFiles\Overwolf\Overwolf.exe", "${env:ProgramFiles(x86)}\Overwolf\Overwolf.exe", "$env:LocalAppData\Porofessor\Porofessor.exe") },
+    [PSCustomObject]@{ Name = "WeMod / Wand"; Paths = @("$env:LocalAppData\WeMod\WeMod.exe", "$env:LocalAppData\Wand\Wand.exe") },
+    [PSCustomObject]@{ Name = "Wargaming Game Center"; Paths = @("$env:ProgramFiles\Wargaming.net\GameCenter\wgc.exe", "${env:ProgramFiles(x86)}\Wargaming.net\GameCenter\wgc.exe", "C:\Games\Wargaming.net\GameCenter\wgc.exe") },
+    [PSCustomObject]@{ Name = "World of Tanks"; Paths = @("C:\Games\World_of_Tanks\WorldOfTanks.exe", "C:\Games\World_of_Tanks_EU\WorldOfTanks.exe") },
+    [PSCustomObject]@{ Name = "World of Warships"; Paths = @("C:\Games\World_of_Warships\WorldOfWarships.exe", "C:\Games\World_of_Warships_EU\WorldOfWarships.exe") },
+    [PSCustomObject]@{ Name = "World of Warplanes"; Paths = @("C:\Games\World_of_Warplanes\WorldOfWarplanes.exe") }
 )
 
 foreach ($app in $PhysicalPaths) {

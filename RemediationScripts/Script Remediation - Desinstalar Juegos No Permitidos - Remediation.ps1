@@ -3,19 +3,31 @@
     REMEDIATION SCRIPT: ELIMINAR APLICACIONES DE JUEGOS NO PERMITIDAS
 
 .DESCRIPTION
-    Este script elimina los siguientes paquetes UWP/AppX de juego de dispositivos
+    Este script elimina las siguientes aplicaciones de juego de dispositivos
     Windows 10/11 gestionados por Intune:
 
       - Microsoft.MinecraftJavaEdition  (Minecraft Java Edition)
       - Microsoft.MinecraftUWP          (Minecraft para Windows)
       - Microsoft.MicrosoftSolitaireCollection (Microsoft Solitaire Collection)
       - Microsoft.MicrosoftSudoku       (Microsoft Sudoku)
+      - Steam
+      - Epic Games Launcher
+      - Riot Client / Riot Vanguard / Valorant / League of Legends
+      - Rocket League
+      - Hytale Launcher
+      - WinDS Pro
+      - Porofessor Standalone (Overwolf)
+      - WeMod / Wand
+      - Wargaming Group (World of Tanks, World of Warships, World of Warplanes)
 
     Pasos de remediacion:
       1. Finalizar procesos activos de los juegos
-      2. Eliminar paquetes AppX para todos los usuarios
-      3. Eliminar paquetes AppX provisionados (evita reinstalacion en nuevos perfiles)
-      4. Post-verificacion para confirmar la eliminacion completa
+      2. Detener y eliminar servicios de Riot Vanguard
+      3. Ejecutar desinstaladores tradicionales nativos/registro de forma silenciosa
+      4. Eliminar paquetes AppX para todos los usuarios y provisionados
+      5. Limpiar carpetas fisicas de instalacion y archivos residuales (AppData)
+      6. Limpiar claves de registro de software residuales
+      7. Limpiar accesos directos residuales de escritorios y menus de inicio
 
     Salida:
       - Exit 0: Remediacion completada con exito
@@ -30,8 +42,8 @@
 .NOTES
     Name: Script Remediation - Desinstalar Juegos No Permitidos - Remediation.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.0.0
-    Date: 2026-06-24
+    Version: 1.1.0
+    Date: 2026-06-27
     Context: System
 #>
 
@@ -74,7 +86,18 @@ $WildcardAppxNames = @(
     "*Valorant*",
     "*LeagueOfLegends*",
     "*RocketLeague*",
-    "*Rocket League*"
+    "*Rocket League*",
+    "*Hytale*",
+    "*WinDS*",
+    "*Porofessor*",
+    "*Overwolf*",
+    "*WeMod*",
+    "*Wand*",
+    "*Wargaming*",
+    "*World of Tanks*",
+    "*World of Warships*",
+    "*WorldOfTanks*",
+    "*WorldOfWarships*"
 )
 
 # Nombres de procesos a finalizar
@@ -87,7 +110,10 @@ $ProcessNamesToKill = @(
     "EpicGamesLauncher", "EpicWebHelper", "UnrealCEFSubProcess",
     "RiotClientServices", "RiotClientUx", "RiotClient", "RiotClientUxRender",
     "vgc", "vgk", "Valorant", "LeagueClient", "League of Legends",
-    "RocketLeague"
+    "RocketLeague", "hytale-launcher", "hytale", "windspro", "windsprox",
+    "WinDSpro2", "WinDSpro3", "config", "Overwolf", "OverwolfLauncher",
+    "Porofessor", "Porofessor.gg", "WeMod", "Wand", "WeModAuxiliaryService",
+    "wgc", "wgc_api", "WorldOfWarships", "WorldOfTanks", "WorldOfWarplanes"
 )
 
 $DisallowedAppNames = @(
@@ -97,7 +123,17 @@ $DisallowedAppNames = @(
     "Riot Vanguard",
     "League of Legends",
     "Valorant",
-    "Rocket League"
+    "Rocket League",
+    "Hytale",
+    "WinDS Pro",
+    "Porofessor",
+    "Overwolf",
+    "WeMod",
+    "Wand",
+    "Wargaming",
+    "World of Tanks",
+    "World of Warships",
+    "World of Warplanes"
 )
 
 # =============================================================================
@@ -220,6 +256,70 @@ if (Test-Path $riotClientPath) {
     }
 }
 
+# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes)
+Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships y World of Warplanes en el Registro..."
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes")
+foreach ($path in $registryUninstallPaths) {
+    try {
+        if (Test-Path $path) {
+            $subkeys = Get-ChildItem -Path $path -ErrorAction SilentlyContinue
+            foreach ($subkey in $subkeys) {
+                $displayName = (Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue).DisplayName
+                if ($null -ne $displayName) {
+                    $match = $false
+                    foreach ($app in $OtherDisallowedApps) {
+                        if ($displayName -like "*$app*") {
+                            $match = $true
+                        }
+                    }
+                    if ($match) {
+                        $uninstallString = (Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue).UninstallString
+                        $quietUninstallString = (Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue).QuietUninstallString
+                        
+                        $uninstallCommand = ""
+                        if ($quietUninstallString) {
+                            $uninstallCommand = $quietUninstallString
+                        } elseif ($uninstallString) {
+                            if ($uninstallString -match '({[A-Z0-9\-]+})' -or $uninstallString -like "*MsiExec.exe*") {
+                                if ($uninstallString -match '({[A-Z0-9\-]+})') {
+                                    $guid = $Matches[1]
+                                    $uninstallCommand = "msiexec.exe /X $guid /qn /norestart"
+                                } else {
+                                    $uninstallCommand = $uninstallString -replace "/I", "/X"
+                                    if ($uninstallCommand -notlike "*/qn*") {
+                                        $uninstallCommand = "$uninstallCommand /qn /norestart"
+                                    }
+                                }
+                            } elseif ($uninstallString -like "*uninst.exe*" -or $uninstallString -like "*uninstall.exe*") {
+                                $cleanUninstallString = $uninstallString -replace '"', ''
+                                if ($cleanUninstallString -notlike "*/S*" -and $cleanUninstallString -notlike "*/s*") {
+                                    $uninstallCommand = "`"$cleanUninstallString`" /S"
+                                } else {
+                                    $uninstallCommand = $uninstallString
+                                }
+                            } else {
+                                $uninstallCommand = "$uninstallString /S /silent /quiet /qn /norestart"
+                            }
+                        }
+                        
+                        if ($uninstallCommand) {
+                            Write-Host "  Ejecutando desinstalacion para ${displayName}: $uninstallCommand"
+                            try {
+                                $proc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $uninstallCommand" -Wait -NoNewWindow -PassThru
+                                Write-Host "  -> Codigo de salida uninstaller: $($proc.ExitCode)"
+                            } catch {
+                                Write-Host "  -> Advertencia: No se pudo iniciar desinstalador nativo para $displayName ($($_.Exception.Message))"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } catch {
+        # Ignorar errores de registro
+    }
+}
+
 # =============================================================================
 # PASO 4: Eliminar paquetes AppX/Store
 # =============================================================================
@@ -322,7 +422,23 @@ $FoldersToDelete = @(
     "$env:ProgramFiles\Epic Games\rocketleague",
     "${env:ProgramFiles(x86)}\Epic Games\rocketleague",
     "$env:ProgramFiles\Steam\steamapps\common\rocketleague",
-    "${env:ProgramFiles(x86)}\Steam\steamapps\common\rocketleague"
+    "${env:ProgramFiles(x86)}\Steam\steamapps\common\rocketleague",
+    "$env:ProgramFiles\Hytale",
+    "${env:ProgramFiles(x86)}\Hytale",
+    "$env:ProgramData\Hytale",
+    "$env:ProgramFiles\WinDS PRO",
+    "${env:ProgramFiles(x86)}\WinDS PRO",
+    "$env:ProgramFiles\Overwolf",
+    "${env:ProgramFiles(x86)}\Overwolf",
+    "$env:ProgramData\Overwolf",
+    "$env:ProgramFiles\Wargaming.net",
+    "${env:ProgramFiles(x86)}\Wargaming.net",
+    "C:\Games\Wargaming.net",
+    "C:\Games\World_of_Tanks",
+    "C:\Games\World_of_Tanks_EU",
+    "C:\Games\World_of_Warships",
+    "C:\Games\World_of_Warships_EU",
+    "C:\Games\World_of_Warplanes"
 )
 
 # Obtener perfiles de usuarios locales para AppData y Documentos
@@ -338,7 +454,20 @@ foreach ($profile in $userProfiles) {
             "C:\Users\$username\AppData\Local\Riot Games",
             "C:\Users\$username\AppData\Roaming\Riot Games",
             "C:\Users\$username\AppData\Local\Rocket League",
-            "C:\Users\$username\Documents\My Games\Rocket League"
+            "C:\Users\$username\Documents\My Games\Rocket League",
+            "C:\Users\$username\AppData\Local\Hytale",
+            "C:\Users\$username\AppData\Roaming\Hytale",
+            "C:\Users\$username\AppData\Local\WinDS PRO",
+            "C:\Users\$username\AppData\Roaming\WinDS PRO",
+            "C:\Users\$username\AppData\Local\Overwolf",
+            "C:\Users\$username\AppData\Roaming\Overwolf",
+            "C:\Users\$username\AppData\Local\Porofessor",
+            "C:\Users\$username\AppData\Local\WeMod",
+            "C:\Users\$username\AppData\Roaming\WeMod",
+            "C:\Users\$username\AppData\Local\Wand",
+            "C:\Users\$username\AppData\Roaming\Wand",
+            "C:\Users\$username\AppData\Local\Wargaming.net",
+            "C:\Users\$username\AppData\Roaming\Wargaming.net"
         )
     }
 }
@@ -399,7 +528,25 @@ $softwareKeys = @(
     "HKCU:\Software\Epic Games",
     "HKLM:\SOFTWARE\EpicGames",
     "HKLM:\SOFTWARE\Wow6432Node\EpicGames",
-    "HKCU:\Software\EpicGames"
+    "HKCU:\Software\EpicGames",
+    "HKLM:\SOFTWARE\Hypixel Studios",
+    "HKLM:\SOFTWARE\Wow6432Node\Hypixel Studios",
+    "HKCU:\Software\Hypixel Studios",
+    "HKLM:\SOFTWARE\WinDS PRO",
+    "HKLM:\SOFTWARE\Wow6432Node\WinDS PRO",
+    "HKCU:\Software\WinDS PRO",
+    "HKLM:\SOFTWARE\Overwolf",
+    "HKLM:\SOFTWARE\Wow6432Node\Overwolf",
+    "HKCU:\Software\Overwolf",
+    "HKLM:\SOFTWARE\WeMod",
+    "HKLM:\SOFTWARE\Wow6432Node\WeMod",
+    "HKCU:\Software\WeMod",
+    "HKLM:\SOFTWARE\Wand",
+    "HKLM:\SOFTWARE\Wow6432Node\Wand",
+    "HKCU:\Software\Wand",
+    "HKLM:\SOFTWARE\Wargaming.net",
+    "HKLM:\SOFTWARE\Wow6432Node\Wargaming.net",
+    "HKCU:\Software\Wargaming.net"
 )
 
 foreach ($key in $softwareKeys) {
@@ -419,7 +566,19 @@ $ShortcutPatterns = @(
     "*Riot Client*",
     "*League of Legends*",
     "*Valorant*",
-    "*Rocket League*"
+    "*Rocket League*",
+    "*Hytale*",
+    "*WinDS*",
+    "*Porofessor*",
+    "*Overwolf*",
+    "*WeMod*",
+    "*Wand*",
+    "*Wargaming*",
+    "*WGC*",
+    "*World of Tanks*",
+    "*World of Warships*",
+    "*WorldOfTanks*",
+    "*WorldOfWarships*"
 )
 
 $ShortcutPaths = @(
@@ -528,7 +687,26 @@ $PhysicalPathsToCheck = @(
     "$env:ProgramFiles\Epic Games\rocketleague\Binaries\Win64\RocketLeague.exe",
     "${env:ProgramFiles(x86)}\Epic Games\rocketleague\Binaries\Win64\RocketLeague.exe",
     "$env:ProgramFiles\Steam\steamapps\common\rocketleague\Binaries\Win64\RocketLeague.exe",
-    "${env:ProgramFiles(x86)}\Steam\steamapps\common\rocketleague\Binaries\Win64\RocketLeague.exe"
+    "${env:ProgramFiles(x86)}\Steam\steamapps\common\rocketleague\Binaries\Win64\RocketLeague.exe",
+    "$env:LocalAppData\Hytale\hytale-launcher.exe",
+    "$env:ProgramFiles\Hytale\hytale-launcher.exe",
+    "${env:ProgramFiles(x86)}\Hytale\hytale-launcher.exe",
+    "$env:ProgramFiles\WinDS PRO\windspro.exe",
+    "${env:ProgramFiles(x86)}\WinDS PRO\windspro.exe",
+    "$env:LocalAppData\Overwolf\Overwolf.exe",
+    "$env:ProgramFiles\Overwolf\Overwolf.exe",
+    "${env:ProgramFiles(x86)}\Overwolf\Overwolf.exe",
+    "$env:LocalAppData\Porofessor\Porofessor.exe",
+    "$env:LocalAppData\WeMod\WeMod.exe",
+    "$env:LocalAppData\Wand\Wand.exe",
+    "$env:ProgramFiles\Wargaming.net\GameCenter\wgc.exe",
+    "${env:ProgramFiles(x86)}\Wargaming.net\GameCenter\wgc.exe",
+    "C:\Games\Wargaming.net\GameCenter\wgc.exe",
+    "C:\Games\World_of_Tanks\WorldOfTanks.exe",
+    "C:\Games\World_of_Tanks_EU\WorldOfTanks.exe",
+    "C:\Games\World_of_Warships\WorldOfWarships.exe",
+    "C:\Games\World_of_Warships_EU\WorldOfWarships.exe",
+    "C:\Games\World_of_Warplanes\WorldOfWarplanes.exe"
 )
 
 foreach ($path in $PhysicalPathsToCheck) {
