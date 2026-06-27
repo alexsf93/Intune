@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    REMEDIATION SCRIPT: ELIMINAR APLICACIONES DE JUEGOS NO PERMITIDAS
+    REMEDIATION SCRIPT: ELIMINAR APLICACIONES Y JUEGOS NO PERMITIDOS
 
 .DESCRIPTION
-    Este script elimina las siguientes aplicaciones de juego de dispositivos
+    Este script elimina las siguientes aplicaciones de juego o software no permitido de dispositivos
     Windows 10/11 gestionados por Intune:
 
       - Microsoft.MinecraftJavaEdition  (Minecraft Java Edition)
@@ -21,10 +21,11 @@
       - Wargaming Group (World of Tanks, World of Warships, World of Warplanes)
       - Hakchi2 CE
       - Transmission (P2P Torrent Downloader)
+      - qBittorrent (P2P Torrent Downloader)
       - SideQuest
 
     Pasos de remediacion:
-      1. Finalizar procesos activos de los juegos
+      1. Finalizar procesos activos de los juegos y aplicaciones no permitidas
       2. Detener y eliminar servicios de Riot Vanguard
       3. Ejecutar desinstaladores tradicionales nativos/registro de forma silenciosa
       4. Eliminar paquetes AppX para todos los usuarios y provisionados
@@ -43,9 +44,9 @@
     Executes as Intune Remediation Script.
 
 .NOTES
-    Name: Script Remediation - Desinstalar Juegos No Permitidos - Remediation.ps1
+    Name: Script Remediation - Desinstalar Aplicaciones y Juegos No Permitidos - Remediation.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.4.0
+    Version: 1.5.0
     Date: 2026-06-27
     Context: System
 #>
@@ -70,7 +71,7 @@ if ([Environment]::Is64BitOperatingSystem -and -not [Environment]::Is64BitProces
     }
 }
 
-Write-Host "Iniciando eliminacion de aplicaciones de juego no permitidas..."
+Write-Host "Iniciando eliminacion de aplicaciones y juegos no permitidos..."
 
 # 1. Definiciones de aplicaciones AppX a desinstalar por nombre de paquete exacto
 $TargetAppxApps = @(
@@ -103,6 +104,7 @@ $WildcardAppxNames = @(
     "*WorldOfWarships*",
     "*hakchi*",
     "*transmission*",
+    "*qbittorrent*",
     "*sidequest*"
 )
 
@@ -120,7 +122,7 @@ $ProcessNamesToKill = @(
     "WinDSpro2", "WinDSpro3", "config", "Overwolf", "OverwolfLauncher",
     "Porofessor", "Porofessor.gg", "WeMod", "Wand", "WeModAuxiliaryService",
     "wgc", "wgc_api", "WorldOfWarships", "WorldOfTanks", "WorldOfWarplanes",
-    "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "SideQuest"
+    "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "qbittorrent", "SideQuest"
 )
 
 $DisallowedAppNames = @(
@@ -144,6 +146,7 @@ $DisallowedAppNames = @(
     "Hakchi2",
     "Hakchi2 CE",
     "Transmission",
+    "qBittorrent",
     "SideQuest"
 )
 
@@ -267,9 +270,9 @@ if (Test-Path $riotClientPath) {
     }
 }
 
-# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, SideQuest)
-Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission y SideQuest en el Registro..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "SideQuest")
+# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, SideQuest)
+Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent y SideQuest en el Registro..."
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "SideQuest")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
@@ -455,6 +458,10 @@ $FoldersToDelete = @(
     "$env:ProgramData\Team Shinkansen",
     "$env:ProgramFiles\Transmission",
     "${env:ProgramFiles(x86)}\Transmission",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Transmission",
+    "$env:ProgramFiles\qBittorrent",
+    "${env:ProgramFiles(x86)}\qBittorrent",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\qBittorrent",
     "$env:ProgramFiles\SideQuest",
     "${env:ProgramFiles(x86)}\SideQuest"
 )
@@ -490,6 +497,11 @@ foreach ($profile in $userProfiles) {
             "C:\Users\$username\AppData\Local\hakchi2-ce",
             "C:\Users\$username\AppData\Local\Transmission",
             "C:\Users\$username\AppData\Roaming\Transmission",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Transmission",
+            "C:\Users\$username\AppData\Local\qBittorrent",
+            "C:\Users\$username\AppData\Roaming\qBittorrent",
+            "C:\Users\$username\AppData\Local\Programs\qBittorrent",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\qBittorrent",
             "C:\Users\$username\AppData\Local\Programs\SideQuest",
             "C:\Users\$username\AppData\Local\SideQuest",
             "C:\Users\$username\AppData\Roaming\SideQuest"
@@ -580,7 +592,10 @@ $softwareKeys = @(
     "HKCU:\Software\Transmission",
     "HKLM:\SOFTWARE\SideQuest",
     "HKLM:\SOFTWARE\Wow6432Node\SideQuest",
-    "HKCU:\Software\SideQuest"
+    "HKCU:\Software\SideQuest",
+    "HKLM:\SOFTWARE\qBittorrent",
+    "HKLM:\SOFTWARE\Wow6432Node\qBittorrent",
+    "HKCU:\Software\qBittorrent"
 )
 
 foreach ($key in $softwareKeys) {
@@ -615,6 +630,7 @@ $ShortcutPatterns = @(
     "*WorldOfWarships*",
     "*hakchi*",
     "*transmission*",
+    "*qbittorrent*",
     "*sidequest*"
 )
 
@@ -752,6 +768,9 @@ $PhysicalPathsToCheck = @(
     "${env:ProgramFiles(x86)}\Transmission\transmission-qt.exe",
     "$env:ProgramFiles\Transmission\transmission-daemon.exe",
     "${env:ProgramFiles(x86)}\Transmission\transmission-daemon.exe",
+    "$env:ProgramFiles\qBittorrent\qbittorrent.exe",
+    "${env:ProgramFiles(x86)}\qBittorrent\qbittorrent.exe",
+    "C:\Users\*\AppData\Local\Programs\qBittorrent\qbittorrent.exe",
     "$env:ProgramFiles\SideQuest\SideQuest.exe",
     "${env:ProgramFiles(x86)}\SideQuest\SideQuest.exe",
     "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe"
@@ -768,6 +787,6 @@ if ($Failed) {
     Write-Host "ERROR CRITICO: Algunas aplicaciones no pudieron eliminarse completamente."
     exit 1
 } else {
-    Write-Host "Remediacion finalizada con exito. Todos los juegos no permitidos han sido eliminados."
+    Write-Host "Remediacion finalizada con exito. Todas las aplicaciones y juegos no permitidos han sido eliminados."
     exit 0
 }

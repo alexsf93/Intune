@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    DETECTION SCRIPT: DETECTAR APLICACIONES DE JUEGOS NO PERMITIDAS
+    DETECTION SCRIPT: DETECTAR APLICACIONES Y JUEGOS NO PERMITIDOS
 
 .DESCRIPTION
-    Este script comprueba si alguna de las siguientes aplicaciones de juego esta
+    Este script comprueba si alguna de las siguientes aplicaciones de juego o software no permitido esta
     instalada en el sistema como paquete UWP/AppX, registro o ejecutable fisico:
 
       - Microsoft.MinecraftJavaEdition  (Minecraft Java Edition)
@@ -21,6 +21,7 @@
       - Wargaming Group (World of Tanks, World of Warships, World of Warplanes)
       - Hakchi2 CE
       - Transmission (P2P Torrent Downloader)
+      - qBittorrent (P2P Torrent Downloader)
       - SideQuest
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
@@ -37,9 +38,9 @@
     Executes as Intune Detection Script.
 
 .NOTES
-    Name: Script Remediation - Desinstalar Juegos No Permitidos - Detection.ps1
+    Name: Script Remediation - Desinstalar Aplicaciones y Juegos No Permitidos - Detection.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.4.0
+    Version: 1.5.0
     Date: 2026-06-27
     Context: System
 #>
@@ -94,6 +95,7 @@ $WildcardAppxNames = @(
     "*WorldOfWarships*",
     "*hakchi*",
     "*transmission*",
+    "*qbittorrent*",
     "*sidequest*"
 )
 
@@ -186,6 +188,7 @@ $DisallowedAppNames = @(
     "Hakchi2 CE",
     "hakchi2",
     "Transmission",
+    "qBittorrent",
     "SideQuest"
 )
 
@@ -228,6 +231,7 @@ $PhysicalPaths = @(
     [PSCustomObject]@{ Name = "World of Warplanes"; Paths = @("C:\Games\World_of_Warplanes\WorldOfWarplanes.exe") },
     [PSCustomObject]@{ Name = "Hakchi2 CE"; Paths = @("${env:ProgramFiles(x86)}\Team Shinkansen\Hakchi2 CE\hakchi.exe", "$env:ProgramFiles\Team Shinkansen\Hakchi2 CE\hakchi.exe", "C:\Users\*\Documents\Hakchi2\hakchi.exe", "C:\Users\*\AppData\Local\hakchi2-ce\hakchi.exe") },
     [PSCustomObject]@{ Name = "Transmission"; Paths = @("$env:ProgramFiles\Transmission\transmission-qt.exe", "${env:ProgramFiles(x86)}\Transmission\transmission-qt.exe", "$env:ProgramFiles\Transmission\transmission-daemon.exe", "${env:ProgramFiles(x86)}\Transmission\transmission-daemon.exe") },
+    [PSCustomObject]@{ Name = "qBittorrent"; Paths = @("$env:ProgramFiles\qBittorrent\qbittorrent.exe", "${env:ProgramFiles(x86)}\qBittorrent\qbittorrent.exe", "C:\Users\*\AppData\Local\Programs\qBittorrent\qbittorrent.exe") },
     [PSCustomObject]@{ Name = "SideQuest"; Paths = @("$env:ProgramFiles\SideQuest\SideQuest.exe", "${env:ProgramFiles(x86)}\SideQuest\SideQuest.exe", "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe") }
 )
 
@@ -244,10 +248,10 @@ foreach ($app in $PhysicalPaths) {
 # Evaluacion final
 # =============================================================================
 if ($detected) {
-    Write-Host "Detected: Se han encontrado aplicaciones de juego no permitidas."
+    Write-Host "Detected: Se han encontrado aplicaciones o juegos no permitidos."
     foreach ($reason in $Reasons) { Write-Host " - $reason" }
     exit 1
 } else {
-    Write-Host "No se ha encontrado ninguna aplicacion de juego no permitida."
+    Write-Host "No se ha encontrado ninguna aplicacion o juego no permitido."
     exit 0
 }
