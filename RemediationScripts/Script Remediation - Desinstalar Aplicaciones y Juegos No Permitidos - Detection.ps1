@@ -12,6 +12,7 @@
       - Microsoft.MicrosoftSudoku       (Microsoft Sudoku)
       - Steam
       - Epic Games Launcher
+      - EA app / EA Launcher / Origin (EA Desktop)
       - Riot Client / Riot Vanguard / Valorant / League of Legends
       - Rocket League
       - Hytale Launcher
@@ -40,8 +41,8 @@
 .NOTES
     Name: Script Remediation - Desinstalar Aplicaciones y Juegos No Permitidos - Detection.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.5.0
-    Date: 2026-06-27
+    Version: 1.6.0
+    Date: 2026-06-28
     Context: System
 #>
 
@@ -76,6 +77,10 @@ $TargetAppxNames = @(
 $WildcardAppxNames = @(
     "*Steam*",
     "*EpicGames*",
+    "*EAapp*",
+    "*EA app*",
+    "*ElectronicArts*",
+    "*Origin*",
     "*RiotClient*",
     "*RiotVanguard*",
     "*Valorant*",
@@ -189,6 +194,9 @@ $DisallowedAppNames = @(
     "hakchi2",
     "Transmission",
     "qBittorrent",
+    "EA app",
+    "Electronic Arts",
+    "Origin",
     "SideQuest"
 )
 
@@ -232,6 +240,14 @@ $PhysicalPaths = @(
     [PSCustomObject]@{ Name = "Hakchi2 CE"; Paths = @("${env:ProgramFiles(x86)}\Team Shinkansen\Hakchi2 CE\hakchi.exe", "$env:ProgramFiles\Team Shinkansen\Hakchi2 CE\hakchi.exe", "C:\Users\*\Documents\Hakchi2\hakchi.exe", "C:\Users\*\AppData\Local\hakchi2-ce\hakchi.exe") },
     [PSCustomObject]@{ Name = "Transmission"; Paths = @("$env:ProgramFiles\Transmission\transmission-qt.exe", "${env:ProgramFiles(x86)}\Transmission\transmission-qt.exe", "$env:ProgramFiles\Transmission\transmission-daemon.exe", "${env:ProgramFiles(x86)}\Transmission\transmission-daemon.exe") },
     [PSCustomObject]@{ Name = "qBittorrent"; Paths = @("$env:ProgramFiles\qBittorrent\qbittorrent.exe", "${env:ProgramFiles(x86)}\qBittorrent\qbittorrent.exe", "C:\Users\*\AppData\Local\Programs\qBittorrent\qbittorrent.exe") },
+    [PSCustomObject]@{ Name = "EA app / EA Launcher / Origin"; Paths = @(
+        "$env:ProgramFiles\Electronic Arts\EA Desktop\EA Desktop\EADesktop.exe",
+        "${env:ProgramFiles(x86)}\Electronic Arts\EA Desktop\EA Desktop\EADesktop.exe",
+        "$env:ProgramFiles\Electronic Arts\EA Desktop\EA Desktop\EALauncher.exe",
+        "${env:ProgramFiles(x86)}\Electronic Arts\EA Desktop\EA Desktop\EALauncher.exe",
+        "${env:ProgramFiles(x86)}\Origin\Origin.exe",
+        "C:\Users\*\AppData\Local\Programs\EA Desktop\EA Desktop\EADesktop.exe"
+    ) },
     [PSCustomObject]@{ Name = "SideQuest"; Paths = @("$env:ProgramFiles\SideQuest\SideQuest.exe", "${env:ProgramFiles(x86)}\SideQuest\SideQuest.exe", "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe") }
 )
 

@@ -12,6 +12,7 @@
       - Microsoft.MicrosoftSudoku       (Microsoft Sudoku)
       - Steam
       - Epic Games Launcher
+      - EA app / EA Launcher / Origin (EA Desktop)
       - Riot Client / Riot Vanguard / Valorant / League of Legends
       - Rocket League
       - Hytale Launcher
@@ -46,8 +47,8 @@
 .NOTES
     Name: Script Remediation - Desinstalar Aplicaciones y Juegos No Permitidos - Remediation.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.5.0
-    Date: 2026-06-27
+    Version: 1.6.0
+    Date: 2026-06-28
     Context: System
 #>
 
@@ -85,6 +86,10 @@ $TargetAppxApps = @(
 $WildcardAppxNames = @(
     "*Steam*",
     "*EpicGames*",
+    "*EAapp*",
+    "*EA app*",
+    "*ElectronicArts*",
+    "*Origin*",
     "*RiotClient*",
     "*RiotVanguard*",
     "*Valorant*",
@@ -116,6 +121,7 @@ $ProcessNamesToKill = @(
     "MicrosoftSudoku",
     "steam", "steamwebhelper", "GameOverlayUI",
     "EpicGamesLauncher", "EpicWebHelper", "UnrealCEFSubProcess",
+    "EADesktop", "EALauncher", "EABackgroundService", "Origin", "OriginWebHelperService", "OriginClientService",
     "RiotClientServices", "RiotClientUx", "RiotClient", "RiotClientUxRender",
     "vgc", "vgk", "Valorant", "LeagueClient", "League of Legends",
     "RocketLeague", "hytale-launcher", "hytale", "windspro", "windsprox",
@@ -128,6 +134,9 @@ $ProcessNamesToKill = @(
 $DisallowedAppNames = @(
     "Steam",
     "Epic Games Launcher",
+    "EA app",
+    "Electronic Arts",
+    "Origin",
     "Riot Client",
     "Riot Vanguard",
     "League of Legends",
@@ -270,9 +279,9 @@ if (Test-Path $riotClientPath) {
     }
 }
 
-# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, SideQuest)
-Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent y SideQuest en el Registro..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "SideQuest")
+# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, SideQuest)
+Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts y SideQuest en el Registro..."
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "SideQuest")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
@@ -462,6 +471,13 @@ $FoldersToDelete = @(
     "$env:ProgramFiles\qBittorrent",
     "${env:ProgramFiles(x86)}\qBittorrent",
     "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\qBittorrent",
+    "$env:ProgramFiles\Electronic Arts\EA Desktop",
+    "${env:ProgramFiles(x86)}\Electronic Arts\EA Desktop",
+    "${env:ProgramFiles(x86)}\Origin",
+    "$env:ProgramData\Origin",
+    "$env:ProgramData\Electronic Arts\EA Desktop",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\EA app",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Origin",
     "$env:ProgramFiles\SideQuest",
     "${env:ProgramFiles(x86)}\SideQuest"
 )
@@ -502,6 +518,12 @@ foreach ($profile in $userProfiles) {
             "C:\Users\$username\AppData\Roaming\qBittorrent",
             "C:\Users\$username\AppData\Local\Programs\qBittorrent",
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\qBittorrent",
+            "C:\Users\$username\AppData\Local\Electronic Arts",
+            "C:\Users\$username\AppData\Roaming\Electronic Arts",
+            "C:\Users\$username\AppData\Local\Origin",
+            "C:\Users\$username\AppData\Roaming\Origin",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\EA app",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Origin",
             "C:\Users\$username\AppData\Local\Programs\SideQuest",
             "C:\Users\$username\AppData\Local\SideQuest",
             "C:\Users\$username\AppData\Roaming\SideQuest"
@@ -595,7 +617,13 @@ $softwareKeys = @(
     "HKCU:\Software\SideQuest",
     "HKLM:\SOFTWARE\qBittorrent",
     "HKLM:\SOFTWARE\Wow6432Node\qBittorrent",
-    "HKCU:\Software\qBittorrent"
+    "HKCU:\Software\qBittorrent",
+    "HKLM:\SOFTWARE\Electronic Arts",
+    "HKLM:\SOFTWARE\Wow6432Node\Electronic Arts",
+    "HKCU:\Software\Electronic Arts",
+    "HKLM:\SOFTWARE\Origin",
+    "HKLM:\SOFTWARE\Wow6432Node\Origin",
+    "HKCU:\Software\Origin"
 )
 
 foreach ($key in $softwareKeys) {
@@ -631,6 +659,10 @@ $ShortcutPatterns = @(
     "*hakchi*",
     "*transmission*",
     "*qbittorrent*",
+    "*EA App*",
+    "*EAapp*",
+    "*EA Desktop*",
+    "*Origin*",
     "*sidequest*"
 )
 
@@ -771,6 +803,11 @@ $PhysicalPathsToCheck = @(
     "$env:ProgramFiles\qBittorrent\qbittorrent.exe",
     "${env:ProgramFiles(x86)}\qBittorrent\qbittorrent.exe",
     "C:\Users\*\AppData\Local\Programs\qBittorrent\qbittorrent.exe",
+    "$env:ProgramFiles\Electronic Arts\EA Desktop\EA Desktop\EADesktop.exe",
+    "${env:ProgramFiles(x86)}\Electronic Arts\EA Desktop\EA Desktop\EADesktop.exe",
+    "$env:ProgramFiles\Electronic Arts\EA Desktop\EA Desktop\EALauncher.exe",
+    "${env:ProgramFiles(x86)}\Electronic Arts\EA Desktop\EA Desktop\EALauncher.exe",
+    "${env:ProgramFiles(x86)}\Origin\Origin.exe",
     "$env:ProgramFiles\SideQuest\SideQuest.exe",
     "${env:ProgramFiles(x86)}\SideQuest\SideQuest.exe",
     "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe"
