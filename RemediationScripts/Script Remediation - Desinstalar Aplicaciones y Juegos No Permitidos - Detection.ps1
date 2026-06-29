@@ -23,6 +23,8 @@
       - Hakchi2 CE
       - Transmission (P2P Torrent Downloader)
       - qBittorrent (P2P Torrent Downloader)
+      - Tixati (P2P Torrent Downloader)
+      - BiglyBT (P2P Torrent Downloader)
       - SideQuest
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
@@ -41,8 +43,8 @@
 .NOTES
     Name: Script Remediation - Desinstalar Aplicaciones y Juegos No Permitidos - Detection.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.6.0
-    Date: 2026-06-28
+    Version: 1.7.0
+    Date: 2026-06-29
     Context: System
 #>
 
@@ -101,6 +103,8 @@ $WildcardAppxNames = @(
     "*hakchi*",
     "*transmission*",
     "*qbittorrent*",
+    "*tixati*",
+    "*biglybt*",
     "*sidequest*"
 )
 
@@ -122,8 +126,8 @@ try {
     $allPkgs = Get-AppxPackage -AllUsers -ErrorAction SilentlyContinue
     if ($allPkgs) {
         foreach ($pattern in $WildcardAppxNames) {
-            $matches = $allPkgs | Where-Object { ($_.Name -like $pattern -or $_.PackageFullName -like $pattern) -and $_.Name -notlike "*Teams*" }
-            foreach ($pkg in $matches) {
+            $pkgMatches = $allPkgs | Where-Object { ($_.Name -like $pattern -or $_.PackageFullName -like $pattern) -and $_.Name -notlike "*Teams*" }
+            foreach ($pkg in $pkgMatches) {
                 $detected = $true
                 $Reasons.Add("[Store/AppX] Paquete instalado detectado por patron '$pattern': $($pkg.PackageFullName)")
             }
@@ -142,16 +146,16 @@ try {
     if ($provisionedPkgs) {
         # Por nombres exactos
         foreach ($appName in $TargetAppxNames) {
-            $matches = $provisionedPkgs | Where-Object { $_.DisplayName -eq $appName }
-            foreach ($pkg in $matches) {
+            $pkgMatches = $provisionedPkgs | Where-Object { $_.DisplayName -eq $appName }
+            foreach ($pkg in $pkgMatches) {
                 $detected = $true
                 $Reasons.Add("[Store/AppX Provisionado] Paquete provisionado detectado: $($pkg.PackageName)")
             }
         }
         # Por comodines
         foreach ($pattern in $WildcardAppxNames) {
-            $matches = $provisionedPkgs | Where-Object { ($_.DisplayName -like $pattern -or $_.PackageName -like $pattern) -and $_.DisplayName -notlike "*Teams*" }
-            foreach ($pkg in $matches) {
+            $pkgMatches = $provisionedPkgs | Where-Object { ($_.DisplayName -like $pattern -or $_.PackageName -like $pattern) -and $_.DisplayName -notlike "*Teams*" }
+            foreach ($pkg in $pkgMatches) {
                 $detected = $true
                 $Reasons.Add("[Store/AppX Provisionado] Paquete provisionado detectado por patron '$pattern': $($pkg.PackageName)")
             }
@@ -194,6 +198,8 @@ $DisallowedAppNames = @(
     "hakchi2",
     "Transmission",
     "qBittorrent",
+    "Tixati",
+    "BiglyBT",
     "EA app",
     "Electronic Arts",
     "Origin",
@@ -240,6 +246,8 @@ $PhysicalPaths = @(
     [PSCustomObject]@{ Name = "Hakchi2 CE"; Paths = @("${env:ProgramFiles(x86)}\Team Shinkansen\Hakchi2 CE\hakchi.exe", "$env:ProgramFiles\Team Shinkansen\Hakchi2 CE\hakchi.exe", "C:\Users\*\Documents\Hakchi2\hakchi.exe", "C:\Users\*\AppData\Local\hakchi2-ce\hakchi.exe") },
     [PSCustomObject]@{ Name = "Transmission"; Paths = @("$env:ProgramFiles\Transmission\transmission-qt.exe", "${env:ProgramFiles(x86)}\Transmission\transmission-qt.exe", "$env:ProgramFiles\Transmission\transmission-daemon.exe", "${env:ProgramFiles(x86)}\Transmission\transmission-daemon.exe") },
     [PSCustomObject]@{ Name = "qBittorrent"; Paths = @("$env:ProgramFiles\qBittorrent\qbittorrent.exe", "${env:ProgramFiles(x86)}\qBittorrent\qbittorrent.exe", "C:\Users\*\AppData\Local\Programs\qBittorrent\qbittorrent.exe") },
+    [PSCustomObject]@{ Name = "Tixati"; Paths = @("$env:ProgramFiles\Tixati\tixati.exe", "${env:ProgramFiles(x86)}\Tixati\tixati.exe", "C:\Users\*\AppData\Local\Programs\Tixati\tixati.exe") },
+    [PSCustomObject]@{ Name = "BiglyBT"; Paths = @("$env:ProgramFiles\BiglyBT\BiglyBT.exe", "${env:ProgramFiles(x86)}\BiglyBT\BiglyBT.exe", "C:\Users\*\AppData\Local\Programs\BiglyBT\BiglyBT.exe") },
     [PSCustomObject]@{ Name = "EA app / EA Launcher / Origin"; Paths = @(
         "$env:ProgramFiles\Electronic Arts\EA Desktop\EA Desktop\EADesktop.exe",
         "${env:ProgramFiles(x86)}\Electronic Arts\EA Desktop\EA Desktop\EADesktop.exe",

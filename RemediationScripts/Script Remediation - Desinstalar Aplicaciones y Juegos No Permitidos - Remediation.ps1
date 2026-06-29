@@ -23,6 +23,8 @@
       - Hakchi2 CE
       - Transmission (P2P Torrent Downloader)
       - qBittorrent (P2P Torrent Downloader)
+      - Tixati (P2P Torrent Downloader)
+      - BiglyBT (P2P Torrent Downloader)
       - SideQuest
 
     Pasos de remediacion:
@@ -47,8 +49,8 @@
 .NOTES
     Name: Script Remediation - Desinstalar Aplicaciones y Juegos No Permitidos - Remediation.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.6.0
-    Date: 2026-06-28
+    Version: 1.7.0
+    Date: 2026-06-29
     Context: System
 #>
 
@@ -110,6 +112,8 @@ $WildcardAppxNames = @(
     "*hakchi*",
     "*transmission*",
     "*qbittorrent*",
+    "*tixati*",
+    "*biglybt*",
     "*sidequest*"
 )
 
@@ -128,7 +132,7 @@ $ProcessNamesToKill = @(
     "WinDSpro2", "WinDSpro3", "config", "Overwolf", "OverwolfLauncher",
     "Porofessor", "Porofessor.gg", "WeMod", "Wand", "WeModAuxiliaryService",
     "wgc", "wgc_api", "WorldOfWarships", "WorldOfTanks", "WorldOfWarplanes",
-    "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "qbittorrent", "SideQuest"
+    "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "qbittorrent", "tixati", "BiglyBT", "SideQuest"
 )
 
 $DisallowedAppNames = @(
@@ -156,6 +160,8 @@ $DisallowedAppNames = @(
     "Hakchi2 CE",
     "Transmission",
     "qBittorrent",
+    "Tixati",
+    "BiglyBT",
     "SideQuest"
 )
 
@@ -279,9 +285,9 @@ if (Test-Path $riotClientPath) {
     }
 }
 
-# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, SideQuest)
-Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts y SideQuest en el Registro..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "SideQuest")
+# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, Tixati, BiglyBT, SideQuest)
+Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, Tixati, BiglyBT y SideQuest en el Registro..."
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
@@ -376,8 +382,8 @@ try {
     $allAppx = Get-AppxPackage -AllUsers -ErrorAction SilentlyContinue
     if ($allAppx) {
         foreach ($pattern in $WildcardAppxNames) {
-            $matches = $allAppx | Where-Object { ($_.Name -like $pattern -or $_.PackageFullName -like $pattern) -and $_.Name -notlike "*Teams*" }
-            foreach ($pkg in $matches) {
+            $pkgMatches = $allAppx | Where-Object { ($_.Name -like $pattern -or $_.PackageFullName -like $pattern) -and $_.Name -notlike "*Teams*" }
+            foreach ($pkg in $pkgMatches) {
                 Write-Host "  Eliminando paquete detectado por patron '$pattern': $($pkg.PackageFullName)"
                 try {
                     Remove-AppxPackage -Package $pkg.PackageFullName -AllUsers -ErrorAction Stop
@@ -401,8 +407,8 @@ try {
     if ($provisionedPkgs) {
         # Exactos
         foreach ($app in $TargetAppxApps) {
-            $matches = $provisionedPkgs | Where-Object { $_.DisplayName -eq $app.PackageName }
-            foreach ($pkg in $matches) {
+            $pkgMatches = $provisionedPkgs | Where-Object { $_.DisplayName -eq $app.PackageName }
+            foreach ($pkg in $pkgMatches) {
                 Write-Host "  Eliminando paquete provisionado [$($app.DisplayName)]: $($pkg.PackageName)"
                 try {
                     Remove-AppxProvisionedPackage -Online -PackageName $pkg.PackageName -ErrorAction Stop | Out-Null
@@ -413,8 +419,8 @@ try {
         }
         # Comodines
         foreach ($pattern in $WildcardAppxNames) {
-            $matches = $provisionedPkgs | Where-Object { ($_.DisplayName -like $pattern -or $_.PackageName -like $pattern) -and $_.DisplayName -notlike "*Teams*" }
-            foreach ($pkg in $matches) {
+            $pkgMatches = $provisionedPkgs | Where-Object { ($_.DisplayName -like $pattern -or $_.PackageName -like $pattern) -and $_.DisplayName -notlike "*Teams*" }
+            foreach ($pkg in $pkgMatches) {
                 Write-Host "  Eliminando paquete provisionado detectado por patron '$pattern': $($pkg.PackageName)"
                 try {
                     Remove-AppxProvisionedPackage -Online -PackageName $pkg.PackageName -ErrorAction Stop | Out-Null
@@ -479,13 +485,17 @@ $FoldersToDelete = @(
     "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\EA app",
     "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Origin",
     "$env:ProgramFiles\SideQuest",
-    "${env:ProgramFiles(x86)}\SideQuest"
+    "${env:ProgramFiles(x86)}\SideQuest",
+    "$env:ProgramFiles\Tixati",
+    "${env:ProgramFiles(x86)}\Tixati",
+    "$env:ProgramFiles\BiglyBT",
+    "${env:ProgramFiles(x86)}\BiglyBT"
 )
 
 # Obtener perfiles de usuarios locales para AppData y Documentos
 $userProfiles = Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue
-foreach ($profile in $userProfiles) {
-    $username = $profile.Name
+foreach ($userProfile in $userProfiles) {
+    $username = $userProfile.Name
     if ($username -notin @("Public", "Default", "All Users")) {
         $FoldersToDelete += @(
             "C:\Users\$username\AppData\Local\Steam",
@@ -526,7 +536,13 @@ foreach ($profile in $userProfiles) {
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Origin",
             "C:\Users\$username\AppData\Local\Programs\SideQuest",
             "C:\Users\$username\AppData\Local\SideQuest",
-            "C:\Users\$username\AppData\Roaming\SideQuest"
+            "C:\Users\$username\AppData\Roaming\SideQuest",
+            "C:\Users\$username\AppData\Local\Tixati",
+            "C:\Users\$username\AppData\Roaming\Tixati",
+            "C:\Users\$username\AppData\Local\Programs\Tixati",
+            "C:\Users\$username\AppData\Local\BiglyBT",
+            "C:\Users\$username\AppData\Roaming\BiglyBT",
+            "C:\Users\$username\AppData\Local\Programs\BiglyBT"
         )
     }
 }
@@ -623,7 +639,13 @@ $softwareKeys = @(
     "HKCU:\Software\Electronic Arts",
     "HKLM:\SOFTWARE\Origin",
     "HKLM:\SOFTWARE\Wow6432Node\Origin",
-    "HKCU:\Software\Origin"
+    "HKCU:\Software\Origin",
+    "HKLM:\SOFTWARE\Tixati",
+    "HKLM:\SOFTWARE\Wow6432Node\Tixati",
+    "HKCU:\Software\Tixati",
+    "HKLM:\SOFTWARE\BiglyBT",
+    "HKLM:\SOFTWARE\Wow6432Node\BiglyBT",
+    "HKCU:\Software\BiglyBT"
 )
 
 foreach ($key in $softwareKeys) {
@@ -659,6 +681,8 @@ $ShortcutPatterns = @(
     "*hakchi*",
     "*transmission*",
     "*qbittorrent*",
+    "*tixati*",
+    "*biglybt*",
     "*EA App*",
     "*EAapp*",
     "*EA Desktop*",
@@ -671,8 +695,8 @@ $ShortcutPaths = @(
     "C:\ProgramData\Microsoft\Windows\Start Menu\Programs"
 )
 
-foreach ($profile in $userProfiles) {
-    $username = $profile.Name
+foreach ($userProfile in $userProfiles) {
+    $username = $userProfile.Name
     if ($username -notin @("Public", "Default", "All Users")) {
         $ShortcutPaths += @(
             "C:\Users\$username\Desktop",
@@ -803,6 +827,12 @@ $PhysicalPathsToCheck = @(
     "$env:ProgramFiles\qBittorrent\qbittorrent.exe",
     "${env:ProgramFiles(x86)}\qBittorrent\qbittorrent.exe",
     "C:\Users\*\AppData\Local\Programs\qBittorrent\qbittorrent.exe",
+    "$env:ProgramFiles\Tixati\tixati.exe",
+    "${env:ProgramFiles(x86)}\Tixati\tixati.exe",
+    "C:\Users\*\AppData\Local\Programs\Tixati\tixati.exe",
+    "$env:ProgramFiles\BiglyBT\BiglyBT.exe",
+    "${env:ProgramFiles(x86)}\BiglyBT\BiglyBT.exe",
+    "C:\Users\*\AppData\Local\Programs\BiglyBT\BiglyBT.exe",
     "$env:ProgramFiles\Electronic Arts\EA Desktop\EA Desktop\EADesktop.exe",
     "${env:ProgramFiles(x86)}\Electronic Arts\EA Desktop\EA Desktop\EADesktop.exe",
     "$env:ProgramFiles\Electronic Arts\EA Desktop\EA Desktop\EALauncher.exe",
