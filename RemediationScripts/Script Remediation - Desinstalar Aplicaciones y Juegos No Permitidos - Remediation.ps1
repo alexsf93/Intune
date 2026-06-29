@@ -306,7 +306,12 @@ foreach ($path in $registryUninstallPaths) {
                         $quietUninstallString = (Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue).QuietUninstallString
                         
                         $uninstallCommand = ""
-                        if ($quietUninstallString) {
+                        if ($displayName -like "*BiglyBT*") {
+                            if ($uninstallString) {
+                                $cleanUninstallString = $uninstallString -replace '"', ''
+                                $uninstallCommand = "`"$cleanUninstallString`" -q"
+                            }
+                        } elseif ($quietUninstallString) {
                             $uninstallCommand = $quietUninstallString
                         } elseif ($uninstallString) {
                             if ($uninstallString -match '({[A-Z0-9\-]+})' -or $uninstallString -like "*MsiExec.exe*") {
