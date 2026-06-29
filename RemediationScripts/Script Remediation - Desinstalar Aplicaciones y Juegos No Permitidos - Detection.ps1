@@ -26,6 +26,8 @@
       - Tixati (P2P Torrent Downloader)
       - BiglyBT (P2P Torrent Downloader)
       - SideQuest
+      - JDownloader (Java Downloader)
+      - Battle.net (Blizzard Launcher)
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
     provisionados en la imagen del sistema, registros de desinstalacion y rutas de ejecutables comunes.
@@ -105,7 +107,10 @@ $WildcardAppxNames = @(
     "*qbittorrent*",
     "*tixati*",
     "*biglybt*",
-    "*sidequest*"
+    "*sidequest*",
+    "*jdownloader*",
+    "*battle.net*",
+    "*blizzard*"
 )
 
 Write-Host "Comprobando paquetes AppX instalados (todos los usuarios)..."
@@ -203,7 +208,11 @@ $DisallowedAppNames = @(
     "EA app",
     "Electronic Arts",
     "Origin",
-    "SideQuest"
+    "SideQuest",
+    "JDownloader",
+    "JDownloader 2",
+    "Battle.net",
+    "Blizzard Entertainment"
 )
 
 foreach ($path in $RegistryPaths) {
@@ -256,7 +265,23 @@ $PhysicalPaths = @(
         "${env:ProgramFiles(x86)}\Origin\Origin.exe",
         "C:\Users\*\AppData\Local\Programs\EA Desktop\EA Desktop\EADesktop.exe"
     ) },
-    [PSCustomObject]@{ Name = "SideQuest"; Paths = @("$env:ProgramFiles\SideQuest\SideQuest.exe", "${env:ProgramFiles(x86)}\SideQuest\SideQuest.exe", "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe") }
+    [PSCustomObject]@{ Name = "SideQuest"; Paths = @("$env:ProgramFiles\SideQuest\SideQuest.exe", "${env:ProgramFiles(x86)}\SideQuest\SideQuest.exe", "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe") },
+    [PSCustomObject]@{ Name = "JDownloader"; Paths = @(
+        "$env:ProgramFiles\JDownloader 2\JDownloader2.exe",
+        "${env:ProgramFiles(x86)}\JDownloader 2\JDownloader2.exe",
+        "C:\Users\*\AppData\Local\JDownloader 2\JDownloader2.exe",
+        "C:\Users\*\AppData\Local\JDownloader 2.0\JDownloader2.exe",
+        "$env:ProgramFiles\JDownloader\JDownloader2.exe",
+        "${env:ProgramFiles(x86)}\JDownloader\JDownloader2.exe",
+        "C:\Users\*\AppData\Local\JDownloader\JDownloader2.exe"
+    ) },
+    [PSCustomObject]@{ Name = "Battle.net"; Paths = @(
+        "$env:ProgramFiles\Battle.net\Battle.net.exe",
+        "${env:ProgramFiles(x86)}\Battle.net\Battle.net.exe",
+        "$env:ProgramFiles\Battle.net\Battle.net Launcher.exe",
+        "${env:ProgramFiles(x86)}\Battle.net\Battle.net Launcher.exe",
+        "C:\Users\*\AppData\Local\Battle.net\Battle.net.exe"
+    ) }
 )
 
 foreach ($app in $PhysicalPaths) {

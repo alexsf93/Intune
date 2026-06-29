@@ -26,6 +26,8 @@
       - Tixati (P2P Torrent Downloader)
       - BiglyBT (P2P Torrent Downloader)
       - SideQuest
+      - JDownloader (Java Downloader)
+      - Battle.net (Blizzard Launcher)
 
     Pasos de remediacion:
       1. Finalizar procesos activos de los juegos y aplicaciones no permitidas
@@ -114,7 +116,10 @@ $WildcardAppxNames = @(
     "*qbittorrent*",
     "*tixati*",
     "*biglybt*",
-    "*sidequest*"
+    "*sidequest*",
+    "*jdownloader*",
+    "*battle.net*",
+    "*blizzard*"
 )
 
 # Nombres de procesos a finalizar
@@ -132,7 +137,8 @@ $ProcessNamesToKill = @(
     "WinDSpro2", "WinDSpro3", "config", "Overwolf", "OverwolfLauncher",
     "Porofessor", "Porofessor.gg", "WeMod", "Wand", "WeModAuxiliaryService",
     "wgc", "wgc_api", "WorldOfWarships", "WorldOfTanks", "WorldOfWarplanes",
-    "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "qbittorrent", "tixati", "BiglyBT", "SideQuest"
+    "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "qbittorrent", "tixati", "BiglyBT", "SideQuest",
+    "JDownloader", "JDownloader2", "Battle.net", "Battle.net Launcher", "Battle.net Helper", "Agent"
 )
 
 $DisallowedAppNames = @(
@@ -162,7 +168,11 @@ $DisallowedAppNames = @(
     "qBittorrent",
     "Tixati",
     "BiglyBT",
-    "SideQuest"
+    "SideQuest",
+    "JDownloader",
+    "JDownloader 2",
+    "Battle.net",
+    "Blizzard Entertainment"
 )
 
 # =============================================================================
@@ -287,7 +297,7 @@ if (Test-Path $riotClientPath) {
 
 # 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, Tixati, BiglyBT, SideQuest)
 Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, Tixati, BiglyBT y SideQuest en el Registro..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest")
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
@@ -306,10 +316,19 @@ foreach ($path in $registryUninstallPaths) {
                         $quietUninstallString = (Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue).QuietUninstallString
                         
                         $uninstallCommand = ""
-                        if ($displayName -like "*BiglyBT*") {
+                        if ($displayName -like "*BiglyBT*" -or $displayName -like "*JDownloader*") {
                             if ($uninstallString) {
                                 $cleanUninstallString = $uninstallString -replace '"', ''
                                 $uninstallCommand = "`"$cleanUninstallString`" -q"
+                            }
+                        } elseif ($displayName -like "*Battle.net*" -or $displayName -like "*Blizzard*") {
+                            if ($uninstallString) {
+                                $cleanUninstallString = $uninstallString -replace '"', ''
+                                if ($cleanUninstallString -notlike "*--uninstall*") {
+                                    $uninstallCommand = "`"$cleanUninstallString`" --uninstall"
+                                } else {
+                                    $uninstallCommand = $uninstallString
+                                }
                             }
                         } elseif ($quietUninstallString) {
                             $uninstallCommand = $quietUninstallString
@@ -494,7 +513,18 @@ $FoldersToDelete = @(
     "$env:ProgramFiles\Tixati",
     "${env:ProgramFiles(x86)}\Tixati",
     "$env:ProgramFiles\BiglyBT",
-    "${env:ProgramFiles(x86)}\BiglyBT"
+    "${env:ProgramFiles(x86)}\BiglyBT",
+    "$env:ProgramFiles\JDownloader 2",
+    "${env:ProgramFiles(x86)}\JDownloader 2",
+    "$env:ProgramFiles\JDownloader",
+    "${env:ProgramFiles(x86)}\JDownloader",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\JDownloader 2",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\JDownloader",
+    "$env:ProgramFiles\Battle.net",
+    "${env:ProgramFiles(x86)}\Battle.net",
+    "$env:ProgramData\Battle.net",
+    "$env:ProgramData\Blizzard Entertainment",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Battle.net"
 )
 
 # Obtener perfiles de usuarios locales para AppData y Documentos
@@ -547,7 +577,21 @@ foreach ($userProfile in $userProfiles) {
             "C:\Users\$username\AppData\Local\Programs\Tixati",
             "C:\Users\$username\AppData\Local\BiglyBT",
             "C:\Users\$username\AppData\Roaming\BiglyBT",
-            "C:\Users\$username\AppData\Local\Programs\BiglyBT"
+            "C:\Users\$username\AppData\Local\Programs\BiglyBT",
+            "C:\Users\$username\AppData\Local\JDownloader 2",
+            "C:\Users\$username\AppData\Local\JDownloader 2.0",
+            "C:\Users\$username\AppData\Local\JDownloader",
+            "C:\Users\$username\AppData\Local\Programs\JDownloader",
+            "C:\Users\$username\AppData\Roaming\JDownloader 2",
+            "C:\Users\$username\AppData\Roaming\JDownloader",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\JDownloader 2",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\JDownloader",
+            "C:\Users\$username\AppData\Local\Battle.net",
+            "C:\Users\$username\AppData\Roaming\Battle.net",
+            "C:\Users\$username\AppData\Local\Blizzard Entertainment",
+            "C:\Users\$username\AppData\Roaming\Blizzard",
+            "C:\Users\$username\AppData\Roaming\Blizzard Entertainment",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Battle.net"
         )
     }
 }
@@ -650,7 +694,19 @@ $softwareKeys = @(
     "HKCU:\Software\Tixati",
     "HKLM:\SOFTWARE\BiglyBT",
     "HKLM:\SOFTWARE\Wow6432Node\BiglyBT",
-    "HKCU:\Software\BiglyBT"
+    "HKCU:\Software\BiglyBT",
+    "HKLM:\SOFTWARE\JDownloader",
+    "HKLM:\SOFTWARE\Wow6432Node\JDownloader",
+    "HKCU:\Software\JDownloader",
+    "HKLM:\SOFTWARE\JDownloader 2",
+    "HKLM:\SOFTWARE\Wow6432Node\JDownloader 2",
+    "HKCU:\Software\JDownloader 2",
+    "HKLM:\SOFTWARE\Blizzard Entertainment",
+    "HKLM:\SOFTWARE\Wow6432Node\Blizzard Entertainment",
+    "HKCU:\Software\Blizzard Entertainment",
+    "HKLM:\SOFTWARE\Battle.net",
+    "HKLM:\SOFTWARE\Wow6432Node\Battle.net",
+    "HKCU:\Software\Battle.net"
 )
 
 foreach ($key in $softwareKeys) {
@@ -692,7 +748,10 @@ $ShortcutPatterns = @(
     "*EAapp*",
     "*EA Desktop*",
     "*Origin*",
-    "*sidequest*"
+    "*sidequest*",
+    "*JDownloader*",
+    "*Battle.net*",
+    "*Blizzard*"
 )
 
 $ShortcutPaths = @(
@@ -845,7 +904,19 @@ $PhysicalPathsToCheck = @(
     "${env:ProgramFiles(x86)}\Origin\Origin.exe",
     "$env:ProgramFiles\SideQuest\SideQuest.exe",
     "${env:ProgramFiles(x86)}\SideQuest\SideQuest.exe",
-    "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe"
+    "C:\Users\*\AppData\Local\Programs\SideQuest\SideQuest.exe",
+    "$env:ProgramFiles\JDownloader 2\JDownloader2.exe",
+    "${env:ProgramFiles(x86)}\JDownloader 2\JDownloader2.exe",
+    "C:\Users\*\AppData\Local\JDownloader 2\JDownloader2.exe",
+    "C:\Users\*\AppData\Local\JDownloader 2.0\JDownloader2.exe",
+    "$env:ProgramFiles\JDownloader\JDownloader2.exe",
+    "${env:ProgramFiles(x86)}\JDownloader\JDownloader2.exe",
+    "C:\Users\*\AppData\Local\JDownloader\JDownloader2.exe",
+    "$env:ProgramFiles\Battle.net\Battle.net.exe",
+    "${env:ProgramFiles(x86)}\Battle.net\Battle.net.exe",
+    "$env:ProgramFiles\Battle.net\Battle.net Launcher.exe",
+    "${env:ProgramFiles(x86)}\Battle.net\Battle.net Launcher.exe",
+    "C:\Users\*\AppData\Local\Battle.net\Battle.net.exe"
 )
 
 foreach ($path in $PhysicalPathsToCheck) {
