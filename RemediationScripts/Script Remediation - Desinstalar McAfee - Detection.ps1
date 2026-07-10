@@ -4,7 +4,8 @@
 
 .DESCRIPTION
     Este script audita el sistema de forma exhaustiva para comprobar si hay alguna
-    aplicacion, proceso, servicio, directorio o clave de registro relacionada con McAfee o Trellix.
+    aplicacion, proceso, servicio, directorio, clave de registro o paquete AppX/MSIX
+    relacionado con McAfee o Trellix.
 
 .PARAMETER
     Ninguno.
@@ -257,6 +258,27 @@ foreach ($folderPath in $ShortcutPaths) {
             # Ignorar errores al buscar carpetas
         }
     }
+}
+
+# 5.3 Comprobacion de Paquetes Appx / MSIX (ej. McAfeeWPSSparsePackage)
+try {
+    $appxPackages = Get-AppxPackage -AllUsers -Name "*McAfee*" -ErrorAction SilentlyContinue
+    if ($appxPackages) {
+        $detected = $true
+        foreach ($pkg in $appxPackages) {
+            $Reasons.Add("Paquete Appx de McAfee detectado: $($pkg.PackageFullName)")
+        }
+    }
+    
+    $provPackages = Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like "*McAfee*" }
+    if ($provPackages) {
+        $detected = $true
+        foreach ($pkg in $provPackages) {
+            $Reasons.Add("Paquete Appx provisionado de McAfee detectado: $($pkg.DisplayName)")
+        }
+    }
+} catch {
+    Write-Host "DETECCION: Error al comprobar paquetes Appx: $_"
 }
 
 # 6. Evaluacion Final y Salida

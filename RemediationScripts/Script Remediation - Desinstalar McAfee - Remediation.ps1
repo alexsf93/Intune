@@ -5,8 +5,8 @@
 .DESCRIPTION
     Este script detiene procesos relacionados con McAfee/Trellix, ejecuta los desinstaladores
     nativos silenciosamente si están disponibles, detiene/deshabilita/elimina todos sus servicios,
-    y borra de forma forzada todos los archivos, carpetas, claves de registro y accesos directos
-    residuales del sistema.
+    y borra de forma forzada todos los archivos, carpetas, claves de registro, paquetes AppX/MSIX y
+    accesos directos residuales del sistema.
 
 .PARAMETER
     Ninguno.
@@ -303,9 +303,39 @@ try {
 }
 
 # =============================================================================
-# PASO 6: Limpiar accesos directos residuales
+# PASO 6: Limpiar paquetes AppX/MSIX (ej. McAfeeWPSSparsePackage)
 # =============================================================================
-Write-Host "--- Paso 6: Eliminando accesos directos residuales ---"
+Write-Host "--- Paso 6: Eliminando paquetes AppX/MSIX de McAfee ---"
+try {
+    $appxPackages = Get-AppxPackage -AllUsers -Name "*McAfee*" -ErrorAction SilentlyContinue
+    foreach ($pkg in $appxPackages) {
+        Write-Host "  Eliminando paquete AppX para todos los usuarios: $($pkg.PackageFullName)"
+        try {
+            Remove-AppxPackage -AllUsers -Package $pkg.PackageFullName -ErrorAction Stop
+            Write-Host "    -> Eliminado con exito."
+        } catch {
+            Write-Host "    -> Advertencia al eliminar paquete AppX: $_"
+        }
+    }
+
+    $provPackages = Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like "*McAfee*" }
+    foreach ($pkg in $provPackages) {
+        Write-Host "  Eliminando paquete provisionado: $($pkg.DisplayName)"
+        try {
+            Remove-AppxProvisionedPackage -Online -PackageName $pkg.PackageName -ErrorAction Stop
+            Write-Host "    -> Eliminado con exito."
+        } catch {
+            Write-Host "    -> Advertencia al eliminar paquete provisionado: $_"
+        }
+    }
+} catch {
+    Write-Host "  Error durante la eliminacion de paquetes AppX: $_"
+}
+
+# =============================================================================
+# PASO 7: Limpiar accesos directos residuales
+# =============================================================================
+Write-Host "--- Paso 7: Eliminando accesos directos residuales ---"
 $ShortcutPatterns = @("*McAfee*", "*Trellix*")
 $ShortcutPaths = @(
     "C:\Users\Public\Desktop",
