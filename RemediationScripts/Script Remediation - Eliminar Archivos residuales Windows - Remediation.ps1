@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     REMEDIATION SCRIPT: LIMPIEZA DE ARCHIVOS/RESIDUOS DE WINDOWS
 
@@ -38,7 +38,7 @@ foreach ($path in $paths) {
         try {
             # Tomar propiedad por si hay bloqueo de permisos
             takeown /F $path /A /R /D Y | Out-Null
-            icacls $path /grant Administrators:F /T /C | Out-Null
+            icacls $path /grant *S-1-5-32-544:F /T /C | Out-Null
 
             # Intentar borrar
             Remove-Item -Path $path -Recurse -Force -ErrorAction Stop

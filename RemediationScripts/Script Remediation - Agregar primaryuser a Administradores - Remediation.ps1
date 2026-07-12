@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     REMEDIATION SCRIPT: AÑADIR "PRIMARY USER" AL GRUPO DE ADMINISTRADORES LOCALES
 
@@ -21,29 +21,30 @@
 #>
 
 # 1. Obtener el primary user como en el detection
-$users = Get-WmiObject -Class Win32_ComputerSystem | Select-Object -ExpandProperty UserName
-if (-not $users) {
+$primaryUserFullName = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty UserName
+if (-not $primaryUserFullName) {
     $reg = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI"
-    $primaryUser = (Get-ItemProperty -Path $reg -Name LastLoggedOnUser -ErrorAction SilentlyContinue).LastLoggedOnUser
-    if ($primaryUser) {
-        $primaryUser = $primaryUser -replace "^.+\\", ""
-    }
-}
-else {
-    $primaryUser = $users -replace "^.+\\", ""
+    $primaryUserFullName = (Get-ItemProperty -Path $reg -Name LastLoggedOnUser -ErrorAction SilentlyContinue).LastLoggedOnUser
 }
 
-if ($primaryUser) {
-    # 2. Añadirlo como administrador local (soporta dominio/local/AAD)
+if ($primaryUserFullName) {
+    $primaryUser = $primaryUserFullName -replace "^.+\\", "" # Solo el nombre, sin dominio
+
+    # 2. Añadirlo como administrador local (soporta dominio/local/AAD) resolviendo el grupo por SID
+    $adminSid = New-Object System.Security.Principal.SecurityIdentifier("S-1-5-32-544")
+    $adminGroupName = $adminSid.Translate([System.Security.Principal.NTAccount]).Value.Split('\')[-1]
+
     try {
-        Add-LocalGroupMember -Group "Administradores" -Member $primaryUser -ErrorAction Stop
+        Add-LocalGroupMember -Group $adminGroupName -Member $primaryUserFullName -ErrorAction Stop
+        Write-Host "Añadido '$primaryUserFullName' al grupo de administradores locales ($adminGroupName)."
     }
     catch {
         try {
-            Add-LocalGroupMember -Group "Administrators" -Member $primaryUser -ErrorAction Stop
+            Add-LocalGroupMember -Group $adminGroupName -Member $primaryUser -ErrorAction Stop
+            Write-Host "Añadido '$primaryUser' al grupo de administradores locales ($adminGroupName)."
         }
         catch {
-            Write-Host "No se pudo añadir a $primaryUser al grupo de administradores locales."
+            Write-Host "No se pudo añadir a $primaryUserFullName ($primaryUser) al grupo de administradores locales ($adminGroupName): $_"
         }
     }
 }

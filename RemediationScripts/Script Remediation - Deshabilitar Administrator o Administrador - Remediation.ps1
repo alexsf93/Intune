@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     REMEDIATION SCRIPT: DESHABILITAR CUENTAS LOCALES "ADMINISTRADOR"/"ADMINISTRATOR"
 
@@ -20,12 +20,9 @@
     Context: System
 #>
 
-$usuarios = @("Administrador", "Administrator")
-
-foreach ($nombre in $usuarios) {
-    $cuenta = Get-LocalUser -Name $nombre -ErrorAction SilentlyContinue
-    if ($cuenta -and $cuenta.Enabled) {
-        Disable-LocalUser -Name $nombre
-        Write-Host "Cuenta '$nombre' deshabilitada."
-    }
+# Deshabilitar la cuenta de administrador integrada por SID (RID 500)
+$builtInAdmin = Get-LocalUser | Where-Object { $_.SID.Value -match '-500$' }
+if ($builtInAdmin -and $builtInAdmin.Enabled) {
+    Disable-LocalUser -Name $builtInAdmin.Name
+    Write-Host "Cuenta '$($builtInAdmin.Name)' (RID 500) deshabilitada."
 }

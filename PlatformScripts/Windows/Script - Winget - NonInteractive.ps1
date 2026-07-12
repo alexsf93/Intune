@@ -119,17 +119,13 @@ if (-not $isAdmin) {
 function Get-WingetPath {
     $winget = Get-Command winget -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
     if ($winget -and (Test-Path $winget)) { return $winget }
-    $windowsAppsPath = Join-Path $env:ProgramFiles "WindowsApps"
-    if (Test-Path $windowsAppsPath) {
-        $installerPaths = Get-ChildItem -Path $windowsAppsPath -Filter "Microsoft.DesktopAppInstaller*_*_8wekyb3d8bbwe" -Directory -ErrorAction SilentlyContinue
-        if ($installerPaths) {
-            $latestInstaller = $installerPaths | Sort-Object Name -Descending | Select-Object -First 1
-            $wingetPath = Join-Path $latestInstaller.FullName "winget.exe"
-            if (Test-Path $wingetPath) { return $wingetPath }
-        }
+    $appPath = (Get-AppxPackage -Name Microsoft.DesktopAppInstaller -ErrorAction SilentlyContinue).InstallLocation
+    if ($appPath) {
+        $wingetPath = Join-Path $appPath "winget.exe"
+        if (Test-Path $wingetPath) { return $wingetPath }
     }
-    $systemAppInstallerPath = "C:\Windows\System32\winget.exe"
-    if (Test-Path $systemAppInstallerPath) { return $systemAppInstallerPath }
+    $fallback = "C:\Windows\System32\winget.exe"
+    if (Test-Path $fallback) { return $fallback }
     return $null
 }
 
@@ -167,7 +163,7 @@ try {
         $versionIdx = $null
 
         foreach ($rawLine in $wingetOutput) {
-            $line = $rawLine -replace "`e\[[0-9;]*m", "" 
+            $line = $rawLine -replace "$([char]0x1b)\[[0-9;]*m", "" 
             $line = $line -replace "[\u2588\u2593\u2592\u2591\u250C\u00FB\u00EA\u2550\u2502]", ""
             if ([string]::IsNullOrWhiteSpace($line) -or $line -match '^-+$') { continue }
 

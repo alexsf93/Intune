@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     DETECTION SCRIPT: CUENTAS LOCALES "ADMINISTRADOR" O "ADMINISTRATOR" HABILITADAS
 
@@ -20,20 +20,12 @@
     Context: System
 #>
 
-$usuarios = @("Administrador", "Administrator")
-$habilitada = $false
+# Buscar la cuenta de administrador integrada por SID (RID 500)
+$builtInAdmin = Get-LocalUser | Where-Object { $_.SID.Value -match '-500$' }
 
-foreach ($nombre in $usuarios) {
-    $cuenta = Get-LocalUser -Name $nombre -ErrorAction SilentlyContinue
-    if ($cuenta -and $cuenta.Enabled) {
-        $habilitada = $true
-        break
-    }
-}
-
-if ($habilitada) {
-    Exit 1   # Alguna cuenta está habilitada (requiere remediar)
+if ($builtInAdmin -and $builtInAdmin.Enabled) {
+    Exit 1   # La cuenta de administrador integrada está habilitada (requiere remediar)
 }
 else {
-    Exit 0   # Todas deshabilitadas o no existen (OK)
+    Exit 0   # Deshabilitada o no existe (OK)
 }

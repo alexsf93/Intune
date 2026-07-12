@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     DETECTION SCRIPT: Â¿ES EL "PRIMARY USER" ADMINISTRADOR LOCAL?
 
@@ -21,26 +21,35 @@
 #>
 
 # 1. Obtener el usuario con más sesiones (aproximación "primary user")
-$users = Get-WmiObject -Class Win32_ComputerSystem | Select-Object -ExpandProperty UserName
-if (-not $users) {
+$primaryUserFullName = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty UserName
+if (-not $primaryUserFullName) {
     # Alternativa: sacar el último usuario logueado a partir del registro
     $reg = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI"
-    $primaryUser = (Get-ItemProperty -Path $reg -Name LastLoggedOnUser -ErrorAction SilentlyContinue).LastLoggedOnUser
-    if ($primaryUser) {
-        $primaryUser = $primaryUser -replace "^.+\\", "" # Solo el nombre, sin dominio
-    }
-}
-else {
-    $primaryUser = $users -replace "^.+\\", "" # Solo el nombre, sin dominio
+    $primaryUserFullName = (Get-ItemProperty -Path $reg -Name LastLoggedOnUser -ErrorAction SilentlyContinue).LastLoggedOnUser
 }
 
-if (-not $primaryUser) {
+if (-not $primaryUserFullName) {
     Exit 0  # No hay usuario, nada que hacer
 }
 
-# 2. Comprobar si está en el grupo de administradores locales
-$localAdmins = (Get-LocalGroupMember -Group "Administradores" -ErrorAction SilentlyContinue).Name + (Get-LocalGroupMember -Group "Administrators" -ErrorAction SilentlyContinue).Name
-$alreadyAdmin = $localAdmins -contains $primaryUser
+$primaryUser = $primaryUserFullName -replace "^.+\\", "" # Solo el nombre, sin dominio
+
+# 2. Comprobar si está en el grupo de administradores locales (resolviendo el grupo por SID para soportar cualquier idioma de OS)
+$adminSid = New-Object System.Security.Principal.SecurityIdentifier("S-1-5-32-544")
+$adminGroupName = $adminSid.Translate([System.Security.Principal.NTAccount]).Value.Split('\')[-1]
+$localAdmins = Get-LocalGroupMember -Group $adminGroupName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+
+$alreadyAdmin = $false
+if ($localAdmins) {
+    if ($localAdmins -contains $primaryUserFullName -or $localAdmins -contains $primaryUser) {
+        $alreadyAdmin = $true
+    } else {
+        $localAdminsClean = $localAdmins | ForEach-Object { $_ -replace "^.+\\", "" }
+        if ($localAdminsClean -contains $primaryUser) {
+            $alreadyAdmin = $true
+        }
+    }
+}
 
 if ($alreadyAdmin) {
     Exit 0  # Ya es administrador
