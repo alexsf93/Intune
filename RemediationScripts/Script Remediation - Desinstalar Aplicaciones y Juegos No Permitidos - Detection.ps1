@@ -28,6 +28,13 @@
       - SideQuest
       - JDownloader (Java Downloader)
       - Battle.net (Blizzard Launcher)
+      - Apple TV (AppX / UWP)
+      - Discord
+      - DroidKit
+      - AutoHotkey
+      - Move Mouse
+      - OP Auto Clicker
+      - PlayStation Accessories
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
     provisionados en la imagen del sistema, registros de desinstalacion y rutas de ejecutables comunes.
@@ -110,7 +117,21 @@ $WildcardAppxNames = @(
     "*sidequest*",
     "*jdownloader*",
     "*battle.net*",
-    "*blizzard*"
+    "*blizzard*",
+    "*AppleTV*",
+    "*Apple.AppleTV*",
+    "*Discord*",
+    "*DroidKit*",
+    "*AutoHotkey*",
+    "*MoveMouse*",
+    "*Move Mouse*",
+    "*AutoClicker*",
+    "*OPAutoClicker*",
+    "*OP*AutoClicker*",
+    "*AutoTap*",
+    "*MouseClicker*",
+    "*PlayStationAccessories*",
+    "*PlayStation Accessories*"
 )
 
 Write-Host "Comprobando paquetes AppX instalados (todos los usuarios)..."
@@ -212,7 +233,21 @@ $DisallowedAppNames = @(
     "JDownloader",
     "JDownloader 2",
     "Battle.net",
-    "Blizzard Entertainment"
+    "Blizzard Entertainment",
+    "Apple TV",
+    "Discord",
+    "DroidKit",
+    "iMobie DroidKit",
+    "AutoHotkey",
+    "Move Mouse",
+    "MoveMouse",
+    "OP Auto Clicker",
+    "OPAutoClicker",
+    "Auto Clicker",
+    "Auto Tap",
+    "PlayStation Accessories",
+    "PlayStationAccessories",
+    "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
 foreach ($path in $RegistryPaths) {
@@ -281,7 +316,28 @@ $PhysicalPaths = @(
         "$env:ProgramFiles\Battle.net\Battle.net Launcher.exe",
         "${env:ProgramFiles(x86)}\Battle.net\Battle.net Launcher.exe",
         "C:\Users\*\AppData\Local\Battle.net\Battle.net.exe"
-    ) }
+    ) },
+    [PSCustomObject]@{ Name = "Discord"; Paths = @("$env:LocalAppData\Discord\Update.exe", "$env:ProgramFiles\Discord\Discord.exe", "${env:ProgramFiles(x86)}\Discord\Discord.exe", "C:\Users\*\AppData\Local\Discord\Update.exe") },
+    [PSCustomObject]@{ Name = "DroidKit"; Paths = @("$env:ProgramFiles\iMobie\DroidKit\DroidKit.exe", "${env:ProgramFiles(x86)}\iMobie\DroidKit\DroidKit.exe", "$env:ProgramFiles\DroidKit\DroidKit.exe", "${env:ProgramFiles(x86)}\DroidKit\DroidKit.exe", "C:\Users\*\AppData\Local\Programs\DroidKit\DroidKit.exe") },
+    [PSCustomObject]@{ Name = "AutoHotkey"; Paths = @("$env:ProgramFiles\AutoHotkey\AutoHotkey.exe", "${env:ProgramFiles(x86)}\AutoHotkey\AutoHotkey.exe", "$env:LocalAppData\AutoHotkey\AutoHotkey.exe", "C:\Users\*\AppData\Local\AutoHotkey\AutoHotkey.exe", "C:\Users\*\AppData\Local\Programs\AutoHotkey\AutoHotkey.exe") },
+    [PSCustomObject]@{ Name = "Move Mouse"; Paths = @("$env:ProgramFiles\Move Mouse\MoveMouse.exe", "${env:ProgramFiles(x86)}\Move Mouse\MoveMouse.exe", "$env:ProgramData\Move Mouse\MoveMouse.exe", "C:\Users\*\AppData\Local\Move Mouse\MoveMouse.exe", "C:\Users\*\AppData\Roaming\Move Mouse\MoveMouse.exe", "C:\Users\*\Downloads\*MoveMouse*.exe", "C:\Users\*\Desktop\*MoveMouse*.exe") },
+    [PSCustomObject]@{ Name = "OP Auto Clicker"; Paths = @(
+        "$env:LocalAppData\Programs\OP Auto Clicker\OPAutoClicker.exe",
+        "$env:LocalAppData\Programs\OP Auto Clicker\AutoClicker.exe",
+        "$env:ProgramFiles\OP Auto Clicker\OPAutoClicker.exe",
+        "$env:ProgramFiles\OP Auto Clicker\AutoClicker.exe",
+        "${env:ProgramFiles(x86)}\OP Auto Clicker\OPAutoClicker.exe",
+        "${env:ProgramFiles(x86)}\OP Auto Clicker\AutoClicker.exe",
+        "C:\Users\*\AppData\Roaming\OP Auto Clicker\AutoClicker.exe",
+        "C:\Users\*\AppData\Roaming\OP Auto Clicker\OPAutoClicker.exe",
+        "C:\Users\*\AppData\Local\Programs\OP Auto Clicker\AutoClicker.exe",
+        "C:\Users\*\AppData\Local\Programs\OP Auto Clicker\OPAutoClicker.exe",
+        "C:\Users\*\Downloads\*OP*AutoClicker*.exe",
+        "C:\Users\*\Desktop\*OP*AutoClicker*.exe",
+        "C:\Users\*\Downloads\*AutoClicker*.exe",
+        "C:\Users\*\Desktop\*AutoClicker*.exe"
+    ) },
+    [PSCustomObject]@{ Name = "PlayStation Accessories"; Paths = @("C:\Program Files\Sony\PlayStationAccessories\PlayStationAccessories.exe", "${env:ProgramFiles(x86)}\Sony\PlayStationAccessories\PlayStationAccessories.exe") }
 )
 
 foreach ($app in $PhysicalPaths) {

@@ -28,6 +28,13 @@
       - SideQuest
       - JDownloader (Java Downloader)
       - Battle.net (Blizzard Launcher)
+      - Apple TV (AppX / UWP)
+      - Discord
+      - DroidKit
+      - AutoHotkey
+      - Move Mouse
+      - OP Auto Clicker
+      - PlayStation Accessories
 
     Pasos de remediacion:
       1. Finalizar procesos activos de los juegos y aplicaciones no permitidas
@@ -119,7 +126,21 @@ $WildcardAppxNames = @(
     "*sidequest*",
     "*jdownloader*",
     "*battle.net*",
-    "*blizzard*"
+    "*blizzard*",
+    "*AppleTV*",
+    "*Apple.AppleTV*",
+    "*Discord*",
+    "*DroidKit*",
+    "*AutoHotkey*",
+    "*MoveMouse*",
+    "*Move Mouse*",
+    "*AutoClicker*",
+    "*OPAutoClicker*",
+    "*OP*AutoClicker*",
+    "*AutoTap*",
+    "*MouseClicker*",
+    "*PlayStationAccessories*",
+    "*PlayStation Accessories*"
 )
 
 # Nombres de procesos a finalizar
@@ -138,7 +159,9 @@ $ProcessNamesToKill = @(
     "Porofessor", "Porofessor.gg", "WeMod", "Wand", "WeModAuxiliaryService",
     "wgc", "wgc_api", "WorldOfWarships", "WorldOfTanks", "WorldOfWarplanes",
     "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "qbittorrent", "tixati", "BiglyBT", "SideQuest",
-    "JDownloader", "JDownloader2", "Battle.net", "Battle.net Launcher", "Battle.net Helper", "Agent"
+    "JDownloader", "JDownloader2", "Battle.net", "Battle.net Launcher", "Battle.net Helper", "Agent",
+    "AppleTV", "AppleTVWin", "Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment", "DroidKit", "iMobieDroidKit", "DroidKitComponent",
+    "AutoHotkey", "AutoHotkeyUX", "ahk2exe", "WindowSpy", "MoveMouse", "Move Mouse", "opautoclicker", "autoclicker", "AutoTap", "OPAutoClicker", "OP_AutoClicker", "AutoClicker3", "AutoClicker2", "OP_AutoClicker_3.0", "PlayStationAccessories", "PlayStationAccessoriesInstaller", "PSAInstall"
 )
 
 $DisallowedAppNames = @(
@@ -172,7 +195,21 @@ $DisallowedAppNames = @(
     "JDownloader",
     "JDownloader 2",
     "Battle.net",
-    "Blizzard Entertainment"
+    "Blizzard Entertainment",
+    "Apple TV",
+    "Discord",
+    "DroidKit",
+    "iMobie DroidKit",
+    "AutoHotkey",
+    "Move Mouse",
+    "MoveMouse",
+    "OP Auto Clicker",
+    "OPAutoClicker",
+    "Auto Clicker",
+    "Auto Tap",
+    "PlayStation Accessories",
+    "PlayStationAccessories",
+    "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
 # =============================================================================
@@ -297,7 +334,7 @@ if (Test-Path $riotClientPath) {
 
 # 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, Tixati, BiglyBT, SideQuest)
 Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, Tixati, BiglyBT y SideQuest en el Registro..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment")
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment", "Discord", "DroidKit", "iMobie DroidKit", "AutoHotkey", "Move Mouse", "MoveMouse", "OP Auto Clicker", "OPAutoClicker", "Auto Clicker", "PlayStation Accessories", "PlayStationAccessories")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
@@ -524,7 +561,30 @@ $FoldersToDelete = @(
     "${env:ProgramFiles(x86)}\Battle.net",
     "$env:ProgramData\Battle.net",
     "$env:ProgramData\Blizzard Entertainment",
-    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Battle.net"
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Battle.net",
+    "$env:ProgramFiles\Discord",
+    "${env:ProgramFiles(x86)}\Discord",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Discord",
+    "$env:ProgramFiles\iMobie\DroidKit",
+    "${env:ProgramFiles(x86)}\iMobie\DroidKit",
+    "$env:ProgramFiles\DroidKit",
+    "${env:ProgramFiles(x86)}\DroidKit",
+    "$env:ProgramData\iMobie\DroidKit",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\DroidKit",
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\iMobie\DroidKit",
+    "$env:ProgramFiles\AutoHotkey",
+    "${env:ProgramFiles(x86)}\AutoHotkey",
+    "$env:LocalAppData\AutoHotkey",
+    "$env:ProgramFiles\Move Mouse",
+    "${env:ProgramFiles(x86)}\Move Mouse",
+    "$env:ProgramData\Move Mouse",
+    "$env:LocalAppData\Programs\OP Auto Clicker",
+    "$env:ProgramFiles\OP Auto Clicker",
+    "${env:ProgramFiles(x86)}\OP Auto Clicker",
+    "C:\Program Files\Sony\PlayStationAccessories",
+    "${env:ProgramFiles(x86)}\Sony\PlayStationAccessories",
+    "C:\Program Files (x86)\InstallShield Installation Information\{A27B17B9-90C8-4B07-83C6-1303FC186B6B}",
+    "C:\Program Files\InstallShield Installation Information\{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
 # Obtener perfiles de usuarios locales para AppData y Documentos
@@ -591,7 +651,20 @@ foreach ($userProfile in $userProfiles) {
             "C:\Users\$username\AppData\Local\Blizzard Entertainment",
             "C:\Users\$username\AppData\Roaming\Blizzard",
             "C:\Users\$username\AppData\Roaming\Blizzard Entertainment",
-            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Battle.net"
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Battle.net",
+            "C:\Users\$username\AppData\Local\Discord",
+            "C:\Users\$username\AppData\Roaming\Discord",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Discord",
+            "C:\Users\$username\AppData\Local\iMobie\DroidKit",
+            "C:\Users\$username\AppData\Roaming\iMobie\DroidKit",
+            "C:\Users\$username\AppData\Local\DroidKit",
+            "C:\Users\$username\AppData\Roaming\DroidKit",
+            "C:\Users\$username\AppData\Local\AutoHotkey",
+            "C:\Users\$username\AppData\Local\Programs\AutoHotkey",
+            "C:\Users\$username\AppData\Local\Move Mouse",
+            "C:\Users\$username\AppData\Roaming\Move Mouse",
+            "C:\Users\$username\AppData\Roaming\OP Auto Clicker",
+            "C:\Users\$username\AppData\Local\Programs\OP Auto Clicker"
         )
     }
 }
@@ -706,7 +779,35 @@ $softwareKeys = @(
     "HKCU:\Software\Blizzard Entertainment",
     "HKLM:\SOFTWARE\Battle.net",
     "HKLM:\SOFTWARE\Wow6432Node\Battle.net",
-    "HKCU:\Software\Battle.net"
+    "HKCU:\Software\Battle.net",
+    "HKLM:\SOFTWARE\Discord",
+    "HKLM:\SOFTWARE\Wow6432Node\Discord",
+    "HKCU:\Software\Discord",
+    "HKLM:\SOFTWARE\iMobie",
+    "HKLM:\SOFTWARE\Wow6432Node\iMobie",
+    "HKCU:\Software\iMobie",
+    "HKLM:\SOFTWARE\DroidKit",
+    "HKLM:\SOFTWARE\Wow6432Node\DroidKit",
+    "HKCU:\Software\DroidKit",
+    "HKLM:\SOFTWARE\AutoHotkey",
+    "HKLM:\SOFTWARE\Wow6432Node\AutoHotkey",
+    "HKCU:\Software\AutoHotkey",
+    "HKLM:\SOFTWARE\Classes\.ahk",
+    "HKLM:\SOFTWARE\Classes\AutoHotkeyScript",
+    "HKLM:\SOFTWARE\Move Mouse",
+    "HKLM:\SOFTWARE\Wow6432Node\Move Mouse",
+    "HKCU:\Software\Move Mouse",
+    "HKLM:\SOFTWARE\OP Auto Clicker",
+    "HKLM:\SOFTWARE\Wow6432Node\OP Auto Clicker",
+    "HKCU:\Software\OP Auto Clicker",
+    "HKLM:\SOFTWARE\AutoClicker",
+    "HKLM:\SOFTWARE\Wow6432Node\AutoClicker",
+    "HKCU:\Software\AutoClicker",
+    "HKLM:\SOFTWARE\Sony\PlayStationAccessories",
+    "HKLM:\SOFTWARE\Wow6432Node\Sony\PlayStationAccessories",
+    "HKCU:\Software\Sony\PlayStationAccessories",
+    "HKLM:\SOFTWARE\Classes\Installer\Products\9B71B72A8C0970B4386C3130CF81B6B6",
+    "HKLM:\SOFTWARE\Microsoft\Installer\Products\9B71B72A8C0970B4386C3130CF81B6B6"
 )
 
 foreach ($key in $softwareKeys) {
@@ -751,7 +852,19 @@ $ShortcutPatterns = @(
     "*sidequest*",
     "*JDownloader*",
     "*Battle.net*",
-    "*Blizzard*"
+    "*Blizzard*",
+    "*Apple TV*",
+    "*AppleTV*",
+    "*Discord*",
+    "*DroidKit*",
+    "*AutoHotkey*",
+    "*MoveMouse*",
+    "*Move Mouse*",
+    "*OP Auto Clicker*",
+    "*AutoClicker*",
+    "*AutoTap*",
+    "*PlayStationAccessories*",
+    "*PlayStation Accessories*"
 )
 
 $ShortcutPaths = @(
@@ -916,7 +1029,37 @@ $PhysicalPathsToCheck = @(
     "${env:ProgramFiles(x86)}\Battle.net\Battle.net.exe",
     "$env:ProgramFiles\Battle.net\Battle.net Launcher.exe",
     "${env:ProgramFiles(x86)}\Battle.net\Battle.net Launcher.exe",
-    "C:\Users\*\AppData\Local\Battle.net\Battle.net.exe"
+    "C:\Users\*\AppData\Local\Battle.net\Battle.net.exe",
+    "$env:ProgramFiles\Discord\Discord.exe",
+    "${env:ProgramFiles(x86)}\Discord\Discord.exe",
+    "C:\Users\*\AppData\Local\Discord\Update.exe",
+    "$env:ProgramFiles\iMobie\DroidKit\DroidKit.exe",
+    "${env:ProgramFiles(x86)}\iMobie\DroidKit\DroidKit.exe",
+    "$env:ProgramFiles\DroidKit\DroidKit.exe",
+    "${env:ProgramFiles(x86)}\DroidKit\DroidKit.exe",
+    "C:\Users\*\AppData\Local\Programs\DroidKit\DroidKit.exe",
+    "$env:ProgramFiles\AutoHotkey\AutoHotkey.exe",
+    "${env:ProgramFiles(x86)}\AutoHotkey\AutoHotkey.exe",
+    "$env:LocalAppData\AutoHotkey\AutoHotkey.exe",
+    "C:\Users\*\AppData\Local\AutoHotkey\AutoHotkey.exe",
+    "C:\Users\*\AppData\Local\Programs\AutoHotkey\AutoHotkey.exe",
+    "$env:ProgramFiles\Move Mouse\MoveMouse.exe",
+    "${env:ProgramFiles(x86)}\Move Mouse\MoveMouse.exe",
+    "$env:ProgramData\Move Mouse\MoveMouse.exe",
+    "C:\Users\*\AppData\Local\Move Mouse\MoveMouse.exe",
+    "C:\Users\*\AppData\Roaming\Move Mouse\MoveMouse.exe",
+    "$env:LocalAppData\Programs\OP Auto Clicker\OPAutoClicker.exe",
+    "$env:LocalAppData\Programs\OP Auto Clicker\AutoClicker.exe",
+    "$env:ProgramFiles\OP Auto Clicker\OPAutoClicker.exe",
+    "$env:ProgramFiles\OP Auto Clicker\AutoClicker.exe",
+    "${env:ProgramFiles(x86)}\OP Auto Clicker\OPAutoClicker.exe",
+    "${env:ProgramFiles(x86)}\OP Auto Clicker\AutoClicker.exe",
+    "C:\Users\*\AppData\Roaming\OP Auto Clicker\AutoClicker.exe",
+    "C:\Users\*\AppData\Roaming\OP Auto Clicker\OPAutoClicker.exe",
+    "C:\Users\*\AppData\Local\Programs\OP Auto Clicker\AutoClicker.exe",
+    "C:\Users\*\AppData\Local\Programs\OP Auto Clicker\OPAutoClicker.exe",
+    "C:\Program Files\Sony\PlayStationAccessories\PlayStationAccessories.exe",
+    "${env:ProgramFiles(x86)}\Sony\PlayStationAccessories\PlayStationAccessories.exe"
 )
 
 foreach ($path in $PhysicalPathsToCheck) {
