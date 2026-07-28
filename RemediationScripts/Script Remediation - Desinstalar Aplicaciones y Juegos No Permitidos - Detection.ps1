@@ -36,6 +36,26 @@
       - OP Auto Clicker
       - PlayStation Accessories
       - JiggleMouse
+      - HBO / HBO Max / Max
+      - Netflix
+      - Amazon Prime Video
+      - Stremio
+      - Plex
+      - Kodi
+      - Disney+ / Disney Plus
+      - Twitch
+      - TikTok
+      - Crunchyroll
+      - BlueStacks
+      - LDPlayer
+      - RetroArch
+      - Dolphin Emulator
+      - PCSX2
+      - uTorrent / uTorrent Web
+      - BitTorrent
+      - MEGAsync / MegaSync
+      - Cheat Engine / Amstion Limited
+      - Just Okay Limited (Auto Clicker)
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
     provisionados en la imagen del sistema, registros de desinstalacion y rutas de ejecutables comunes.
@@ -136,7 +156,40 @@ $WildcardAppxNames = @(
     "*PlayStationAccessories*",
     "*PlayStation Accessories*",
     "*JiggleMouse*",
-    "*Jiggle Mouse*"
+    "*Jiggle Mouse*",
+    "*HBO*",
+    "*HBOMax*",
+    "*HBO.Max*",
+    "*Netflix*",
+    "*PrimeVideo*",
+    "*Prime Video*",
+    "*AmazonVideo*",
+    "*Amazon.PrimeVideo*",
+    "*Stremio*",
+    "*Plex*",
+    "*Kodi*",
+    "*Disney*",
+    "*DisneyPlus*",
+    "*Disney*Plus*",
+    "*Disney.37853FC22B2CE*",
+    "*Twitch*",
+    "*TikTok*",
+    "*Crunchyroll*",
+    "*BlueStacks*",
+    "*HD-Player*",
+    "*LDPlayer*",
+    "*RetroArch*",
+    "*Dolphin*",
+    "*PCSX2*",
+    "*uTorrent*",
+    "*BitTorrent*",
+    "*MEGAsync*",
+    "*MegaSync*",
+    "*CheatEngine*",
+    "*Cheat Engine*",
+    "*Amstion*",
+    "*JustOkay*",
+    "*Just Okay*"
 )
 
 Write-Host "Comprobando paquetes AppX instalados (todos los usuarios)..."
@@ -268,6 +321,42 @@ $DisallowedAppNames = @(
     "PlayStationAccessories",
     "JiggleMouse",
     "Jiggle Mouse",
+    "HBO",
+    "HBO Max",
+    "Max",
+    "Netflix",
+    "Prime Video",
+    "Amazon Prime Video",
+    "Stremio",
+    "Plex",
+    "Plex Media Player",
+    "Plex Desktop",
+    "Plex HTPC",
+    "Kodi",
+    "Disney",
+    "Disney+",
+    "Disney Plus",
+    "Disney.37853FC22B2CE",
+    "Twitch",
+    "TikTok",
+    "Crunchyroll",
+    "BlueStacks",
+    "BlueStacks App Player",
+    "LDPlayer",
+    "RetroArch",
+    "Dolphin Emulator",
+    "PCSX2",
+    "uTorrent",
+    "uTorrent Web",
+    "BitTorrent",
+    "MEGAsync",
+    "MegaSync",
+    "Cheat Engine",
+    "CheatEngine",
+    "Amstion",
+    "Amstion Limited",
+    "Just Okay",
+    "Just Okay Limited",
     "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
@@ -276,11 +365,12 @@ foreach ($path in $RegistryPaths) {
         $keys = Get-ItemProperty -Path $path -ErrorAction SilentlyContinue
         foreach ($key in $keys) {
             $displayName = $key.DisplayName
-            if ($null -ne $displayName) {
+            $publisher   = $key.Publisher
+            if ($null -ne $displayName -or $null -ne $publisher) {
                 foreach ($disallowedName in $DisallowedAppNames) {
-                    if ($displayName -like "*$disallowedName*" -and $displayName -notlike "*Teams*") {
+                    if (($displayName -like "*$disallowedName*" -or $publisher -like "*$disallowedName*") -and $displayName -notlike "*Teams*") {
                         $detected = $true
-                        $Reasons.Add("[Registro] Programa detectado: $displayName (Ubicacion: $($key.InstallLocation), Clave: $($key.PSChildName))")
+                        $Reasons.Add("[Registro] Programa detectado: $displayName / $publisher (Ubicacion: $($key.InstallLocation), Clave: $($key.PSChildName))")
                     }
                 }
             }
@@ -378,7 +468,37 @@ $PhysicalPaths = @(
         "C:\Users\*\AppData\Roaming\JiggleMouse\JiggleMouse.exe",
         "C:\Users\*\Downloads\*JiggleMouse*.exe",
         "C:\Users\*\Desktop\*JiggleMouse*.exe"
-    ) }
+    ) },
+    [PSCustomObject]@{ Name = "Stremio"; Paths = @(
+        "$env:LocalAppData\Programs\LStudio\Stremio\stremio.exe",
+        "$env:ProgramFiles\Stremio\stremio.exe",
+        "${env:ProgramFiles(x86)}\Stremio\stremio.exe",
+        "C:\Users\*\AppData\Local\Programs\LStudio\Stremio\stremio.exe",
+        "C:\Users\*\AppData\Local\Stremio\stremio.exe"
+    ) },
+    [PSCustomObject]@{ Name = "Plex"; Paths = @(
+        "$env:ProgramFiles\Plex\Plex\Plex.exe",
+        "${env:ProgramFiles(x86)}\Plex\Plex\Plex.exe",
+        "$env:ProgramFiles\Plex\Plex Media Player\PlexMediaPlayer.exe",
+        "${env:ProgramFiles(x86)}\Plex\Plex Media Player\PlexMediaPlayer.exe",
+        "C:\Users\*\AppData\Local\Programs\Plex\Plex\Plex.exe",
+        "C:\Users\*\AppData\Local\Plex\Plex.exe"
+    ) },
+    [PSCustomObject]@{ Name = "Kodi"; Paths = @(
+        "$env:ProgramFiles\Kodi\kodi.exe",
+        "${env:ProgramFiles(x86)}\Kodi\kodi.exe"
+    ) },
+    [PSCustomObject]@{ Name = "Twitch"; Paths = @("$env:LocalAppData\Programs\Twitch\Twitch.exe", "C:\Users\*\AppData\Local\Programs\Twitch\Twitch.exe") },
+    [PSCustomObject]@{ Name = "BlueStacks"; Paths = @("$env:ProgramFiles\BlueStacks_nxt\HD-Player.exe", "${env:ProgramFiles(x86)}\BlueStacks\HD-Player.exe") },
+    [PSCustomObject]@{ Name = "LDPlayer"; Paths = @("C:\LDPlayer\LDPlayer9\dnplayer.exe", "C:\XuanZhi\LDPlayer\dnplayer.exe") },
+    [PSCustomObject]@{ Name = "RetroArch"; Paths = @("$env:ProgramFiles\RetroArch-Win64\retroarch.exe", "${env:ProgramFiles(x86)}\RetroArch\retroarch.exe") },
+    [PSCustomObject]@{ Name = "Dolphin Emulator"; Paths = @("$env:ProgramFiles\Dolphin-x64\Dolphin.exe") },
+    [PSCustomObject]@{ Name = "PCSX2"; Paths = @("$env:ProgramFiles\PCSX2\pcsx2-qt.exe", "${env:ProgramFiles(x86)}\PCSX2\pcsx2.exe") },
+    [PSCustomObject]@{ Name = "uTorrent"; Paths = @("$env:LocalAppData\uTorrent\uTorrent.exe", "$env:ProgramFiles\uTorrent\uTorrent.exe", "${env:ProgramFiles(x86)}\uTorrent\uTorrent.exe", "C:\Users\*\AppData\Roaming\uTorrent\uTorrent.exe", "$env:LocalAppData\uTorrent Web\utweb.exe") },
+    [PSCustomObject]@{ Name = "BitTorrent"; Paths = @("$env:LocalAppData\BitTorrent\BitTorrent.exe", "C:\Users\*\AppData\Roaming\BitTorrent\BitTorrent.exe") },
+    [PSCustomObject]@{ Name = "MEGAsync"; Paths = @("$env:LocalAppData\MEGAsync\MEGAsync.exe", "C:\Users\*\AppData\Local\MEGAsync\MEGAsync.exe") },
+    [PSCustomObject]@{ Name = "Cheat Engine"; Paths = @("$env:ProgramFiles\Cheat Engine\cheatengine-x86_64.exe", "${env:ProgramFiles(x86)}\Cheat Engine\cheatengine-i386.exe", "$env:ProgramFiles\Cheat Engine\Cheat Engine.exe", "${env:ProgramFiles(x86)}\Cheat Engine\Cheat Engine.exe", "C:\Users\*\AppData\Local\Programs\Cheat Engine\Cheat Engine.exe") },
+    [PSCustomObject]@{ Name = "Just Okay Auto Clicker"; Paths = @("$env:LocalAppData\Programs\Just Okay Limited\*AutoClicker*.exe", "$env:ProgramFiles\Just Okay Limited\*AutoClicker*.exe") }
 )
 
 foreach ($app in $PhysicalPaths) {
@@ -411,7 +531,9 @@ $DisallowedShortcutKeywords = @(
     "Origin", "sidequest", "JDownloader", "Battle.net", "Blizzard", "Apple TV", "AppleTV",
     "Apple.AppleTV", "AppleInc", "Discord", "DroidKit", "AutoHotkey", "MoveMouse", "Move Mouse",
     "OP Auto Clicker", "AutoClicker", "AutoTap", "PlayStationAccessories", "PlayStation Accessories",
-    "JiggleMouse", "Jiggle Mouse"
+    "JiggleMouse", "Jiggle Mouse", "HBO", "HBOMax", "Netflix", "Prime Video", "PrimeVideo", "Amazon Prime", "Stremio", "Plex", "Kodi",
+    "Disney", "Disney+", "Disney Plus", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "MegaSync",
+    "Cheat Engine", "CheatEngine", "Amstion", "Just Okay"
 )
 
 $SearchShortcutFolders = [System.Collections.Generic.List[string]]::new()

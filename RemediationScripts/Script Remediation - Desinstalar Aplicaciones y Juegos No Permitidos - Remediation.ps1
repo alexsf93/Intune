@@ -36,6 +36,26 @@
       - OP Auto Clicker
       - PlayStation Accessories
       - JiggleMouse
+      - HBO / HBO Max / Max
+      - Netflix
+      - Amazon Prime Video
+      - Stremio
+      - Plex
+      - Kodi
+      - Disney+ / Disney Plus
+      - Twitch
+      - TikTok
+      - Crunchyroll
+      - BlueStacks
+      - LDPlayer
+      - RetroArch
+      - Dolphin Emulator
+      - PCSX2
+      - uTorrent / uTorrent Web
+      - BitTorrent
+      - MEGAsync / MegaSync
+      - Cheat Engine / Amstion Limited
+      - Just Okay Limited (Auto Clicker)
 
     Pasos de remediacion:
       1. Finalizar procesos activos de los juegos y aplicaciones no permitidas
@@ -91,7 +111,8 @@ $TargetAppxApps = @(
     [PSCustomObject]@{ PackageName = "Microsoft.MinecraftJavaEdition"; DisplayName = "Minecraft Java Edition" },
     [PSCustomObject]@{ PackageName = "Microsoft.MinecraftUWP"; DisplayName = "Minecraft para Windows" },
     [PSCustomObject]@{ PackageName = "Microsoft.MicrosoftSolitaireCollection"; DisplayName = "Microsoft Solitaire Collection" },
-    [PSCustomObject]@{ PackageName = "Microsoft.MicrosoftSudoku"; DisplayName = "Microsoft Sudoku" }
+    [PSCustomObject]@{ PackageName = "Microsoft.MicrosoftSudoku"; DisplayName = "Microsoft Sudoku" },
+    [PSCustomObject]@{ PackageName = "Disney.37853FC22B2CE"; DisplayName = "Disney+" }
 )
 
 # Patrones para paquetes AppX/Store comodines
@@ -145,7 +166,40 @@ $WildcardAppxNames = @(
     "*PlayStationAccessories*",
     "*PlayStation Accessories*",
     "*JiggleMouse*",
-    "*Jiggle Mouse*"
+    "*Jiggle Mouse*",
+    "*HBO*",
+    "*HBOMax*",
+    "*HBO.Max*",
+    "*Netflix*",
+    "*PrimeVideo*",
+    "*Prime Video*",
+    "*AmazonVideo*",
+    "*Amazon.PrimeVideo*",
+    "*Stremio*",
+    "*Plex*",
+    "*Kodi*",
+    "*Disney*",
+    "*DisneyPlus*",
+    "*Disney*Plus*",
+    "*Disney.37853FC22B2CE*",
+    "*Twitch*",
+    "*TikTok*",
+    "*Crunchyroll*",
+    "*BlueStacks*",
+    "*HD-Player*",
+    "*LDPlayer*",
+    "*RetroArch*",
+    "*Dolphin*",
+    "*PCSX2*",
+    "*uTorrent*",
+    "*BitTorrent*",
+    "*MEGAsync*",
+    "*MegaSync*",
+    "*CheatEngine*",
+    "*Cheat Engine*",
+    "*Amstion*",
+    "*JustOkay*",
+    "*Just Okay*"
 )
 
 # Nombres de procesos a finalizar
@@ -166,7 +220,10 @@ $ProcessNamesToKill = @(
     "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "qbittorrent", "tixati", "BiglyBT", "SideQuest",
     "JDownloader", "JDownloader2", "Battle.net", "Battle.net Launcher", "Battle.net Helper", "Agent",
     "AppleTV", "AppleTVWin", "Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment", "Update", "DroidKit", "iMobieDroidKit", "DroidKitComponent",
-    "AutoHotkey", "AutoHotkeyUX", "ahk2exe", "WindowSpy", "MoveMouse", "Move Mouse", "opautoclicker", "autoclicker", "AutoTap", "OPAutoClicker", "OP_AutoClicker", "AutoClicker3", "AutoClicker2", "OP_AutoClicker_3.0", "PlayStationAccessories", "PlayStationAccessoriesInstaller", "PSAInstall", "JiggleMouse", "Jiggle Mouse", "JiggleMouseApp"
+    "AutoHotkey", "AutoHotkeyUX", "ahk2exe", "WindowSpy", "MoveMouse", "Move Mouse", "opautoclicker", "autoclicker", "AutoTap", "OPAutoClicker", "OP_AutoClicker", "AutoClicker3", "AutoClicker2", "OP_AutoClicker_3.0", "PlayStationAccessories", "PlayStationAccessoriesInstaller", "PSAInstall", "JiggleMouse", "Jiggle Mouse", "JiggleMouseApp",
+    "HBOMax", "Max", "Netflix", "NetflixApp", "PrimeVideo", "AmazonPrimeVideo", "stremio", "Stremio", "Plex", "PlexMediaPlayer", "PlexDesktop", "PlexHTPC", "kodi", "Kodi",
+    "DisneyPlus", "Disney", "Disney.37853FC22B2CE", "Twitch", "TikTok", "Crunchyroll", "HD-Player", "BlueStacks", "BlueStacksX", "BGAgent", "dnplayer", "ldplayer", "retroarch", "Dolphin", "pcsx2", "pcsx2-qt", "uTorrent", "uTorrentWeb", "utweb", "bittorrent", "MEGAsync",
+    "cheatengine-x86_64", "cheatengine-i386", "Cheat Engine", "CheatEngine"
 )
 
 $DisallowedAppNames = @(
@@ -216,6 +273,42 @@ $DisallowedAppNames = @(
     "PlayStationAccessories",
     "JiggleMouse",
     "Jiggle Mouse",
+    "HBO",
+    "HBO Max",
+    "Max",
+    "Netflix",
+    "Prime Video",
+    "Amazon Prime Video",
+    "Stremio",
+    "Plex",
+    "Plex Media Player",
+    "Plex Desktop",
+    "Plex HTPC",
+    "Kodi",
+    "Disney",
+    "Disney+",
+    "Disney Plus",
+    "Disney.37853FC22B2CE",
+    "Twitch",
+    "TikTok",
+    "Crunchyroll",
+    "BlueStacks",
+    "BlueStacks App Player",
+    "LDPlayer",
+    "RetroArch",
+    "Dolphin Emulator",
+    "PCSX2",
+    "uTorrent",
+    "uTorrent Web",
+    "BitTorrent",
+    "MEGAsync",
+    "MegaSync",
+    "Cheat Engine",
+    "CheatEngine",
+    "Amstion",
+    "Amstion Limited",
+    "Just Okay",
+    "Just Okay Limited",
     "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
@@ -356,17 +449,18 @@ if (Test-Path $riotClientPath) {
 
 # 3.4 Otras aplicaciones (incluyendo desinstaladores de usuario como Discord, DroidKit, AutoHotkey, etc.)
 Write-Host "  Buscando desinstaladores para Discord, DroidKit, Apple TV, Steam, Epic Games, Riot, Torrent, launchers y herramientas en Registro (HKLM, HKCU, HKU)..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment", "Discord", "DroidKit", "iMobie DroidKit", "AutoHotkey", "Move Mouse", "MoveMouse", "OP Auto Clicker", "OPAutoClicker", "Auto Clicker", "PlayStation Accessories", "PlayStationAccessories", "JiggleMouse", "Jiggle Mouse")
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment", "Discord", "DroidKit", "iMobie DroidKit", "AutoHotkey", "Move Mouse", "MoveMouse", "OP Auto Clicker", "OPAutoClicker", "Auto Clicker", "PlayStation Accessories", "PlayStationAccessories", "JiggleMouse", "Jiggle Mouse", "HBO", "HBO Max", "Max", "Netflix", "Prime Video", "Amazon Prime Video", "Stremio", "Plex", "Plex Media Player", "Kodi", "Disney", "Disney+", "Disney Plus", "Disney.37853FC22B2CE", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "Cheat Engine", "CheatEngine", "Amstion", "Just Okay")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
             $subkeys = Get-ChildItem -Path $path -ErrorAction SilentlyContinue
             foreach ($subkey in $subkeys) {
                 $displayName = (Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue).DisplayName
-                if ($null -ne $displayName) {
+                $publisher   = (Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue).Publisher
+                if ($null -ne $displayName -or $null -ne $publisher) {
                     $match = $false
                     foreach ($app in $OtherDisallowedApps) {
-                        if ($displayName -like "*$app*") {
+                        if ($displayName -like "*$app*" -or $publisher -like "*$app*") {
                             $match = $true
                         }
                     }
@@ -397,6 +491,8 @@ foreach ($path in $registryUninstallPaths) {
                                     $uninstallCommand = $uninstallString
                                 }
                             }
+                        } elseif ($uninstallString -like "*--uninstall-app-id*" -or $uninstallString -like "*msedge*" -or $uninstallString -like "*chrome*") {
+                            $uninstallCommand = $uninstallString
                         } elseif ($quietUninstallString) {
                             $uninstallCommand = $quietUninstallString
                         } elseif ($uninstallString) {
@@ -430,6 +526,11 @@ foreach ($path in $registryUninstallPaths) {
                             } catch {
                                 Write-Host "  -> Advertencia: No se pudo iniciar desinstalador nativo para $displayName ($($_.Exception.Message))"
                             }
+                        }
+
+                        # Si se trata de una app instalada por Edge/Chrome o de Disney, forzar la eliminación de la clave de registro
+                        if ($displayName -like "*Disney*" -or $subkey.PSPath -like "*edgeapp_*") {
+                            Remove-Item -Path $subkey.PSPath -Recurse -Force -ErrorAction SilentlyContinue
                         }
                     }
                 }
@@ -617,6 +718,27 @@ $FoldersToDelete = @(
     "$env:ProgramFiles\JiggleMouse",
     "${env:ProgramFiles(x86)}\JiggleMouse",
     "$env:LocalAppData\Programs\JiggleMouse",
+    "$env:ProgramFiles\Stremio",
+    "${env:ProgramFiles(x86)}\Stremio",
+    "$env:LocalAppData\Programs\LStudio\Stremio",
+    "$env:ProgramFiles\Plex",
+    "${env:ProgramFiles(x86)}\Plex",
+    "$env:ProgramFiles\Kodi",
+    "${env:ProgramFiles(x86)}\Kodi",
+    "$env:ProgramFiles\BlueStacks_nxt",
+    "${env:ProgramFiles(x86)}\BlueStacks",
+    "$env:ProgramData\BlueStacks",
+    "C:\LDPlayer",
+    "C:\XuanZhi",
+    "$env:ProgramFiles\RetroArch-Win64",
+    "${env:ProgramFiles(x86)}\RetroArch",
+    "$env:ProgramFiles\Dolphin-x64",
+    "$env:ProgramFiles\PCSX2",
+    "${env:ProgramFiles(x86)}\PCSX2",
+    "$env:ProgramFiles\uTorrent",
+    "${env:ProgramFiles(x86)}\uTorrent",
+    "$env:ProgramFiles\Cheat Engine",
+    "${env:ProgramFiles(x86)}\Cheat Engine",
     "C:\Program Files (x86)\InstallShield Installation Information\{A27B17B9-90C8-4B07-83C6-1303FC186B6B}",
     "C:\Program Files\InstallShield Installation Information\{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
@@ -706,12 +828,35 @@ foreach ($userProfile in $userProfiles) {
             "C:\Users\$username\AppData\Local\Programs\OP Auto Clicker",
             "C:\Users\$username\AppData\Local\JiggleMouse",
             "C:\Users\$username\AppData\Roaming\JiggleMouse",
-            "C:\Users\$username\AppData\Local\Programs\JiggleMouse"
+            "C:\Users\$username\AppData\Local\Programs\JiggleMouse",
+            "C:\Users\$username\AppData\Local\Programs\LStudio\Stremio",
+            "C:\Users\$username\AppData\Local\Stremio",
+            "C:\Users\$username\AppData\Roaming\Stremio",
+            "C:\Users\$username\AppData\Roaming\stremio",
+            "C:\Users\$username\AppData\Local\Plex",
+            "C:\Users\$username\AppData\Local\Programs\Plex",
+            "C:\Users\$username\AppData\Roaming\Plex",
+            "C:\Users\$username\AppData\Roaming\Plex Media Player",
+            "C:\Users\$username\AppData\Roaming\Kodi",
+            "C:\Users\$username\AppData\Local\Kodi",
+            "C:\Users\$username\AppData\Local\Programs\Twitch",
+            "C:\Users\$username\AppData\Local\BlueStacks",
+            "C:\Users\$username\AppData\Local\ldplayer",
+            "C:\Users\$username\AppData\Roaming\RetroArch",
+            "C:\Users\$username\AppData\Roaming\Dolphin Emulator",
+            "C:\Users\$username\Documents\PCSX2",
+            "C:\Users\$username\AppData\Roaming\PCSX2",
+            "C:\Users\$username\AppData\Local\uTorrent",
+            "C:\Users\$username\AppData\Local\uTorrent Web",
+            "C:\Users\$username\AppData\Roaming\uTorrent",
+            "C:\Users\$username\AppData\Local\BitTorrent",
+            "C:\Users\$username\AppData\Roaming\BitTorrent",
+            "C:\Users\$username\AppData\Local\MEGAsync"
         )
 
-        # Añadir carpetas de datos de AppX UWP residuales para Apple TV, Discord y JiggleMouse
+        # Añadir carpetas de datos de AppX UWP residuales para streaming, comunicación, emuladores y P2P no permitidas
         $pkgFolders = Get-ChildItem -Path "C:\Users\$username\AppData\Local\Packages" -ErrorAction SilentlyContinue |
-            Where-Object { $_.Name -like "*Apple*TV*" -or $_.Name -like "*Discord*" -or $_.Name -like "*JiggleMouse*" }
+            Where-Object { $_.Name -like "*Apple*TV*" -or $_.Name -like "*Discord*" -or $_.Name -like "*JiggleMouse*" -or $_.Name -like "*HBO*" -or $_.Name -like "*Netflix*" -or $_.Name -like "*PrimeVideo*" -or $_.Name -like "*Stremio*" -or $_.Name -like "*Plex*" -or $_.Name -like "*Kodi*" -or $_.Name -like "*Disney*" -or $_.Name -like "*Twitch*" -or $_.Name -like "*TikTok*" -or $_.Name -like "*Crunchyroll*" -or $_.Name -like "*BlueStacks*" -or $_.Name -like "*LDPlayer*" -or $_.Name -like "*RetroArch*" -or $_.Name -like "*uTorrent*" -or $_.Name -like "*BitTorrent*" -or $_.Name -like "*MEGAsync*" }
         foreach ($pkgDir in $pkgFolders) {
             $FoldersToDelete += $pkgDir.FullName
         }
@@ -861,6 +1006,24 @@ $softwareKeys = @(
     "HKLM:\SOFTWARE\A2GROUP",
     "HKLM:\SOFTWARE\Wow6432Node\A2GROUP",
     "HKCU:\Software\A2GROUP",
+    "HKLM:\SOFTWARE\Stremio",
+    "HKLM:\SOFTWARE\Wow6432Node\Stremio",
+    "HKCU:\Software\Stremio",
+    "HKLM:\SOFTWARE\Plex, Inc.",
+    "HKLM:\SOFTWARE\Wow6432Node\Plex, Inc.",
+    "HKCU:\Software\Plex, Inc.",
+    "HKLM:\SOFTWARE\Kodi",
+    "HKLM:\SOFTWARE\Wow6432Node\Kodi",
+    "HKCU:\Software\Kodi",
+    "HKLM:\SOFTWARE\BlueStacks",
+    "HKLM:\SOFTWARE\LDPlayer",
+    "HKLM:\SOFTWARE\RetroArch",
+    "HKLM:\SOFTWARE\Dolphin",
+    "HKLM:\SOFTWARE\PCSX2",
+    "HKLM:\SOFTWARE\uTorrent",
+    "HKCU:\Software\uTorrent",
+    "HKCU:\Software\BitTorrent",
+    "HKCU:\Software\MEGAsync",
     "HKLM:\SOFTWARE\Classes\Installer\Products\9B71B72A8C0970B4386C3130CF81B6B6",
     "HKLM:\SOFTWARE\Microsoft\Installer\Products\9B71B72A8C0970B4386C3130CF81B6B6"
 )
@@ -876,6 +1039,14 @@ try {
         $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Riot Games"
         $softwareKeys += "Registry::HKEY_USERS\$sid\Software\JiggleMouse"
         $softwareKeys += "Registry::HKEY_USERS\$sid\Software\A2GROUP"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Stremio"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Plex, Inc."
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Kodi"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\BlueStacks"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\uTorrent"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\BitTorrent"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\MEGAsync"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Cheat Engine"
     }
 } catch {}
 
@@ -898,7 +1069,9 @@ $DisallowedShortcutKeywords = @(
     "Origin", "sidequest", "JDownloader", "Battle.net", "Blizzard", "Apple TV", "AppleTV",
     "Apple.AppleTV", "AppleInc", "Discord", "DroidKit", "AutoHotkey", "MoveMouse", "Move Mouse",
     "OP Auto Clicker", "AutoClicker", "AutoTap", "PlayStationAccessories", "PlayStation Accessories",
-    "JiggleMouse", "Jiggle Mouse"
+    "JiggleMouse", "Jiggle Mouse", "HBO", "HBOMax", "Netflix", "Prime Video", "PrimeVideo", "Amazon Prime", "Stremio", "Plex", "Kodi",
+    "Disney", "Disney+", "Disney Plus", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "MegaSync",
+    "Cheat Engine", "CheatEngine", "Amstion", "Just Okay"
 )
 
 $SearchShortcutFolders = [System.Collections.Generic.List[string]]::new()
@@ -1179,7 +1352,32 @@ $PhysicalPathsToCheck = @(
     "$env:LocalAppData\Programs\JiggleMouse\JiggleMouse.exe",
     "C:\Users\*\AppData\Local\JiggleMouse\JiggleMouse.exe",
     "C:\Users\*\AppData\Local\Programs\JiggleMouse\JiggleMouse.exe",
-    "C:\Users\*\AppData\Roaming\JiggleMouse\JiggleMouse.exe"
+    "C:\Users\*\AppData\Roaming\JiggleMouse\JiggleMouse.exe",
+    "$env:LocalAppData\Programs\LStudio\Stremio\stremio.exe",
+    "$env:ProgramFiles\Stremio\stremio.exe",
+    "${env:ProgramFiles(x86)}\Stremio\stremio.exe",
+    "C:\Users\*\AppData\Local\Programs\LStudio\Stremio\stremio.exe",
+    "C:\Users\*\AppData\Local\Stremio\stremio.exe",
+    "$env:ProgramFiles\Plex\Plex\Plex.exe",
+    "${env:ProgramFiles(x86)}\Plex\Plex\Plex.exe",
+    "$env:ProgramFiles\Plex\Plex Media Player\PlexMediaPlayer.exe",
+    "${env:ProgramFiles(x86)}\Plex\Plex Media Player\PlexMediaPlayer.exe",
+    "C:\Users\*\AppData\Local\Programs\Plex\Plex\Plex.exe",
+    "C:\Users\*\AppData\Local\Plex\Plex.exe",
+    "$env:ProgramFiles\Kodi\kodi.exe",
+    "${env:ProgramFiles(x86)}\Kodi\kodi.exe",
+    "C:\Users\*\AppData\Local\Programs\Twitch\Twitch.exe",
+    "$env:ProgramFiles\BlueStacks_nxt\HD-Player.exe",
+    "${env:ProgramFiles(x86)}\BlueStacks\HD-Player.exe",
+    "C:\LDPlayer\LDPlayer9\dnplayer.exe",
+    "C:\XuanZhi\LDPlayer\dnplayer.exe",
+    "$env:ProgramFiles\RetroArch-Win64\retroarch.exe",
+    "$env:ProgramFiles\Dolphin-x64\Dolphin.exe",
+    "$env:ProgramFiles\PCSX2\pcsx2-qt.exe",
+    "C:\Users\*\AppData\Roaming\uTorrent\uTorrent.exe",
+    "$env:LocalAppData\uTorrent Web\utweb.exe",
+    "C:\Users\*\AppData\Roaming\BitTorrent\BitTorrent.exe",
+    "C:\Users\*\AppData\Local\MEGAsync\MEGAsync.exe"
 )
 
 foreach ($pathPattern in $PhysicalPathsToCheck) {
