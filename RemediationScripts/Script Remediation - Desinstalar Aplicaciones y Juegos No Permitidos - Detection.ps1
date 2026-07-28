@@ -62,6 +62,12 @@
       - Bandicam
       - Comet Browser
       - Helium Browser
+      - Dropbox
+      - Google Drive
+      - Icecream Screen Recorder
+      - iCloud
+      - BlueStacks X / OG Store
+      - Xiph.Org Open Codecs
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
     provisionados en la imagen del sistema, registros de desinstalacion y rutas de ejecutables comunes.
@@ -79,8 +85,8 @@
 .NOTES
     Name: Script Remediation - Desinstalar Aplicaciones y Juegos No Permitidos - Detection.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.7.0
-    Date: 2026-06-29
+    Version: 1.8.0
+    Date: 2026-07-28
     Context: System
 #>
 
@@ -206,7 +212,16 @@ $WildcardAppxNames = @(
     "*Comet*",
     "*CometBrowser*",
     "*Helium*",
-    "*HeliumBrowser*"
+    "*HeliumBrowser*",
+    "*Dropbox*",
+    "*GoogleDrive*",
+    "*Google*Drive*",
+    "*Icecream*",
+    "*iCloud*",
+    "*BlueStacksX*",
+    "*OGStore*",
+    "*nowgg*",
+    "*Xiph*"
 )
 
 Write-Host "Comprobando paquetes AppX instalados (todos los usuarios)..."
@@ -388,6 +403,23 @@ $DisallowedAppNames = @(
     "Comet Browser",
     "Helium",
     "Helium Browser",
+    "Dropbox",
+    "Google Drive",
+    "Google Drive File Stream",
+    "Icecream Screen Recorder",
+    "Icecream Apps",
+    "iCloud",
+    "iCloud Drive",
+    "iCloud Photos",
+    "iCloud Shared Photo Library",
+    "BlueStacks X",
+    "BlueStacksX",
+    "OG Store",
+    "OGStore",
+    "now.gg",
+    "Xiph.Org",
+    "Xiph.Org Open Codecs",
+    "Xiph",
     "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
@@ -535,7 +567,14 @@ $PhysicalPaths = @(
     [PSCustomObject]@{ Name = "Backblaze"; Paths = @("$env:ProgramFiles\Backblaze\bztransmit.exe", "${env:ProgramFiles(x86)}\Backblaze\bztransmit.exe", "$env:ProgramFiles\Backblaze\bzui.exe", "${env:ProgramFiles(x86)}\Backblaze\bzui.exe") },
     [PSCustomObject]@{ Name = "Bandicam"; Paths = @("$env:ProgramFiles\Bandicam\bdcam.exe", "${env:ProgramFiles(x86)}\Bandicam\bdcam.exe", "C:\Users\*\AppData\Roaming\Bandicam\bdcam.exe") },
     [PSCustomObject]@{ Name = "Comet Browser"; Paths = @("$env:LocalAppData\Comet\Application\comet.exe", "$env:ProgramFiles\Comet\Application\comet.exe", "${env:ProgramFiles(x86)}\Comet\Application\comet.exe", "C:\Users\*\AppData\Local\Comet\Application\comet.exe") },
-    [PSCustomObject]@{ Name = "Helium Browser"; Paths = @("$env:LocalAppData\Helium\Application\helium.exe", "$env:ProgramFiles\Helium\helium.exe", "${env:ProgramFiles(x86)}\Helium\helium.exe", "C:\Users\*\AppData\Local\Programs\Helium\helium.exe") }
+    [PSCustomObject]@{ Name = "Helium Browser"; Paths = @("$env:LocalAppData\Helium\Application\helium.exe", "$env:ProgramFiles\Helium\helium.exe", "${env:ProgramFiles(x86)}\Helium\helium.exe", "C:\Users\*\AppData\Local\Programs\Helium\helium.exe") },
+    [PSCustomObject]@{ Name = "Dropbox"; Paths = @("$env:ProgramFiles\Dropbox\Client\Dropbox.exe", "${env:ProgramFiles(x86)}\Dropbox\Client\Dropbox.exe", "C:\Users\*\AppData\Local\Dropbox\bin\Dropbox.exe", "C:\Users\*\AppData\Roaming\Dropbox\bin\Dropbox.exe") },
+    [PSCustomObject]@{ Name = "Google Drive"; Paths = @("$env:ProgramFiles\Google\Drive File Stream\*\GoogleDriveFSSetup.exe", "$env:ProgramFiles\Google\Drive\GoogleDriveFSSetup.exe", "${env:ProgramFiles(x86)}\Google\Drive\GoogleDriveFSSetup.exe", "C:\Users\*\AppData\Local\Google\DriveFS\*\GoogleDriveFSSetup.exe") },
+    [PSCustomObject]@{ Name = "Icecream Screen Recorder"; Paths = @("$env:ProgramFiles\Icecream Screen Recorder\recorder.exe", "${env:ProgramFiles(x86)}\Icecream Screen Recorder\recorder.exe", "$env:ProgramFiles\Icecream Apps\Icecream Screen Recorder\recorder.exe", "${env:ProgramFiles(x86)}\Icecream Apps\Icecream Screen Recorder\recorder.exe", "C:\Users\*\AppData\Local\Icecream Screen Recorder\recorder.exe") },
+    [PSCustomObject]@{ Name = "iCloud"; Paths = @("$env:ProgramFiles\Common Files\Apple\Internet Services\iCloud.exe", "${env:ProgramFiles(x86)}\Common Files\Apple\Internet Services\iCloud.exe", "$env:ProgramFiles\Apple\iCloud\iCloud.exe", "${env:ProgramFiles(x86)}\Apple\iCloud\iCloud.exe", "C:\Users\*\AppData\Local\Programs\iCloud\iCloud.exe") },
+    [PSCustomObject]@{ Name = "BlueStacks X"; Paths = @("$env:ProgramFiles\BlueStacksX\BlueStacksX.exe", "${env:ProgramFiles(x86)}\BlueStacksX\BlueStacksX.exe", "C:\Users\*\AppData\Local\Programs\BlueStacksX\BlueStacksX.exe", "C:\ProgramData\BlueStacksX\BlueStacksX.exe") },
+    [PSCustomObject]@{ Name = "OG Store"; Paths = @("$env:ProgramFiles\OGStore\OGStore.exe", "${env:ProgramFiles(x86)}\OGStore\OGStore.exe", "C:\Users\*\AppData\Local\Programs\OGStore\OGStore.exe") },
+    [PSCustomObject]@{ Name = "Xiph.Org Open Codecs"; Paths = @("$env:ProgramFiles\Xiph.Org\Open Codecs\*.dll", "${env:ProgramFiles(x86)}\Xiph.Org\Open Codecs\*.dll", "C:\Program Files\Xiph.Org\Open Codecs\dsfOggMux.dll", "C:\Program Files (x86)\Xiph.Org\Open Codecs\dsfOggMux.dll") }
 )
 
 foreach ($app in $PhysicalPaths) {
@@ -570,7 +609,8 @@ $DisallowedShortcutKeywords = @(
     "OP Auto Clicker", "AutoClicker", "AutoTap", "PlayStationAccessories", "PlayStation Accessories",
     "JiggleMouse", "Jiggle Mouse", "HBO", "HBOMax", "Netflix", "Prime Video", "PrimeVideo", "Amazon Prime", "Stremio", "Plex", "Kodi",
     "Disney", "Disney+", "Disney Plus", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "MegaSync",
-    "Cheat Engine", "CheatEngine", "Amstion", "Just Okay", "Kindle", "Amazon Kindle", "AnyDesk", "Backblaze", "Bandicam", "Comet", "Comet Browser", "Helium", "Helium Browser"
+    "Cheat Engine", "CheatEngine", "Amstion", "Just Okay", "Kindle", "Amazon Kindle", "AnyDesk", "Backblaze", "Bandicam", "Comet", "Comet Browser", "Helium", "Helium Browser",
+    "Dropbox", "Google Drive", "Icecream", "Icecream Screen Recorder", "iCloud", "BlueStacks X", "BlueStacksX", "OG Store", "OGStore", "Xiph"
 )
 
 $SearchShortcutFolders = [System.Collections.Generic.List[string]]::new()
