@@ -35,6 +35,7 @@
       - Move Mouse
       - OP Auto Clicker
       - PlayStation Accessories
+      - JiggleMouse
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
     provisionados en la imagen del sistema, registros de desinstalacion y rutas de ejecutables comunes.
@@ -120,6 +121,8 @@ $WildcardAppxNames = @(
     "*blizzard*",
     "*AppleTV*",
     "*Apple.AppleTV*",
+    "*Apple*TV*",
+    "*AppleInc*TV*",
     "*Discord*",
     "*DroidKit*",
     "*AutoHotkey*",
@@ -131,7 +134,9 @@ $WildcardAppxNames = @(
     "*AutoTap*",
     "*MouseClicker*",
     "*PlayStationAccessories*",
-    "*PlayStation Accessories*"
+    "*PlayStation Accessories*",
+    "*JiggleMouse*",
+    "*Jiggle Mouse*"
 )
 
 Write-Host "Comprobando paquetes AppX instalados (todos los usuarios)..."
@@ -192,7 +197,7 @@ try {
 }
 
 # =============================================================================
-# 3. Aplicaciones Tradicionales vía Registro (Uninstall Keys)
+# 3. Aplicaciones Tradicionales vía Registro (Uninstall Keys - HKLM, HKCU y HKU)
 # =============================================================================
 Write-Host "Comprobando claves de registro de desinstalacion..."
 $RegistryPaths = @(
@@ -200,6 +205,20 @@ $RegistryPaths = @(
     "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
     "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
 )
+
+# Agregar colmenas de registro de usuarios activos en HKEY_USERS (HKU) para detectar per-user installs (ej. Discord) en contexto SYSTEM
+try {
+    $hkuSids = Get-ChildItem -Path "Registry::HKEY_USERS" -ErrorAction SilentlyContinue |
+        Where-Object { $_.PSChildName -notlike "*.DEFAULT" -and $_.PSChildName -notlike "*_Classes" -and $_.PSChildName -match "^S-1-5-21-" } |
+        Select-Object -ExpandProperty PSChildName
+
+    foreach ($sid in $hkuSids) {
+        $RegistryPaths += "Registry::HKEY_USERS\$sid\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+        $RegistryPaths += "Registry::HKEY_USERS\$sid\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    }
+} catch {
+    Write-Host "Advertencia al obtener colmenas HKU: $_"
+}
 
 $DisallowedAppNames = @(
     "Steam",
@@ -247,6 +266,8 @@ $DisallowedAppNames = @(
     "Auto Tap",
     "PlayStation Accessories",
     "PlayStationAccessories",
+    "JiggleMouse",
+    "Jiggle Mouse",
     "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
@@ -270,7 +291,7 @@ foreach ($path in $RegistryPaths) {
 }
 
 # =============================================================================
-# 4. Comprobacion de Archivos Fisicos (Common Paths)
+# 4. Comprobacion de Archivos Fisicos (Common Paths & User AppData)
 # =============================================================================
 Write-Host "Comprobando rutas fisicas comunes..."
 $PhysicalPaths = @(
@@ -317,7 +338,17 @@ $PhysicalPaths = @(
         "${env:ProgramFiles(x86)}\Battle.net\Battle.net Launcher.exe",
         "C:\Users\*\AppData\Local\Battle.net\Battle.net.exe"
     ) },
-    [PSCustomObject]@{ Name = "Discord"; Paths = @("$env:LocalAppData\Discord\Update.exe", "$env:ProgramFiles\Discord\Discord.exe", "${env:ProgramFiles(x86)}\Discord\Discord.exe", "C:\Users\*\AppData\Local\Discord\Update.exe") },
+    [PSCustomObject]@{ Name = "Discord"; Paths = @(
+        "$env:LocalAppData\Discord\Update.exe",
+        "$env:LocalAppData\DiscordCanary\Update.exe",
+        "$env:LocalAppData\DiscordPTB\Update.exe",
+        "$env:ProgramFiles\Discord\Discord.exe",
+        "${env:ProgramFiles(x86)}\Discord\Discord.exe",
+        "C:\Users\*\AppData\Local\Discord*\Update.exe",
+        "C:\Users\*\AppData\Local\Discord*\app-*\Discord.exe",
+        "C:\Users\*\AppData\Local\Discord*\Discord.exe",
+        "C:\Users\*\AppData\Local\Programs\Discord\Discord.exe"
+    ) },
     [PSCustomObject]@{ Name = "DroidKit"; Paths = @("$env:ProgramFiles\iMobie\DroidKit\DroidKit.exe", "${env:ProgramFiles(x86)}\iMobie\DroidKit\DroidKit.exe", "$env:ProgramFiles\DroidKit\DroidKit.exe", "${env:ProgramFiles(x86)}\DroidKit\DroidKit.exe", "C:\Users\*\AppData\Local\Programs\DroidKit\DroidKit.exe") },
     [PSCustomObject]@{ Name = "AutoHotkey"; Paths = @("$env:ProgramFiles\AutoHotkey\AutoHotkey.exe", "${env:ProgramFiles(x86)}\AutoHotkey\AutoHotkey.exe", "$env:LocalAppData\AutoHotkey\AutoHotkey.exe", "C:\Users\*\AppData\Local\AutoHotkey\AutoHotkey.exe", "C:\Users\*\AppData\Local\Programs\AutoHotkey\AutoHotkey.exe") },
     [PSCustomObject]@{ Name = "Move Mouse"; Paths = @("$env:ProgramFiles\Move Mouse\MoveMouse.exe", "${env:ProgramFiles(x86)}\Move Mouse\MoveMouse.exe", "$env:ProgramData\Move Mouse\MoveMouse.exe", "C:\Users\*\AppData\Local\Move Mouse\MoveMouse.exe", "C:\Users\*\AppData\Roaming\Move Mouse\MoveMouse.exe", "C:\Users\*\Downloads\*MoveMouse*.exe", "C:\Users\*\Desktop\*MoveMouse*.exe") },
@@ -337,14 +368,158 @@ $PhysicalPaths = @(
         "C:\Users\*\Downloads\*AutoClicker*.exe",
         "C:\Users\*\Desktop\*AutoClicker*.exe"
     ) },
-    [PSCustomObject]@{ Name = "PlayStation Accessories"; Paths = @("C:\Program Files\Sony\PlayStationAccessories\PlayStationAccessories.exe", "${env:ProgramFiles(x86)}\Sony\PlayStationAccessories\PlayStationAccessories.exe") }
+    [PSCustomObject]@{ Name = "PlayStation Accessories"; Paths = @("C:\Program Files\Sony\PlayStationAccessories\PlayStationAccessories.exe", "${env:ProgramFiles(x86)}\Sony\PlayStationAccessories\PlayStationAccessories.exe") },
+    [PSCustomObject]@{ Name = "JiggleMouse"; Paths = @(
+        "$env:ProgramFiles\JiggleMouse\JiggleMouse.exe",
+        "${env:ProgramFiles(x86)}\JiggleMouse\JiggleMouse.exe",
+        "$env:LocalAppData\Programs\JiggleMouse\JiggleMouse.exe",
+        "C:\Users\*\AppData\Local\JiggleMouse\JiggleMouse.exe",
+        "C:\Users\*\AppData\Local\Programs\JiggleMouse\JiggleMouse.exe",
+        "C:\Users\*\AppData\Roaming\JiggleMouse\JiggleMouse.exe",
+        "C:\Users\*\Downloads\*JiggleMouse*.exe",
+        "C:\Users\*\Desktop\*JiggleMouse*.exe"
+    ) }
 )
 
 foreach ($app in $PhysicalPaths) {
-    foreach ($path in $app.Paths) {
-        if (Test-Path -Path $path) {
-            $detected = $true
-            $Reasons.Add("[Ruta Fisica] Ejecutable de $($app.Name) detectado: $path")
+    foreach ($pathPattern in $app.Paths) {
+        try {
+            $matchedFiles = Get-ChildItem -Path $pathPattern -ErrorAction SilentlyContinue
+            if ($matchedFiles) {
+                foreach ($file in $matchedFiles) {
+                    $detected = $true
+                    $Reasons.Add("[Ruta Fisica] Ejecutable de $($app.Name) detectado: $($file.FullName)")
+                }
+            } elseif (Test-Path -Path $pathPattern) {
+                $detected = $true
+                $Reasons.Add("[Ruta Fisica] Ejecutable de $($app.Name) detectado: $pathPattern")
+            }
+        } catch {}
+    }
+}
+
+# =============================================================================
+# 5. Comprobacion de Accesos Directos (.lnk, .url) en Escritorios y Menus de Inicio
+# =============================================================================
+Write-Host "Comprobando accesos directos residuales en Escritorios y Menus de Inicio..."
+
+$DisallowedShortcutKeywords = @(
+    "Steam", "Epic Games", "Riot Client", "League of Legends", "Valorant", "Rocket League",
+    "Hytale", "WinDS", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "WGC",
+    "World of Tanks", "World of Warships", "WorldOfTanks", "WorldOfWarships", "hakchi",
+    "transmission", "qbittorrent", "tixati", "biglybt", "EA App", "EAapp", "EA Desktop",
+    "Origin", "sidequest", "JDownloader", "Battle.net", "Blizzard", "Apple TV", "AppleTV",
+    "Apple.AppleTV", "AppleInc", "Discord", "DroidKit", "AutoHotkey", "MoveMouse", "Move Mouse",
+    "OP Auto Clicker", "AutoClicker", "AutoTap", "PlayStationAccessories", "PlayStation Accessories",
+    "JiggleMouse", "Jiggle Mouse"
+)
+
+$SearchShortcutFolders = [System.Collections.Generic.List[string]]::new()
+$SearchShortcutFolders.Add("C:\Users\Public\Desktop")
+$SearchShortcutFolders.Add("C:\Users\Public\Escritorio")
+$SearchShortcutFolders.Add("C:\ProgramData\Microsoft\Windows\Start Menu")
+
+$userProfiles = Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue
+foreach ($userProfile in $userProfiles) {
+    $username = $userProfile.Name
+    if ($username -notin @("Public", "Default", "All Users")) {
+        $SearchShortcutFolders.Add("C:\Users\$username\Desktop")
+        $SearchShortcutFolders.Add("C:\Users\$username\Escritorio")
+        $SearchShortcutFolders.Add("C:\Users\$username\OneDrive\Desktop")
+        $SearchShortcutFolders.Add("C:\Users\$username\OneDrive\Escritorio")
+        $SearchShortcutFolders.Add("C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu")
+        $SearchShortcutFolders.Add("C:\Users\$username\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch")
+
+        try {
+            $dynDesktops = Get-ChildItem -Path $userProfile.FullName -Recurse -Depth 3 -ErrorAction SilentlyContinue |
+                Where-Object { $_.PSIsContainer -and ($_.Name -like "*Desktop*" -or $_.Name -like "*Escritorio*") }
+            foreach ($dd in $dynDesktops) {
+                if (-not $SearchShortcutFolders.Contains($dd.FullName)) {
+                    $SearchShortcutFolders.Add($dd.FullName)
+                }
+            }
+        } catch {}
+
+        try {
+            $hkuSids = Get-ChildItem -Path "Registry::HKEY_USERS" -ErrorAction SilentlyContinue |
+                Where-Object { $_.PSChildName -notlike "*.DEFAULT" -and $_.PSChildName -notlike "*_Classes" -and $_.PSChildName -match "^S-1-5-21-" } |
+                Select-Object -ExpandProperty PSChildName
+
+            foreach ($sid in $hkuSids) {
+                $regDesktop = (Get-ItemProperty -Path "Registry::HKEY_USERS\$sid\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" -Name "Desktop" -ErrorAction SilentlyContinue).Desktop
+                if ($regDesktop) {
+                    $expandedPath = [System.Environment]::ExpandEnvironmentVariables($regDesktop)
+                    if (-not $SearchShortcutFolders.Contains($expandedPath)) {
+                        $SearchShortcutFolders.Add($expandedPath)
+                    }
+                }
+            }
+        } catch {}
+    }
+}
+
+$wshShell = $null
+try {
+    $wshShell = New-Object -ComObject WScript.Shell -ErrorAction SilentlyContinue
+} catch {}
+
+foreach ($folderPath in $SearchShortcutFolders) {
+    if (Test-Path $folderPath) {
+        $shortcuts = Get-ChildItem -Path $folderPath -Recurse -ErrorAction SilentlyContinue |
+            Where-Object { -not $_.PSIsContainer -and ($_.Extension -eq ".lnk" -or $_.Extension -eq ".url" -or $_.Name -like "*.lnk" -or $_.Name -like "*.url") }
+
+        foreach ($sc in $shortcuts) {
+            $scName = $sc.Name
+            $matched = $false
+
+            foreach ($kw in $DisallowedShortcutKeywords) {
+                if ($scName -like "*$kw*") {
+                    $matched = $true
+                    break
+                }
+            }
+
+            if (-not $matched -and $sc.Extension -eq ".lnk" -and $wshShell) {
+                try {
+                    $targetPath = $wshShell.CreateShortcut($sc.FullName).TargetPath
+                    if ($targetPath) {
+                        foreach ($kw in $DisallowedShortcutKeywords) {
+                            if ($targetPath -like "*$kw*") {
+                                $matched = $true
+                                break
+                            }
+                        }
+                        # Comprobar si es un acceso directo huérfano (su archivo ejecutable/destino en disco ya no existe)
+                        if (-not $matched -and (-not (Test-Path $targetPath))) {
+                            foreach ($kw in $DisallowedShortcutKeywords) {
+                                if ($scName -like "*$kw*" -or $targetPath -like "*$kw*") {
+                                    $matched = $true
+                                    break
+                                }
+                            }
+                        }
+                    }
+                } catch {}
+            }
+
+            if (-not $matched -and $sc.Extension -eq ".lnk") {
+                try {
+                    $rawText = [System.IO.File]::ReadAllText($sc.FullName)
+                    if ($rawText) {
+                        foreach ($kw in $DisallowedShortcutKeywords) {
+                            if ($rawText -like "*$kw*") {
+                                $matched = $true
+                                break
+                            }
+                        }
+                    }
+                } catch {}
+            }
+
+            if ($matched) {
+                $detected = $true
+                $Reasons.Add("[Acceso Directo] Acceso directo no permitido o huerfano detectado: $($sc.FullName)")
+            }
         }
     }
 }

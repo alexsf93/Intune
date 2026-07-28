@@ -35,6 +35,7 @@
       - Move Mouse
       - OP Auto Clicker
       - PlayStation Accessories
+      - JiggleMouse
 
     Pasos de remediacion:
       1. Finalizar procesos activos de los juegos y aplicaciones no permitidas
@@ -129,6 +130,8 @@ $WildcardAppxNames = @(
     "*blizzard*",
     "*AppleTV*",
     "*Apple.AppleTV*",
+    "*Apple*TV*",
+    "*AppleInc*TV*",
     "*Discord*",
     "*DroidKit*",
     "*AutoHotkey*",
@@ -140,7 +143,9 @@ $WildcardAppxNames = @(
     "*AutoTap*",
     "*MouseClicker*",
     "*PlayStationAccessories*",
-    "*PlayStation Accessories*"
+    "*PlayStation Accessories*",
+    "*JiggleMouse*",
+    "*Jiggle Mouse*"
 )
 
 # Nombres de procesos a finalizar
@@ -160,8 +165,8 @@ $ProcessNamesToKill = @(
     "wgc", "wgc_api", "WorldOfWarships", "WorldOfTanks", "WorldOfWarplanes",
     "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "qbittorrent", "tixati", "BiglyBT", "SideQuest",
     "JDownloader", "JDownloader2", "Battle.net", "Battle.net Launcher", "Battle.net Helper", "Agent",
-    "AppleTV", "AppleTVWin", "Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment", "DroidKit", "iMobieDroidKit", "DroidKitComponent",
-    "AutoHotkey", "AutoHotkeyUX", "ahk2exe", "WindowSpy", "MoveMouse", "Move Mouse", "opautoclicker", "autoclicker", "AutoTap", "OPAutoClicker", "OP_AutoClicker", "AutoClicker3", "AutoClicker2", "OP_AutoClicker_3.0", "PlayStationAccessories", "PlayStationAccessoriesInstaller", "PSAInstall"
+    "AppleTV", "AppleTVWin", "Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment", "Update", "DroidKit", "iMobieDroidKit", "DroidKitComponent",
+    "AutoHotkey", "AutoHotkeyUX", "ahk2exe", "WindowSpy", "MoveMouse", "Move Mouse", "opautoclicker", "autoclicker", "AutoTap", "OPAutoClicker", "OP_AutoClicker", "AutoClicker3", "AutoClicker2", "OP_AutoClicker_3.0", "PlayStationAccessories", "PlayStationAccessoriesInstaller", "PSAInstall", "JiggleMouse", "Jiggle Mouse", "JiggleMouseApp"
 )
 
 $DisallowedAppNames = @(
@@ -209,19 +214,23 @@ $DisallowedAppNames = @(
     "Auto Tap",
     "PlayStation Accessories",
     "PlayStationAccessories",
+    "JiggleMouse",
+    "Jiggle Mouse",
     "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
 # =============================================================================
-# PASO 1: Finalizar procesos activos de los juegos
+# PASO 1: Finalizar procesos activos de los juegos y aplicaciones
 # =============================================================================
 Write-Host "--- Paso 1: Finalizando procesos activos ---"
 foreach ($procName in $ProcessNamesToKill) {
     try {
         Get-Process -Name $procName -ErrorAction SilentlyContinue | ForEach-Object {
-            Write-Host "  Terminando proceso: $($_.Name) (PID: $($_.Id))"
+            Write-Host "  Terminando proceso PowerShell: $($_.Name) (PID: $($_.Id))"
             Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue
         }
+        # Refuerzo forzado vía cmd/taskkill para procesos activos en sesiones de usuario cuando se corre como SYSTEM
+        cmd.exe /c "taskkill.exe /F /T /IM `${procName}.exe 2>nul" | Out-Null
     } catch {
         Write-Host "  Advertencia al terminar '$procName': $_"
     }
@@ -247,9 +256,28 @@ foreach ($svc in $VanguardServices) {
 }
 
 # =============================================================================
-# PASO 3: Desinstalacion nativa tradicional de aplicaciones desde el Registro
+# PASO 3: Desinstalacion nativa tradicional de aplicaciones desde el Registro (HKLM, HKCU, HKU)
 # =============================================================================
 Write-Host "--- Paso 3: Ejecutando desinstaladores tradicionales ---"
+
+$registryUninstallPaths = @(
+    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
+    "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
+    "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+)
+
+try {
+    $hkuSids = Get-ChildItem -Path "Registry::HKEY_USERS" -ErrorAction SilentlyContinue |
+        Where-Object { $_.PSChildName -notlike "*.DEFAULT" -and $_.PSChildName -notlike "*_Classes" -and $_.PSChildName -match "^S-1-5-21-" } |
+        Select-Object -ExpandProperty PSChildName
+
+    foreach ($sid in $hkuSids) {
+        $registryUninstallPaths += "Registry::HKEY_USERS\$sid\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+        $registryUninstallPaths += "Registry::HKEY_USERS\$sid\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    }
+} catch {
+    Write-Host "  Advertencia al obtener colmenas HKU para desinstalacion: $_"
+}
 
 # 3.1 Steam
 $steamKeys = @(
@@ -277,12 +305,6 @@ foreach ($keyPath in $steamKeys) {
 }
 
 # 3.2 Epic Games Launcher (MSI)
-$registryUninstallPaths = @(
-    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
-    "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
-    "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
-)
-
 foreach ($path in $registryUninstallPaths) {
     try {
         $keys = Get-ItemProperty -Path $path -ErrorAction SilentlyContinue
@@ -332,9 +354,9 @@ if (Test-Path $riotClientPath) {
     }
 }
 
-# 3.4 Otras aplicaciones (Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, Tixati, BiglyBT, SideQuest)
-Write-Host "  Buscando desinstaladores para Hytale, WinDS Pro, Porofessor, Overwolf, WeMod, Wand, Wargaming, World of Tanks, World of Warships, World of Warplanes, Hakchi2 CE, Transmission, qBittorrent, EA app, Origin, Electronic Arts, Tixati, BiglyBT y SideQuest en el Registro..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment", "Discord", "DroidKit", "iMobie DroidKit", "AutoHotkey", "Move Mouse", "MoveMouse", "OP Auto Clicker", "OPAutoClicker", "Auto Clicker", "PlayStation Accessories", "PlayStationAccessories")
+# 3.4 Otras aplicaciones (incluyendo desinstaladores de usuario como Discord, DroidKit, AutoHotkey, etc.)
+Write-Host "  Buscando desinstaladores para Discord, DroidKit, Apple TV, Steam, Epic Games, Riot, Torrent, launchers y herramientas en Registro (HKLM, HKCU, HKU)..."
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment", "Discord", "DroidKit", "iMobie DroidKit", "AutoHotkey", "Move Mouse", "MoveMouse", "OP Auto Clicker", "OPAutoClicker", "Auto Clicker", "PlayStation Accessories", "PlayStationAccessories", "JiggleMouse", "Jiggle Mouse")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
@@ -353,7 +375,15 @@ foreach ($path in $registryUninstallPaths) {
                         $quietUninstallString = (Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue).QuietUninstallString
                         
                         $uninstallCommand = ""
-                        if ($displayName -like "*BiglyBT*" -or $displayName -like "*JDownloader*") {
+                        if ($displayName -like "*Discord*") {
+                            if ($uninstallString) {
+                                if ($uninstallString -notlike "*--uninstall*") {
+                                    $uninstallCommand = "$uninstallString --uninstall"
+                                } else {
+                                    $uninstallCommand = $uninstallString
+                                }
+                            }
+                        } elseif ($displayName -like "*BiglyBT*" -or $displayName -like "*JDownloader*") {
                             if ($uninstallString) {
                                 $cleanUninstallString = $uninstallString -replace '"', ''
                                 $uninstallCommand = "`"$cleanUninstallString`" -q"
@@ -438,7 +468,7 @@ foreach ($app in $TargetAppxApps) {
     }
 }
 
-# 4.2 Paquetes comodines (Steam, Epic, Riot)
+# 4.2 Paquetes comodines (Steam, Epic, Riot, Apple TV, Discord, DroidKit, etc.)
 try {
     $allAppx = Get-AppxPackage -AllUsers -ErrorAction SilentlyContinue
     if ($allAppx) {
@@ -564,6 +594,7 @@ $FoldersToDelete = @(
     "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Battle.net",
     "$env:ProgramFiles\Discord",
     "${env:ProgramFiles(x86)}\Discord",
+    "$env:ProgramData\Discord",
     "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Discord",
     "$env:ProgramFiles\iMobie\DroidKit",
     "${env:ProgramFiles(x86)}\iMobie\DroidKit",
@@ -583,11 +614,14 @@ $FoldersToDelete = @(
     "${env:ProgramFiles(x86)}\OP Auto Clicker",
     "C:\Program Files\Sony\PlayStationAccessories",
     "${env:ProgramFiles(x86)}\Sony\PlayStationAccessories",
+    "$env:ProgramFiles\JiggleMouse",
+    "${env:ProgramFiles(x86)}\JiggleMouse",
+    "$env:LocalAppData\Programs\JiggleMouse",
     "C:\Program Files (x86)\InstallShield Installation Information\{A27B17B9-90C8-4B07-83C6-1303FC186B6B}",
     "C:\Program Files\InstallShield Installation Information\{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
-# Obtener perfiles de usuarios locales para AppData y Documentos
+# Obtener perfiles de usuarios locales para AppData, Packages y Documentos
 $userProfiles = Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue
 foreach ($userProfile in $userProfiles) {
     $username = $userProfile.Name
@@ -653,7 +687,12 @@ foreach ($userProfile in $userProfiles) {
             "C:\Users\$username\AppData\Roaming\Blizzard Entertainment",
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Battle.net",
             "C:\Users\$username\AppData\Local\Discord",
+            "C:\Users\$username\AppData\Local\DiscordCanary",
+            "C:\Users\$username\AppData\Local\DiscordPTB",
+            "C:\Users\$username\AppData\Local\Programs\Discord",
             "C:\Users\$username\AppData\Roaming\Discord",
+            "C:\Users\$username\AppData\Roaming\DiscordCanary",
+            "C:\Users\$username\AppData\Roaming\DiscordPTB",
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Discord",
             "C:\Users\$username\AppData\Local\iMobie\DroidKit",
             "C:\Users\$username\AppData\Roaming\iMobie\DroidKit",
@@ -664,8 +703,18 @@ foreach ($userProfile in $userProfiles) {
             "C:\Users\$username\AppData\Local\Move Mouse",
             "C:\Users\$username\AppData\Roaming\Move Mouse",
             "C:\Users\$username\AppData\Roaming\OP Auto Clicker",
-            "C:\Users\$username\AppData\Local\Programs\OP Auto Clicker"
+            "C:\Users\$username\AppData\Local\Programs\OP Auto Clicker",
+            "C:\Users\$username\AppData\Local\JiggleMouse",
+            "C:\Users\$username\AppData\Roaming\JiggleMouse",
+            "C:\Users\$username\AppData\Local\Programs\JiggleMouse"
         )
+
+        # Añadir carpetas de datos de AppX UWP residuales para Apple TV, Discord y JiggleMouse
+        $pkgFolders = Get-ChildItem -Path "C:\Users\$username\AppData\Local\Packages" -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -like "*Apple*TV*" -or $_.Name -like "*Discord*" -or $_.Name -like "*JiggleMouse*" }
+        foreach ($pkgDir in $pkgFolders) {
+            $FoldersToDelete += $pkgDir.FullName
+        }
     }
 }
 
@@ -685,7 +734,7 @@ foreach ($folder in $FoldersToDelete) {
 }
 
 # =============================================================================
-# PASO 6: Limpiar claves de registro residuales
+# PASO 6: Limpiar claves de registro residuales (HKLM, HKCU, HKU)
 # =============================================================================
 Write-Host "--- Paso 6: Limpiando claves de registro residuales ---"
 foreach ($path in $registryUninstallPaths) {
@@ -806,9 +855,29 @@ $softwareKeys = @(
     "HKLM:\SOFTWARE\Sony\PlayStationAccessories",
     "HKLM:\SOFTWARE\Wow6432Node\Sony\PlayStationAccessories",
     "HKCU:\Software\Sony\PlayStationAccessories",
+    "HKLM:\SOFTWARE\JiggleMouse",
+    "HKLM:\SOFTWARE\Wow6432Node\JiggleMouse",
+    "HKCU:\Software\JiggleMouse",
+    "HKLM:\SOFTWARE\A2GROUP",
+    "HKLM:\SOFTWARE\Wow6432Node\A2GROUP",
+    "HKCU:\Software\A2GROUP",
     "HKLM:\SOFTWARE\Classes\Installer\Products\9B71B72A8C0970B4386C3130CF81B6B6",
     "HKLM:\SOFTWARE\Microsoft\Installer\Products\9B71B72A8C0970B4386C3130CF81B6B6"
 )
+
+try {
+    foreach ($sid in $hkuSids) {
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Discord"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\iMobie"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\DroidKit"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\AutoHotkey"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Valve"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Epic Games"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Riot Games"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\JiggleMouse"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\A2GROUP"
+    }
+} catch {}
 
 foreach ($key in $softwareKeys) {
     if (Test-Path $key) {
@@ -818,80 +887,124 @@ foreach ($key in $softwareKeys) {
 }
 
 # =============================================================================
-# PASO 7: Limpiar accesos directos residuales
+# PASO 7: Limpiar accesos directos residuales (.lnk, .url) en Escritorios y Menus de Inicio
 # =============================================================================
 Write-Host "--- Paso 7: Eliminando accesos directos residuales ---"
-$ShortcutPatterns = @(
-    "*Steam*",
-    "*Epic Games*",
-    "*Riot Client*",
-    "*League of Legends*",
-    "*Valorant*",
-    "*Rocket League*",
-    "*Hytale*",
-    "*WinDS*",
-    "*Porofessor*",
-    "*Overwolf*",
-    "*WeMod*",
-    "*Wand*",
-    "*Wargaming*",
-    "*WGC*",
-    "*World of Tanks*",
-    "*World of Warships*",
-    "*WorldOfTanks*",
-    "*WorldOfWarships*",
-    "*hakchi*",
-    "*transmission*",
-    "*qbittorrent*",
-    "*tixati*",
-    "*biglybt*",
-    "*EA App*",
-    "*EAapp*",
-    "*EA Desktop*",
-    "*Origin*",
-    "*sidequest*",
-    "*JDownloader*",
-    "*Battle.net*",
-    "*Blizzard*",
-    "*Apple TV*",
-    "*AppleTV*",
-    "*Discord*",
-    "*DroidKit*",
-    "*AutoHotkey*",
-    "*MoveMouse*",
-    "*Move Mouse*",
-    "*OP Auto Clicker*",
-    "*AutoClicker*",
-    "*AutoTap*",
-    "*PlayStationAccessories*",
-    "*PlayStation Accessories*"
+$DisallowedShortcutKeywords = @(
+    "Steam", "Epic Games", "Riot Client", "League of Legends", "Valorant", "Rocket League",
+    "Hytale", "WinDS", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "WGC",
+    "World of Tanks", "World of Warships", "WorldOfTanks", "WorldOfWarships", "hakchi",
+    "transmission", "qbittorrent", "tixati", "biglybt", "EA App", "EAapp", "EA Desktop",
+    "Origin", "sidequest", "JDownloader", "Battle.net", "Blizzard", "Apple TV", "AppleTV",
+    "Apple.AppleTV", "AppleInc", "Discord", "DroidKit", "AutoHotkey", "MoveMouse", "Move Mouse",
+    "OP Auto Clicker", "AutoClicker", "AutoTap", "PlayStationAccessories", "PlayStation Accessories",
+    "JiggleMouse", "Jiggle Mouse"
 )
 
-$ShortcutPaths = @(
-    "C:\Users\Public\Desktop",
-    "C:\ProgramData\Microsoft\Windows\Start Menu\Programs"
-)
+$SearchShortcutFolders = [System.Collections.Generic.List[string]]::new()
+$SearchShortcutFolders.Add("C:\Users\Public\Desktop")
+$SearchShortcutFolders.Add("C:\Users\Public\Escritorio")
+$SearchShortcutFolders.Add("C:\ProgramData\Microsoft\Windows\Start Menu")
 
+$userProfiles = Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue
 foreach ($userProfile in $userProfiles) {
     $username = $userProfile.Name
     if ($username -notin @("Public", "Default", "All Users")) {
-        $ShortcutPaths += @(
-            "C:\Users\$username\Desktop",
-            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs"
-        )
+        $SearchShortcutFolders.Add("C:\Users\$username\Desktop")
+        $SearchShortcutFolders.Add("C:\Users\$username\Escritorio")
+        $SearchShortcutFolders.Add("C:\Users\$username\OneDrive\Desktop")
+        $SearchShortcutFolders.Add("C:\Users\$username\OneDrive\Escritorio")
+        $SearchShortcutFolders.Add("C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu")
+        $SearchShortcutFolders.Add("C:\Users\$username\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch")
+
+        try {
+            $dynDesktops = Get-ChildItem -Path $userProfile.FullName -Recurse -Depth 3 -ErrorAction SilentlyContinue |
+                Where-Object { $_.PSIsContainer -and ($_.Name -like "*Desktop*" -or $_.Name -like "*Escritorio*") }
+            foreach ($dd in $dynDesktops) {
+                if (-not $SearchShortcutFolders.Contains($dd.FullName)) {
+                    $SearchShortcutFolders.Add($dd.FullName)
+                }
+            }
+        } catch {}
+
+        try {
+            foreach ($sid in $hkuSids) {
+                $regDesktop = (Get-ItemProperty -Path "Registry::HKEY_USERS\$sid\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" -Name "Desktop" -ErrorAction SilentlyContinue).Desktop
+                if ($regDesktop) {
+                    $expandedPath = [System.Environment]::ExpandEnvironmentVariables($regDesktop)
+                    if (-not $SearchShortcutFolders.Contains($expandedPath)) {
+                        $SearchShortcutFolders.Add($expandedPath)
+                    }
+                }
+            }
+        } catch {}
     }
 }
 
-foreach ($folderPath in $ShortcutPaths) {
+$wshShell = $null
+try {
+    $wshShell = New-Object -ComObject WScript.Shell -ErrorAction SilentlyContinue
+} catch {}
+
+foreach ($folderPath in $SearchShortcutFolders) {
     if (Test-Path $folderPath) {
-        foreach ($pattern in $ShortcutPatterns) {
-            try {
-                Get-ChildItem -Path $folderPath -Filter "$pattern.lnk" -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
-                    Write-Host "  Eliminando acceso directo: $($_.FullName)"
-                    Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+        $shortcuts = Get-ChildItem -Path $folderPath -Recurse -ErrorAction SilentlyContinue |
+            Where-Object { -not $_.PSIsContainer -and ($_.Extension -eq ".lnk" -or $_.Extension -eq ".url" -or $_.Name -like "*.lnk" -or $_.Name -like "*.url") }
+
+        foreach ($sc in $shortcuts) {
+            $scName = $sc.Name
+            $matched = $false
+
+            foreach ($kw in $DisallowedShortcutKeywords) {
+                if ($scName -like "*$kw*") {
+                    $matched = $true
+                    break
                 }
-            } catch {
-                # Ignorar errores
+            }
+
+            if (-not $matched -and $sc.Extension -eq ".lnk" -and $wshShell) {
+                try {
+                    $targetPath = $wshShell.CreateShortcut($sc.FullName).TargetPath
+                    if ($targetPath) {
+                        foreach ($kw in $DisallowedShortcutKeywords) {
+                            if ($targetPath -like "*$kw*") {
+                                $matched = $true
+                                break
+                            }
+                        }
+                        if (-not $matched -and (-not (Test-Path $targetPath))) {
+                            foreach ($kw in $DisallowedShortcutKeywords) {
+                                if ($scName -like "*$kw*" -or $targetPath -like "*$kw*") {
+                                    $matched = $true
+                                    break
+                                }
+                            }
+                        }
+                    }
+                } catch {}
+            }
+
+            if (-not $matched -and $sc.Extension -eq ".lnk") {
+                try {
+                    $rawText = [System.IO.File]::ReadAllText($sc.FullName)
+                    if ($rawText) {
+                        foreach ($kw in $DisallowedShortcutKeywords) {
+                            if ($rawText -like "*$kw*") {
+                                $matched = $true
+                                break
+                            }
+                        }
+                    }
+                } catch {}
+            }
+
+            if ($matched) {
+                Write-Host "  Eliminando acceso directo: $($sc.FullName)"
+                try {
+                    Remove-Item -Path $sc.FullName -Force -ErrorAction Stop
+                } catch {
+                    cmd.exe /c "del /f /q `"$($sc.FullName)`"" 2>nul
+                }
             }
         }
     }
@@ -1032,7 +1145,8 @@ $PhysicalPathsToCheck = @(
     "C:\Users\*\AppData\Local\Battle.net\Battle.net.exe",
     "$env:ProgramFiles\Discord\Discord.exe",
     "${env:ProgramFiles(x86)}\Discord\Discord.exe",
-    "C:\Users\*\AppData\Local\Discord\Update.exe",
+    "C:\Users\*\AppData\Local\Discord*\Update.exe",
+    "C:\Users\*\AppData\Local\Discord*\app-*\Discord.exe",
     "$env:ProgramFiles\iMobie\DroidKit\DroidKit.exe",
     "${env:ProgramFiles(x86)}\iMobie\DroidKit\DroidKit.exe",
     "$env:ProgramFiles\DroidKit\DroidKit.exe",
@@ -1057,22 +1171,89 @@ $PhysicalPathsToCheck = @(
     "C:\Users\*\AppData\Roaming\OP Auto Clicker\AutoClicker.exe",
     "C:\Users\*\AppData\Roaming\OP Auto Clicker\OPAutoClicker.exe",
     "C:\Users\*\AppData\Local\Programs\OP Auto Clicker\AutoClicker.exe",
-    "C:\Users\*\AppData\Local\Programs\OP Auto Clicker\OPAutoClicker.exe",
+    "C:\Users\*\AppData\Local\Programs\OP Auto Clicker\AutoClicker.exe",
     "C:\Program Files\Sony\PlayStationAccessories\PlayStationAccessories.exe",
-    "${env:ProgramFiles(x86)}\Sony\PlayStationAccessories\PlayStationAccessories.exe"
+    "${env:ProgramFiles(x86)}\Sony\PlayStationAccessories\PlayStationAccessories.exe",
+    "$env:ProgramFiles\JiggleMouse\JiggleMouse.exe",
+    "${env:ProgramFiles(x86)}\JiggleMouse\JiggleMouse.exe",
+    "$env:LocalAppData\Programs\JiggleMouse\JiggleMouse.exe",
+    "C:\Users\*\AppData\Local\JiggleMouse\JiggleMouse.exe",
+    "C:\Users\*\AppData\Local\Programs\JiggleMouse\JiggleMouse.exe",
+    "C:\Users\*\AppData\Roaming\JiggleMouse\JiggleMouse.exe"
 )
 
-foreach ($path in $PhysicalPathsToCheck) {
-    if (Test-Path $path) {
-        Write-Host "ERROR: Ejecutable fisico residual detectado: $path"
-        $Failed = $true
+foreach ($pathPattern in $PhysicalPathsToCheck) {
+    try {
+        $matchedFiles = Get-ChildItem -Path $pathPattern -ErrorAction SilentlyContinue
+        if ($matchedFiles) {
+            foreach ($file in $matchedFiles) {
+                Write-Host "ERROR: Ejecutable fisico residual detectado: $($file.FullName)"
+                $Failed = $true
+            }
+        } elseif (Test-Path -Path $pathPattern) {
+            Write-Host "ERROR: Ejecutable fisico residual detectado: $pathPattern"
+            $Failed = $true
+        }
+    } catch {}
+}
+
+# 5. Verificar accesos directos residuales
+foreach ($folderPath in $SearchShortcutFolders) {
+    if (Test-Path $folderPath) {
+        $shortcuts = Get-ChildItem -Path $folderPath -Recurse -ErrorAction SilentlyContinue |
+            Where-Object { -not $_.PSIsContainer -and ($_.Extension -eq ".lnk" -or $_.Extension -eq ".url" -or $_.Name -like "*.lnk" -or $_.Name -like "*.url") }
+
+        foreach ($sc in $shortcuts) {
+            $scName = $sc.Name
+            $matched = $false
+
+            foreach ($kw in $DisallowedShortcutKeywords) {
+                if ($scName -like "*$kw*") {
+                    $matched = $true
+                    break
+                }
+            }
+
+            if (-not $matched -and $sc.Extension -eq ".lnk" -and $wshShell) {
+                try {
+                    $targetPath = $wshShell.CreateShortcut($sc.FullName).TargetPath
+                    if ($targetPath) {
+                        foreach ($kw in $DisallowedShortcutKeywords) {
+                            if ($targetPath -like "*$kw*") {
+                                $matched = $true
+                                break
+                            }
+                        }
+                    }
+                } catch {}
+            }
+
+            if (-not $matched -and $sc.Extension -eq ".lnk") {
+                try {
+                    $rawText = [System.IO.File]::ReadAllText($sc.FullName)
+                    if ($rawText) {
+                        foreach ($kw in $DisallowedShortcutKeywords) {
+                            if ($rawText -like "*$kw*") {
+                                $matched = $true
+                                break
+                            }
+                        }
+                    }
+                } catch {}
+            }
+
+            if ($matched) {
+                Write-Host "ERROR: Acceso directo residual detectado: $($sc.FullName)"
+                $Failed = $true
+            }
+        }
     }
 }
 
 if ($Failed) {
-    Write-Host "ERROR CRITICO: Algunas aplicaciones no pudieron eliminarse completamente."
+    Write-Host "ERROR CRITICO: Algunas aplicaciones o accesos directos no pudieron eliminarse completamente."
     exit 1
 } else {
-    Write-Host "Remediacion finalizada con exito. Todas las aplicaciones y juegos no permitidos han sido eliminados."
+    Write-Host "Remediacion finalizada con exito. Todas las aplicaciones, juegos y accesos directos no permitidos han sido eliminados."
     exit 0
 }
