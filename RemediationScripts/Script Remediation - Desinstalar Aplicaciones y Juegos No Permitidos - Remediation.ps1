@@ -56,6 +56,12 @@
       - MEGAsync / MegaSync
       - Cheat Engine / Amstion Limited
       - Just Okay Limited (Auto Clicker)
+      - Amazon Kindle
+      - AnyDesk
+      - Backblaze
+      - Bandicam
+      - Comet Browser
+      - Helium Browser
 
     Pasos de remediacion:
       1. Finalizar procesos activos de los juegos y aplicaciones no permitidas
@@ -199,7 +205,18 @@ $WildcardAppxNames = @(
     "*Cheat Engine*",
     "*Amstion*",
     "*JustOkay*",
-    "*Just Okay*"
+    "*Just Okay*",
+    "*Kindle*",
+    "*AmazonKindle*",
+    "*Amazon.Kindle*",
+    "*AnyDesk*",
+    "*Backblaze*",
+    "*Bandicam*",
+    "*Bandisoft*",
+    "*Comet*",
+    "*CometBrowser*",
+    "*Helium*",
+    "*HeliumBrowser*"
 )
 
 # Nombres de procesos a finalizar
@@ -223,7 +240,7 @@ $ProcessNamesToKill = @(
     "AutoHotkey", "AutoHotkeyUX", "ahk2exe", "WindowSpy", "MoveMouse", "Move Mouse", "opautoclicker", "autoclicker", "AutoTap", "OPAutoClicker", "OP_AutoClicker", "AutoClicker3", "AutoClicker2", "OP_AutoClicker_3.0", "PlayStationAccessories", "PlayStationAccessoriesInstaller", "PSAInstall", "JiggleMouse", "Jiggle Mouse", "JiggleMouseApp",
     "HBOMax", "Max", "Netflix", "NetflixApp", "PrimeVideo", "AmazonPrimeVideo", "stremio", "Stremio", "Plex", "PlexMediaPlayer", "PlexDesktop", "PlexHTPC", "kodi", "Kodi",
     "DisneyPlus", "Disney", "Disney.37853FC22B2CE", "Twitch", "TikTok", "Crunchyroll", "HD-Player", "BlueStacks", "BlueStacksX", "BGAgent", "dnplayer", "ldplayer", "retroarch", "Dolphin", "pcsx2", "pcsx2-qt", "uTorrent", "uTorrentWeb", "utweb", "bittorrent", "MEGAsync",
-    "cheatengine-x86_64", "cheatengine-i386", "Cheat Engine", "CheatEngine"
+    "cheatengine-x86_64", "cheatengine-i386", "Cheat Engine", "CheatEngine", "Kindle", "AnyDesk", "anydesk", "bztransmit", "bzserv", "bzui", "bzdown2", "backblaze", "bdcam", "bdcam64", "bdcam32", "bandicam", "comet", "cometbrowser", "helium", "heliumbrowser"
 )
 
 $DisallowedAppNames = @(
@@ -309,6 +326,20 @@ $DisallowedAppNames = @(
     "Amstion Limited",
     "Just Okay",
     "Just Okay Limited",
+    "Amazon Kindle",
+    "Kindle",
+    "Amazon.Kindle",
+    "AnyDesk",
+    "AnyDesk Software GmbH",
+    "Backblaze",
+    "Backblaze, Inc.",
+    "Bandicam",
+    "Bandisoft",
+    "Bandicam Company",
+    "Comet",
+    "Comet Browser",
+    "Helium",
+    "Helium Browser",
     "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
@@ -449,7 +480,7 @@ if (Test-Path $riotClientPath) {
 
 # 3.4 Otras aplicaciones (incluyendo desinstaladores de usuario como Discord, DroidKit, AutoHotkey, etc.)
 Write-Host "  Buscando desinstaladores para Discord, DroidKit, Apple TV, Steam, Epic Games, Riot, Torrent, launchers y herramientas en Registro (HKLM, HKCU, HKU)..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment", "Discord", "DroidKit", "iMobie DroidKit", "AutoHotkey", "Move Mouse", "MoveMouse", "OP Auto Clicker", "OPAutoClicker", "Auto Clicker", "PlayStation Accessories", "PlayStationAccessories", "JiggleMouse", "Jiggle Mouse", "HBO", "HBO Max", "Max", "Netflix", "Prime Video", "Amazon Prime Video", "Stremio", "Plex", "Plex Media Player", "Kodi", "Disney", "Disney+", "Disney Plus", "Disney.37853FC22B2CE", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "Cheat Engine", "CheatEngine", "Amstion", "Just Okay")
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment", "Discord", "DroidKit", "iMobie DroidKit", "AutoHotkey", "Move Mouse", "MoveMouse", "OP Auto Clicker", "OPAutoClicker", "Auto Clicker", "PlayStation Accessories", "PlayStationAccessories", "JiggleMouse", "Jiggle Mouse", "HBO", "HBO Max", "Max", "Netflix", "Prime Video", "Amazon Prime Video", "Stremio", "Plex", "Plex Media Player", "Kodi", "Disney", "Disney+", "Disney Plus", "Disney.37853FC22B2CE", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "Cheat Engine", "CheatEngine", "Amstion", "Just Okay", "Kindle", "Amazon Kindle", "AnyDesk", "Backblaze", "Bandicam", "Bandisoft", "Comet", "Comet Browser", "Helium", "Helium Browser")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
@@ -739,6 +770,20 @@ $FoldersToDelete = @(
     "${env:ProgramFiles(x86)}\uTorrent",
     "$env:ProgramFiles\Cheat Engine",
     "${env:ProgramFiles(x86)}\Cheat Engine",
+    "$env:ProgramFiles\Amazon\Kindle",
+    "${env:ProgramFiles(x86)}\Amazon\Kindle",
+    "$env:ProgramFiles\AnyDesk",
+    "${env:ProgramFiles(x86)}\AnyDesk",
+    "$env:ProgramData\AnyDesk",
+    "$env:ProgramFiles\Backblaze",
+    "${env:ProgramFiles(x86)}\Backblaze",
+    "$env:ProgramData\Backblaze",
+    "$env:ProgramFiles\Bandicam",
+    "${env:ProgramFiles(x86)}\Bandicam",
+    "$env:ProgramFiles\Comet",
+    "${env:ProgramFiles(x86)}\Comet",
+    "$env:ProgramFiles\Helium",
+    "${env:ProgramFiles(x86)}\Helium",
     "C:\Program Files (x86)\InstallShield Installation Information\{A27B17B9-90C8-4B07-83C6-1303FC186B6B}",
     "C:\Program Files\InstallShield Installation Information\{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
@@ -748,52 +793,76 @@ $userProfiles = Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyC
 foreach ($userProfile in $userProfiles) {
     $username = $userProfile.Name
     if ($username -notin @("Public", "Default", "All Users")) {
+        # --- Steam ---
         $FoldersToDelete += @(
             "C:\Users\$username\AppData\Local\Steam",
             "C:\Users\$username\AppData\Roaming\Steam",
+            # --- Epic Games ---
             "C:\Users\$username\AppData\Local\EpicGamesLauncher",
             "C:\Users\$username\AppData\Roaming\EpicGamesLauncher",
-            "C:\Users\$username\AppData\Local\Riot Games",
-            "C:\Users\$username\AppData\Roaming\Riot Games",
-            "C:\Users\$username\AppData\Local\Rocket League",
-            "C:\Users\$username\Documents\My Games\Rocket League",
-            "C:\Users\$username\AppData\Local\Hytale",
-            "C:\Users\$username\AppData\Roaming\Hytale",
-            "C:\Users\$username\AppData\Local\WinDS PRO",
-            "C:\Users\$username\AppData\Roaming\WinDS PRO",
-            "C:\Users\$username\AppData\Local\Overwolf",
-            "C:\Users\$username\AppData\Roaming\Overwolf",
-            "C:\Users\$username\AppData\Local\Porofessor",
-            "C:\Users\$username\AppData\Local\WeMod",
-            "C:\Users\$username\AppData\Roaming\WeMod",
-            "C:\Users\$username\AppData\Local\Wand",
-            "C:\Users\$username\AppData\Roaming\Wand",
-            "C:\Users\$username\AppData\Local\Wargaming.net",
-            "C:\Users\$username\AppData\Roaming\Wargaming.net",
-            "C:\Users\$username\Documents\Hakchi2",
-            "C:\Users\$username\AppData\Local\hakchi2-ce",
-            "C:\Users\$username\AppData\Local\Transmission",
-            "C:\Users\$username\AppData\Roaming\Transmission",
-            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Transmission",
-            "C:\Users\$username\AppData\Local\qBittorrent",
-            "C:\Users\$username\AppData\Roaming\qBittorrent",
-            "C:\Users\$username\AppData\Local\Programs\qBittorrent",
-            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\qBittorrent",
+            "C:\Users\$username\AppData\Local\EpicGames",
+            "C:\Users\$username\AppData\Roaming\EpicGames",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Epic Games Launcher",
+            # --- EA / Origin ---
             "C:\Users\$username\AppData\Local\Electronic Arts",
             "C:\Users\$username\AppData\Roaming\Electronic Arts",
             "C:\Users\$username\AppData\Local\Origin",
             "C:\Users\$username\AppData\Roaming\Origin",
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\EA app",
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Origin",
-            "C:\Users\$username\AppData\Local\Programs\SideQuest",
-            "C:\Users\$username\AppData\Local\SideQuest",
-            "C:\Users\$username\AppData\Roaming\SideQuest",
+            # --- Riot / League of Legends / Valorant ---
+            "C:\Users\$username\AppData\Local\Riot Games",
+            "C:\Users\$username\AppData\Roaming\Riot Games",
+            "C:\Users\$username\AppData\Local\VALORANT",
+            "C:\Users\$username\AppData\Roaming\VALORANT",
+            # --- Rocket League ---
+            "C:\Users\$username\AppData\Local\Rocket League",
+            "C:\Users\$username\Documents\My Games\Rocket League",
+            # --- Hytale ---
+            "C:\Users\$username\AppData\Local\Hytale",
+            "C:\Users\$username\AppData\Roaming\Hytale",
+            # --- WinDS Pro ---
+            "C:\Users\$username\AppData\Local\WinDS PRO",
+            "C:\Users\$username\AppData\Roaming\WinDS PRO",
+            # --- Overwolf / Porofessor ---
+            "C:\Users\$username\AppData\Local\Overwolf",
+            "C:\Users\$username\AppData\Roaming\Overwolf",
+            "C:\Users\$username\AppData\Local\Porofessor",
+            "C:\Users\$username\AppData\Roaming\Porofessor",
+            # --- WeMod / Wand ---
+            "C:\Users\$username\AppData\Local\WeMod",
+            "C:\Users\$username\AppData\Roaming\WeMod",
+            "C:\Users\$username\AppData\Local\Wand",
+            "C:\Users\$username\AppData\Roaming\Wand",
+            # --- Wargaming ---
+            "C:\Users\$username\AppData\Local\Wargaming.net",
+            "C:\Users\$username\AppData\Roaming\Wargaming.net",
+            # --- Hakchi ---
+            "C:\Users\$username\Documents\Hakchi2",
+            "C:\Users\$username\AppData\Local\hakchi2-ce",
+            "C:\Users\$username\AppData\Roaming\hakchi2-ce",
+            # --- Transmission ---
+            "C:\Users\$username\AppData\Local\Transmission",
+            "C:\Users\$username\AppData\Roaming\Transmission",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Transmission",
+            # --- qBittorrent ---
+            "C:\Users\$username\AppData\Local\qBittorrent",
+            "C:\Users\$username\AppData\Roaming\qBittorrent",
+            "C:\Users\$username\AppData\Local\Programs\qBittorrent",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\qBittorrent",
+            # --- Tixati ---
             "C:\Users\$username\AppData\Local\Tixati",
             "C:\Users\$username\AppData\Roaming\Tixati",
             "C:\Users\$username\AppData\Local\Programs\Tixati",
+            # --- BiglyBT ---
             "C:\Users\$username\AppData\Local\BiglyBT",
             "C:\Users\$username\AppData\Roaming\BiglyBT",
             "C:\Users\$username\AppData\Local\Programs\BiglyBT",
+            # --- SideQuest ---
+            "C:\Users\$username\AppData\Local\Programs\SideQuest",
+            "C:\Users\$username\AppData\Local\SideQuest",
+            "C:\Users\$username\AppData\Roaming\SideQuest",
+            # --- JDownloader ---
             "C:\Users\$username\AppData\Local\JDownloader 2",
             "C:\Users\$username\AppData\Local\JDownloader 2.0",
             "C:\Users\$username\AppData\Local\JDownloader",
@@ -802,12 +871,14 @@ foreach ($userProfile in $userProfiles) {
             "C:\Users\$username\AppData\Roaming\JDownloader",
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\JDownloader 2",
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\JDownloader",
+            # --- Battle.net / Blizzard ---
             "C:\Users\$username\AppData\Local\Battle.net",
             "C:\Users\$username\AppData\Roaming\Battle.net",
             "C:\Users\$username\AppData\Local\Blizzard Entertainment",
             "C:\Users\$username\AppData\Roaming\Blizzard",
             "C:\Users\$username\AppData\Roaming\Blizzard Entertainment",
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Battle.net",
+            # --- Discord ---
             "C:\Users\$username\AppData\Local\Discord",
             "C:\Users\$username\AppData\Local\DiscordCanary",
             "C:\Users\$username\AppData\Local\DiscordPTB",
@@ -816,47 +887,132 @@ foreach ($userProfile in $userProfiles) {
             "C:\Users\$username\AppData\Roaming\DiscordCanary",
             "C:\Users\$username\AppData\Roaming\DiscordPTB",
             "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Discord",
+            # --- DroidKit ---
             "C:\Users\$username\AppData\Local\iMobie\DroidKit",
             "C:\Users\$username\AppData\Roaming\iMobie\DroidKit",
             "C:\Users\$username\AppData\Local\DroidKit",
             "C:\Users\$username\AppData\Roaming\DroidKit",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\iMobie",
+            # --- AutoHotkey ---
             "C:\Users\$username\AppData\Local\AutoHotkey",
+            "C:\Users\$username\AppData\Roaming\AutoHotkey",
             "C:\Users\$username\AppData\Local\Programs\AutoHotkey",
+            # --- Move Mouse ---
             "C:\Users\$username\AppData\Local\Move Mouse",
             "C:\Users\$username\AppData\Roaming\Move Mouse",
+            # --- OP Auto Clicker / Just Okay ---
             "C:\Users\$username\AppData\Roaming\OP Auto Clicker",
+            "C:\Users\$username\AppData\Local\OP Auto Clicker",
             "C:\Users\$username\AppData\Local\Programs\OP Auto Clicker",
+            "C:\Users\$username\AppData\Local\Programs\Just Okay Limited",
+            "C:\Users\$username\AppData\Roaming\Just Okay Limited",
+            # --- PlayStation Accessories ---
+            "C:\Users\$username\AppData\Local\Sony\PlayStationAccessories",
+            "C:\Users\$username\AppData\Roaming\Sony\PlayStationAccessories",
+            # --- JiggleMouse ---
             "C:\Users\$username\AppData\Local\JiggleMouse",
             "C:\Users\$username\AppData\Roaming\JiggleMouse",
             "C:\Users\$username\AppData\Local\Programs\JiggleMouse",
+            # --- MoveMouse (Move Mouse appdata) ---
+            "C:\Users\$username\AppData\Local\MoveMouse",
+            "C:\Users\$username\AppData\Roaming\MoveMouse",
+            # --- Stremio ---
             "C:\Users\$username\AppData\Local\Programs\LStudio\Stremio",
             "C:\Users\$username\AppData\Local\Stremio",
             "C:\Users\$username\AppData\Roaming\Stremio",
             "C:\Users\$username\AppData\Roaming\stremio",
+            # --- Plex ---
             "C:\Users\$username\AppData\Local\Plex",
             "C:\Users\$username\AppData\Local\Programs\Plex",
             "C:\Users\$username\AppData\Roaming\Plex",
             "C:\Users\$username\AppData\Roaming\Plex Media Player",
+            "C:\Users\$username\AppData\Roaming\Plex, Inc",
+            # --- Kodi ---
             "C:\Users\$username\AppData\Roaming\Kodi",
             "C:\Users\$username\AppData\Local\Kodi",
+            # --- Twitch ---
             "C:\Users\$username\AppData\Local\Programs\Twitch",
+            "C:\Users\$username\AppData\Roaming\Twitch",
+            # --- HBO / Max ---
+            "C:\Users\$username\AppData\Local\HBO",
+            "C:\Users\$username\AppData\Roaming\HBO",
+            "C:\Users\$username\AppData\Local\Max",
+            "C:\Users\$username\AppData\Roaming\Max",
+            # --- Netflix ---
+            "C:\Users\$username\AppData\Local\Netflix",
+            "C:\Users\$username\AppData\Roaming\Netflix",
+            # --- Amazon Prime Video ---
+            "C:\Users\$username\AppData\Local\Amazon\PrimeVideo",
+            "C:\Users\$username\AppData\Roaming\Amazon\PrimeVideo",
+            # --- Disney+ ---
+            "C:\Users\$username\AppData\Local\Disney",
+            "C:\Users\$username\AppData\Roaming\Disney",
+            # --- TikTok ---
+            "C:\Users\$username\AppData\Local\TikTok",
+            "C:\Users\$username\AppData\Roaming\TikTok",
+            # --- Crunchyroll ---
+            "C:\Users\$username\AppData\Local\Crunchyroll",
+            "C:\Users\$username\AppData\Roaming\Crunchyroll",
+            # --- BlueStacks ---
             "C:\Users\$username\AppData\Local\BlueStacks",
+            "C:\Users\$username\AppData\Roaming\BlueStacks",
+            "C:\Users\$username\AppData\Local\BlueStacks_nxt",
+            "C:\Users\$username\AppData\Roaming\BlueStacks_nxt",
+            # --- LDPlayer ---
             "C:\Users\$username\AppData\Local\ldplayer",
+            "C:\Users\$username\AppData\Roaming\ldplayer",
+            # --- RetroArch ---
             "C:\Users\$username\AppData\Roaming\RetroArch",
+            "C:\Users\$username\AppData\Local\RetroArch",
+            # --- Dolphin Emulator ---
             "C:\Users\$username\AppData\Roaming\Dolphin Emulator",
+            "C:\Users\$username\AppData\Local\Dolphin Emulator",
+            # --- PCSX2 ---
             "C:\Users\$username\Documents\PCSX2",
             "C:\Users\$username\AppData\Roaming\PCSX2",
+            "C:\Users\$username\AppData\Local\PCSX2",
+            # --- uTorrent ---
             "C:\Users\$username\AppData\Local\uTorrent",
             "C:\Users\$username\AppData\Local\uTorrent Web",
             "C:\Users\$username\AppData\Roaming\uTorrent",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\uTorrent",
+            # --- BitTorrent ---
             "C:\Users\$username\AppData\Local\BitTorrent",
             "C:\Users\$username\AppData\Roaming\BitTorrent",
-            "C:\Users\$username\AppData\Local\MEGAsync"
+            # --- MEGAsync ---
+            "C:\Users\$username\AppData\Local\MEGAsync",
+            "C:\Users\$username\AppData\Roaming\MEGAsync",
+            # --- Cheat Engine ---
+            "C:\Users\$username\AppData\Local\Cheat Engine",
+            "C:\Users\$username\AppData\Roaming\Cheat Engine",
+            "C:\Users\$username\AppData\Local\Programs\Cheat Engine",
+            # --- Amazon Kindle ---
+            "C:\Users\$username\AppData\Local\Amazon\Kindle",
+            "C:\Users\$username\AppData\Roaming\Amazon\Kindle",
+            "C:\Users\$username\AppData\Local\Amazon\Kindle\Cache",
+            # --- AnyDesk ---
+            "C:\Users\$username\AppData\Local\AnyDesk",
+            "C:\Users\$username\AppData\Roaming\AnyDesk",
+            "C:\Users\$username\AppData\Local\Programs\AnyDesk",
+            # --- Backblaze ---
+            "C:\Users\$username\AppData\Local\Backblaze",
+            "C:\Users\$username\AppData\Roaming\Backblaze",
+            # --- Bandicam ---
+            "C:\Users\$username\AppData\Local\Bandicam",
+            "C:\Users\$username\AppData\Roaming\Bandicam",
+            # --- Comet Browser ---
+            "C:\Users\$username\AppData\Local\Comet",
+            "C:\Users\$username\AppData\Roaming\Comet",
+            "C:\Users\$username\AppData\Local\Programs\Comet",
+            # --- Helium Browser ---
+            "C:\Users\$username\AppData\Local\Helium",
+            "C:\Users\$username\AppData\Roaming\Helium",
+            "C:\Users\$username\AppData\Local\Programs\Helium"
         )
 
         # Añadir carpetas de datos de AppX UWP residuales para streaming, comunicación, emuladores y P2P no permitidas
         $pkgFolders = Get-ChildItem -Path "C:\Users\$username\AppData\Local\Packages" -ErrorAction SilentlyContinue |
-            Where-Object { $_.Name -like "*Apple*TV*" -or $_.Name -like "*Discord*" -or $_.Name -like "*JiggleMouse*" -or $_.Name -like "*HBO*" -or $_.Name -like "*Netflix*" -or $_.Name -like "*PrimeVideo*" -or $_.Name -like "*Stremio*" -or $_.Name -like "*Plex*" -or $_.Name -like "*Kodi*" -or $_.Name -like "*Disney*" -or $_.Name -like "*Twitch*" -or $_.Name -like "*TikTok*" -or $_.Name -like "*Crunchyroll*" -or $_.Name -like "*BlueStacks*" -or $_.Name -like "*LDPlayer*" -or $_.Name -like "*RetroArch*" -or $_.Name -like "*uTorrent*" -or $_.Name -like "*BitTorrent*" -or $_.Name -like "*MEGAsync*" }
+            Where-Object { $_.Name -like "*Apple*TV*" -or $_.Name -like "*Discord*" -or $_.Name -like "*JiggleMouse*" -or $_.Name -like "*HBO*" -or $_.Name -like "*Netflix*" -or $_.Name -like "*PrimeVideo*" -or $_.Name -like "*Stremio*" -or $_.Name -like "*Plex*" -or $_.Name -like "*Kodi*" -or $_.Name -like "*Disney*" -or $_.Name -like "*Twitch*" -or $_.Name -like "*TikTok*" -or $_.Name -like "*Crunchyroll*" -or $_.Name -like "*BlueStacks*" -or $_.Name -like "*LDPlayer*" -or $_.Name -like "*RetroArch*" -or $_.Name -like "*uTorrent*" -or $_.Name -like "*BitTorrent*" -or $_.Name -like "*MEGAsync*" -or $_.Name -like "*CheatEngine*" -or $_.Name -like "*JustOkay*" -or $_.Name -like "*Kindle*" -or $_.Name -like "*AnyDesk*" -or $_.Name -like "*Backblaze*" -or $_.Name -like "*Bandicam*" -or $_.Name -like "*Comet*" -or $_.Name -like "*Helium*" }
         foreach ($pkgDir in $pkgFolders) {
             $FoldersToDelete += $pkgDir.FullName
         }
@@ -1024,6 +1180,14 @@ $softwareKeys = @(
     "HKCU:\Software\uTorrent",
     "HKCU:\Software\BitTorrent",
     "HKCU:\Software\MEGAsync",
+    "HKLM:\SOFTWARE\AnyDesk",
+    "HKCU:\Software\AnyDesk",
+    "HKLM:\SOFTWARE\Backblaze",
+    "HKCU:\Software\Backblaze",
+    "HKLM:\SOFTWARE\Bandicam",
+    "HKCU:\Software\Bandicam",
+    "HKCU:\Software\Comet",
+    "HKCU:\Software\Helium",
     "HKLM:\SOFTWARE\Classes\Installer\Products\9B71B72A8C0970B4386C3130CF81B6B6",
     "HKLM:\SOFTWARE\Microsoft\Installer\Products\9B71B72A8C0970B4386C3130CF81B6B6"
 )
@@ -1047,6 +1211,11 @@ try {
         $softwareKeys += "Registry::HKEY_USERS\$sid\Software\BitTorrent"
         $softwareKeys += "Registry::HKEY_USERS\$sid\Software\MEGAsync"
         $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Cheat Engine"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\AnyDesk"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Backblaze"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Bandicam"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Comet"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Helium"
     }
 } catch {}
 
@@ -1071,7 +1240,7 @@ $DisallowedShortcutKeywords = @(
     "OP Auto Clicker", "AutoClicker", "AutoTap", "PlayStationAccessories", "PlayStation Accessories",
     "JiggleMouse", "Jiggle Mouse", "HBO", "HBOMax", "Netflix", "Prime Video", "PrimeVideo", "Amazon Prime", "Stremio", "Plex", "Kodi",
     "Disney", "Disney+", "Disney Plus", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "MegaSync",
-    "Cheat Engine", "CheatEngine", "Amstion", "Just Okay"
+    "Cheat Engine", "CheatEngine", "Amstion", "Just Okay", "Kindle", "Amazon Kindle", "AnyDesk", "Backblaze", "Bandicam", "Comet", "Comet Browser", "Helium", "Helium Browser"
 )
 
 $SearchShortcutFolders = [System.Collections.Generic.List[string]]::new()

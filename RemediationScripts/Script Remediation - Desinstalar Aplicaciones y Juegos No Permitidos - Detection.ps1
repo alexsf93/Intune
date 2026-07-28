@@ -56,6 +56,12 @@
       - MEGAsync / MegaSync
       - Cheat Engine / Amstion Limited
       - Just Okay Limited (Auto Clicker)
+      - Amazon Kindle
+      - AnyDesk
+      - Backblaze
+      - Bandicam
+      - Comet Browser
+      - Helium Browser
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
     provisionados en la imagen del sistema, registros de desinstalacion y rutas de ejecutables comunes.
@@ -189,7 +195,18 @@ $WildcardAppxNames = @(
     "*Cheat Engine*",
     "*Amstion*",
     "*JustOkay*",
-    "*Just Okay*"
+    "*Just Okay*",
+    "*Kindle*",
+    "*AmazonKindle*",
+    "*Amazon.Kindle*",
+    "*AnyDesk*",
+    "*Backblaze*",
+    "*Bandicam*",
+    "*Bandisoft*",
+    "*Comet*",
+    "*CometBrowser*",
+    "*Helium*",
+    "*HeliumBrowser*"
 )
 
 Write-Host "Comprobando paquetes AppX instalados (todos los usuarios)..."
@@ -357,6 +374,20 @@ $DisallowedAppNames = @(
     "Amstion Limited",
     "Just Okay",
     "Just Okay Limited",
+    "Amazon Kindle",
+    "Kindle",
+    "Amazon.Kindle",
+    "AnyDesk",
+    "AnyDesk Software GmbH",
+    "Backblaze",
+    "Backblaze, Inc.",
+    "Bandicam",
+    "Bandisoft",
+    "Bandicam Company",
+    "Comet",
+    "Comet Browser",
+    "Helium",
+    "Helium Browser",
     "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
@@ -498,7 +529,13 @@ $PhysicalPaths = @(
     [PSCustomObject]@{ Name = "BitTorrent"; Paths = @("$env:LocalAppData\BitTorrent\BitTorrent.exe", "C:\Users\*\AppData\Roaming\BitTorrent\BitTorrent.exe") },
     [PSCustomObject]@{ Name = "MEGAsync"; Paths = @("$env:LocalAppData\MEGAsync\MEGAsync.exe", "C:\Users\*\AppData\Local\MEGAsync\MEGAsync.exe") },
     [PSCustomObject]@{ Name = "Cheat Engine"; Paths = @("$env:ProgramFiles\Cheat Engine\cheatengine-x86_64.exe", "${env:ProgramFiles(x86)}\Cheat Engine\cheatengine-i386.exe", "$env:ProgramFiles\Cheat Engine\Cheat Engine.exe", "${env:ProgramFiles(x86)}\Cheat Engine\Cheat Engine.exe", "C:\Users\*\AppData\Local\Programs\Cheat Engine\Cheat Engine.exe") },
-    [PSCustomObject]@{ Name = "Just Okay Auto Clicker"; Paths = @("$env:LocalAppData\Programs\Just Okay Limited\*AutoClicker*.exe", "$env:ProgramFiles\Just Okay Limited\*AutoClicker*.exe") }
+    [PSCustomObject]@{ Name = "Just Okay Auto Clicker"; Paths = @("$env:LocalAppData\Programs\Just Okay Limited\*AutoClicker*.exe", "$env:ProgramFiles\Just Okay Limited\*AutoClicker*.exe") },
+    [PSCustomObject]@{ Name = "Amazon Kindle"; Paths = @("$env:LocalAppData\Amazon\Kindle\Kindle.exe", "$env:ProgramFiles\Amazon\Kindle\Kindle.exe", "${env:ProgramFiles(x86)}\Amazon\Kindle\Kindle.exe", "C:\Users\*\AppData\Local\Amazon\Kindle\Kindle.exe") },
+    [PSCustomObject]@{ Name = "AnyDesk"; Paths = @("$env:ProgramFiles\AnyDesk\AnyDesk.exe", "${env:ProgramFiles(x86)}\AnyDesk\AnyDesk.exe", "C:\Users\*\AppData\Local\Programs\AnyDesk\AnyDesk.exe", "C:\Users\*\Downloads\AnyDesk.exe", "C:\Users\*\Desktop\AnyDesk.exe") },
+    [PSCustomObject]@{ Name = "Backblaze"; Paths = @("$env:ProgramFiles\Backblaze\bztransmit.exe", "${env:ProgramFiles(x86)}\Backblaze\bztransmit.exe", "$env:ProgramFiles\Backblaze\bzui.exe", "${env:ProgramFiles(x86)}\Backblaze\bzui.exe") },
+    [PSCustomObject]@{ Name = "Bandicam"; Paths = @("$env:ProgramFiles\Bandicam\bdcam.exe", "${env:ProgramFiles(x86)}\Bandicam\bdcam.exe", "C:\Users\*\AppData\Roaming\Bandicam\bdcam.exe") },
+    [PSCustomObject]@{ Name = "Comet Browser"; Paths = @("$env:LocalAppData\Comet\Application\comet.exe", "$env:ProgramFiles\Comet\Application\comet.exe", "${env:ProgramFiles(x86)}\Comet\Application\comet.exe", "C:\Users\*\AppData\Local\Comet\Application\comet.exe") },
+    [PSCustomObject]@{ Name = "Helium Browser"; Paths = @("$env:LocalAppData\Helium\Application\helium.exe", "$env:ProgramFiles\Helium\helium.exe", "${env:ProgramFiles(x86)}\Helium\helium.exe", "C:\Users\*\AppData\Local\Programs\Helium\helium.exe") }
 )
 
 foreach ($app in $PhysicalPaths) {
@@ -533,7 +570,7 @@ $DisallowedShortcutKeywords = @(
     "OP Auto Clicker", "AutoClicker", "AutoTap", "PlayStationAccessories", "PlayStation Accessories",
     "JiggleMouse", "Jiggle Mouse", "HBO", "HBOMax", "Netflix", "Prime Video", "PrimeVideo", "Amazon Prime", "Stremio", "Plex", "Kodi",
     "Disney", "Disney+", "Disney Plus", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "MegaSync",
-    "Cheat Engine", "CheatEngine", "Amstion", "Just Okay"
+    "Cheat Engine", "CheatEngine", "Amstion", "Just Okay", "Kindle", "Amazon Kindle", "AnyDesk", "Backblaze", "Bandicam", "Comet", "Comet Browser", "Helium", "Helium Browser"
 )
 
 $SearchShortcutFolders = [System.Collections.Generic.List[string]]::new()
