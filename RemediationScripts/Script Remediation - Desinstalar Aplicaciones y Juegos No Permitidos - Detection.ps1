@@ -68,6 +68,16 @@
       - iCloud
       - BlueStacks X / OG Store
       - Xiph.Org Open Codecs
+      - Nextcloud
+      - Proton Drive
+      - Proton VPN
+      - Proton Mail
+      - RustDesk
+      - Stremio
+      - TeamViewer
+      - Tailscale
+      - Telegram Desktop
+      - Trezor Suite
 
     Busca tanto paquetes instalados para todos los usuarios como paquetes
     provisionados en la imagen del sistema, registros de desinstalacion y rutas de ejecutables comunes.
@@ -85,8 +95,8 @@
 .NOTES
     Name: Script Remediation - Desinstalar Aplicaciones y Juegos No Permitidos - Detection.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.8.0
-    Date: 2026-07-28
+    Version: 2.0.0
+    Date: 2026-07-29
     Context: System
 #>
 
@@ -221,7 +231,22 @@ $WildcardAppxNames = @(
     "*BlueStacksX*",
     "*OGStore*",
     "*nowgg*",
-    "*Xiph*"
+    "*Xiph*",
+    "*Nextcloud*",
+    "*ProtonDrive*",
+    "*Proton.Drive*",
+    "*ProtonVPN*",
+    "*Proton.VPN*",
+    "*ProtonMail*",
+    "*Proton.Mail*",
+    "*RustDesk*",
+    "*Stremio*",
+    "*TeamViewer*",
+    "*Tailscale*",
+    "*Telegram*",
+    "*TelegramDesktop*",
+    "*Trezor*",
+    "*TrezorSuite*"
 )
 
 Write-Host "Comprobando paquetes AppX instalados (todos los usuarios)..."
@@ -420,6 +445,32 @@ $DisallowedAppNames = @(
     "Xiph.Org",
     "Xiph.Org Open Codecs",
     "Xiph",
+    "Nextcloud",
+    "Nextcloud GmbH",
+    "Proton Drive",
+    "ProtonDrive",
+    "Proton VPN",
+    "ProtonVPN",
+    "Proton Mail",
+    "ProtonMail",
+    "ProtonMail Bridge",
+    "Proton AG",
+    "Proton Technologies AG",
+    "RustDesk",
+    "RustDesk Ltd",
+    "Stremio",
+    "Smart Code Ltd",
+    "TeamViewer",
+    "TeamViewer Germany GmbH",
+    "Tailscale",
+    "Tailscale Inc",
+    "Tailscale Inc.",
+    "Telegram Desktop",
+    "Telegram",
+    "Telegram FZ-LLC",
+    "Trezor Suite",
+    "Trezor",
+    "SatoshiLabs",
     "{A27B17B9-90C8-4B07-83C6-1303FC186B6B}"
 )
 
@@ -553,13 +604,13 @@ $PhysicalPaths = @(
     ) },
     [PSCustomObject]@{ Name = "Twitch"; Paths = @("$env:LocalAppData\Programs\Twitch\Twitch.exe", "C:\Users\*\AppData\Local\Programs\Twitch\Twitch.exe") },
     [PSCustomObject]@{ Name = "BlueStacks"; Paths = @("$env:ProgramFiles\BlueStacks_nxt\HD-Player.exe", "${env:ProgramFiles(x86)}\BlueStacks\HD-Player.exe") },
-    [PSCustomObject]@{ Name = "LDPlayer"; Paths = @("C:\LDPlayer\LDPlayer9\dnplayer.exe", "C:\XuanZhi\LDPlayer\dnplayer.exe") },
+    [PSCustomObject]@{ Name = "LDPlayer"; Paths = @("C:\LDPlayer\LDPlayer9\dnplayer.exe", "C:\XuanZhi\LDPlayer\dnplayer.exe", "C:\XuanZhi14\LDPlayer\dnplayer.exe", "C:\XuanZhi\*", "C:\XuanZhi14\*", "C:\changzhi2\*", "C:\lddownloader\*", "C:\Users\*\AppData\Local\XuanZhi\*", "C:\Users\*\AppData\Roaming\XuanZhi\*", "C:\Users\*\AppData\Local\XuanZhi14\*", "C:\Users\*\AppData\Roaming\XuanZhi14\*", "C:\Users\*\AppData\Local\changzhi2\*", "C:\Users\*\AppData\Roaming\changzhi2\*", "C:\Users\*\AppData\Local\lddownloader\*", "C:\Users\*\AppData\Roaming\lddownloader\*", "C:\Users\*\OneDrive*\*\XuanZhi\*", "C:\Users\*\OneDrive*\*\XuanZhi14\*", "C:\Users\*\OneDrive*\*\changzhi2\*", "C:\Users\*\OneDrive*\*\lddownloader\*", "C:\Users\*\OneDrive*\*\LDPlayer\*") },
     [PSCustomObject]@{ Name = "RetroArch"; Paths = @("$env:ProgramFiles\RetroArch-Win64\retroarch.exe", "${env:ProgramFiles(x86)}\RetroArch\retroarch.exe") },
     [PSCustomObject]@{ Name = "Dolphin Emulator"; Paths = @("$env:ProgramFiles\Dolphin-x64\Dolphin.exe") },
     [PSCustomObject]@{ Name = "PCSX2"; Paths = @("$env:ProgramFiles\PCSX2\pcsx2-qt.exe", "${env:ProgramFiles(x86)}\PCSX2\pcsx2.exe") },
     [PSCustomObject]@{ Name = "uTorrent"; Paths = @("$env:LocalAppData\uTorrent\uTorrent.exe", "$env:ProgramFiles\uTorrent\uTorrent.exe", "${env:ProgramFiles(x86)}\uTorrent\uTorrent.exe", "C:\Users\*\AppData\Roaming\uTorrent\uTorrent.exe", "$env:LocalAppData\uTorrent Web\utweb.exe") },
     [PSCustomObject]@{ Name = "BitTorrent"; Paths = @("$env:LocalAppData\BitTorrent\BitTorrent.exe", "C:\Users\*\AppData\Roaming\BitTorrent\BitTorrent.exe") },
-    [PSCustomObject]@{ Name = "MEGAsync"; Paths = @("$env:LocalAppData\MEGAsync\MEGAsync.exe", "C:\Users\*\AppData\Local\MEGAsync\MEGAsync.exe") },
+    [PSCustomObject]@{ Name = "MEGAsync"; Paths = @("$env:LocalAppData\MEGAsync\MEGAsync.exe", "C:\Users\*\AppData\Local\MEGAsync\MEGAsync.exe", "C:\Users\*\AppData\Local\MEGA\*", "C:\Users\*\AppData\Roaming\MEGA\*", "C:\Users\*\AppData\Local\Mega Limited\*", "C:\Users\*\AppData\Roaming\Mega Limited\*") },
     [PSCustomObject]@{ Name = "Cheat Engine"; Paths = @("$env:ProgramFiles\Cheat Engine\cheatengine-x86_64.exe", "${env:ProgramFiles(x86)}\Cheat Engine\cheatengine-i386.exe", "$env:ProgramFiles\Cheat Engine\Cheat Engine.exe", "${env:ProgramFiles(x86)}\Cheat Engine\Cheat Engine.exe", "C:\Users\*\AppData\Local\Programs\Cheat Engine\Cheat Engine.exe") },
     [PSCustomObject]@{ Name = "Just Okay Auto Clicker"; Paths = @("$env:LocalAppData\Programs\Just Okay Limited\*AutoClicker*.exe", "$env:ProgramFiles\Just Okay Limited\*AutoClicker*.exe") },
     [PSCustomObject]@{ Name = "Amazon Kindle"; Paths = @("$env:LocalAppData\Amazon\Kindle\Kindle.exe", "$env:ProgramFiles\Amazon\Kindle\Kindle.exe", "${env:ProgramFiles(x86)}\Amazon\Kindle\Kindle.exe", "C:\Users\*\AppData\Local\Amazon\Kindle\Kindle.exe") },
@@ -572,9 +623,19 @@ $PhysicalPaths = @(
     [PSCustomObject]@{ Name = "Google Drive"; Paths = @("$env:ProgramFiles\Google\Drive File Stream\*\GoogleDriveFSSetup.exe", "$env:ProgramFiles\Google\Drive\GoogleDriveFSSetup.exe", "${env:ProgramFiles(x86)}\Google\Drive\GoogleDriveFSSetup.exe", "C:\Users\*\AppData\Local\Google\DriveFS\*\GoogleDriveFSSetup.exe") },
     [PSCustomObject]@{ Name = "Icecream Screen Recorder"; Paths = @("$env:ProgramFiles\Icecream Screen Recorder\recorder.exe", "${env:ProgramFiles(x86)}\Icecream Screen Recorder\recorder.exe", "$env:ProgramFiles\Icecream Apps\Icecream Screen Recorder\recorder.exe", "${env:ProgramFiles(x86)}\Icecream Apps\Icecream Screen Recorder\recorder.exe", "C:\Users\*\AppData\Local\Icecream Screen Recorder\recorder.exe") },
     [PSCustomObject]@{ Name = "iCloud"; Paths = @("$env:ProgramFiles\Common Files\Apple\Internet Services\iCloud.exe", "${env:ProgramFiles(x86)}\Common Files\Apple\Internet Services\iCloud.exe", "$env:ProgramFiles\Apple\iCloud\iCloud.exe", "${env:ProgramFiles(x86)}\Apple\iCloud\iCloud.exe", "C:\Users\*\AppData\Local\Programs\iCloud\iCloud.exe") },
-    [PSCustomObject]@{ Name = "BlueStacks X"; Paths = @("$env:ProgramFiles\BlueStacksX\BlueStacksX.exe", "${env:ProgramFiles(x86)}\BlueStacksX\BlueStacksX.exe", "C:\Users\*\AppData\Local\Programs\BlueStacksX\BlueStacksX.exe", "C:\ProgramData\BlueStacksX\BlueStacksX.exe") },
+    [PSCustomObject]@{ Name = "BlueStacks X"; Paths = @("$env:ProgramFiles\BlueStacksX\BlueStacksX.exe", "${env:ProgramFiles(x86)}\BlueStacksX\BlueStacksX.exe", "$env:ProgramFiles\BlueStacks X\BlueStacksX.exe", "${env:ProgramFiles(x86)}\BlueStacks X\BlueStacksX.exe", "${env:ProgramFiles(x86)}\BlueStacks X\BlueStacksXUninstaller.exe", "C:\Users\*\AppData\Local\Programs\BlueStacksX\BlueStacksX.exe", "C:\ProgramData\BlueStacksX\BlueStacksX.exe") },
     [PSCustomObject]@{ Name = "OG Store"; Paths = @("$env:ProgramFiles\OGStore\OGStore.exe", "${env:ProgramFiles(x86)}\OGStore\OGStore.exe", "C:\Users\*\AppData\Local\Programs\OGStore\OGStore.exe") },
-    [PSCustomObject]@{ Name = "Xiph.Org Open Codecs"; Paths = @("$env:ProgramFiles\Xiph.Org\Open Codecs\*.dll", "${env:ProgramFiles(x86)}\Xiph.Org\Open Codecs\*.dll", "C:\Program Files\Xiph.Org\Open Codecs\dsfOggMux.dll", "C:\Program Files (x86)\Xiph.Org\Open Codecs\dsfOggMux.dll") }
+    [PSCustomObject]@{ Name = "Xiph.Org Open Codecs"; Paths = @("$env:ProgramFiles\Xiph.Org\Open Codecs\*.dll", "${env:ProgramFiles(x86)}\Xiph.Org\Open Codecs\*.dll", "C:\Program Files\Xiph.Org\Open Codecs\dsfOggMux.dll", "C:\Program Files (x86)\Xiph.Org\Open Codecs\dsfOggMux.dll") },
+    [PSCustomObject]@{ Name = "Nextcloud"; Paths = @("$env:ProgramFiles\Nextcloud\nextcloud.exe", "${env:ProgramFiles(x86)}\Nextcloud\nextcloud.exe", "C:\Users\*\AppData\Local\Programs\Nextcloud\nextcloud.exe") },
+    [PSCustomObject]@{ Name = "Proton Drive"; Paths = @("$env:ProgramFiles\Proton\Drive\ProtonDrive.exe", "${env:ProgramFiles(x86)}\Proton\Drive\ProtonDrive.exe", "C:\Users\*\AppData\Local\Programs\Proton\Drive\ProtonDrive.exe") },
+    [PSCustomObject]@{ Name = "Proton VPN"; Paths = @("$env:ProgramFiles\Proton\VPN\ProtonVPN.exe", "${env:ProgramFiles(x86)}\Proton\VPN\ProtonVPN.exe", "$env:ProgramFiles\Proton\VPN\*\ProtonVPN.exe", "${env:ProgramFiles(x86)}\Proton\VPN\*\ProtonVPN.exe", "C:\Users\*\AppData\Local\Programs\Proton\VPN\ProtonVPN.exe") },
+    [PSCustomObject]@{ Name = "Proton Mail"; Paths = @("$env:ProgramFiles\Proton\Mail\ProtonMail.exe", "${env:ProgramFiles(x86)}\Proton\Mail\ProtonMail.exe", "$env:ProgramFiles\ProtonMail Bridge\bridge.exe", "${env:ProgramFiles(x86)}\ProtonMail Bridge\bridge.exe", "C:\Users\*\AppData\Local\Programs\Proton\Mail\ProtonMail.exe", "C:\Users\*\AppData\Local\Programs\ProtonMail\ProtonMail.exe", "C:\Users\*\AppData\Local\proton_mail\*", "C:\Users\*\AppData\Roaming\proton_mail\*", "C:\Users\*\OneDrive*\*\Proton Mail\*", "C:\Users\*\OneDrive*\*\ProtonMail\*") },
+    [PSCustomObject]@{ Name = "RustDesk"; Paths = @("$env:ProgramFiles\RustDesk\rustdesk.exe", "${env:ProgramFiles(x86)}\RustDesk\rustdesk.exe", "C:\Users\*\AppData\Local\Programs\RustDesk\rustdesk.exe", "C:\Users\*\Downloads\rustdesk*.exe", "C:\Users\*\Desktop\rustdesk*.exe") },
+    [PSCustomObject]@{ Name = "Stremio"; Paths = @("$env:LocalAppData\Programs\LBRY\Stremio\stremio.exe", "$env:LocalAppData\Programs\Stremio\stremio.exe", "$env:ProgramFiles\Stremio\stremio.exe", "${env:ProgramFiles(x86)}\Stremio\stremio.exe", "C:\Users\*\AppData\Local\Programs\Stremio\stremio.exe") },
+    [PSCustomObject]@{ Name = "TeamViewer"; Paths = @("$env:ProgramFiles\TeamViewer\TeamViewer.exe", "${env:ProgramFiles(x86)}\TeamViewer\TeamViewer.exe", "C:\Users\*\AppData\Local\Programs\TeamViewer\TeamViewer.exe") },
+    [PSCustomObject]@{ Name = "Tailscale"; Paths = @("$env:ProgramFiles\Tailscale\tailscale.exe", "${env:ProgramFiles(x86)}\Tailscale\tailscale.exe", "$env:ProgramFiles\Tailscale\tailscaled.exe", "C:\Users\*\AppData\Local\Programs\Tailscale\tailscale.exe") },
+    [PSCustomObject]@{ Name = "Telegram Desktop"; Paths = @("$env:ProgramFiles\Telegram Desktop\Telegram.exe", "${env:ProgramFiles(x86)}\Telegram Desktop\Telegram.exe", "$env:LocalAppData\Telegram Desktop\Telegram.exe", "C:\Users\*\AppData\Roaming\Telegram Desktop\Telegram.exe", "C:\Users\*\AppData\Local\Programs\Telegram Desktop\Telegram.exe", "C:\Users\*\OneDrive*\*\Telegram Desktop\*") },
+    [PSCustomObject]@{ Name = "Trezor Suite"; Paths = @("$env:ProgramFiles\Trezor Suite\Trezor Suite.exe", "${env:ProgramFiles(x86)}\Trezor Suite\Trezor Suite.exe", "$env:LocalAppData\Programs\Trezor Suite\Trezor Suite.exe", "C:\Users\*\AppData\Local\Programs\Trezor Suite\Trezor Suite.exe", "C:\Users\*\AppData\Local\Programs\@trezor\suite\*.exe", "C:\Users\*\OneDrive*\*\Trezor Suite\*") }
 )
 
 foreach ($app in $PhysicalPaths) {
@@ -610,7 +671,9 @@ $DisallowedShortcutKeywords = @(
     "JiggleMouse", "Jiggle Mouse", "HBO", "HBOMax", "Netflix", "Prime Video", "PrimeVideo", "Amazon Prime", "Stremio", "Plex", "Kodi",
     "Disney", "Disney+", "Disney Plus", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "MegaSync",
     "Cheat Engine", "CheatEngine", "Amstion", "Just Okay", "Kindle", "Amazon Kindle", "AnyDesk", "Backblaze", "Bandicam", "Comet", "Comet Browser", "Helium", "Helium Browser",
-    "Dropbox", "Google Drive", "Icecream", "Icecream Screen Recorder", "iCloud", "BlueStacks X", "BlueStacksX", "OG Store", "OGStore", "Xiph"
+    "Dropbox", "Google Drive", "Icecream", "Icecream Screen Recorder", "iCloud", "BlueStacks X", "BlueStacksX", "OG Store", "OGStore", "Xiph",
+    "Nextcloud", "Proton Drive", "ProtonDrive", "Proton VPN", "ProtonVPN", "Proton Mail", "ProtonMail", "RustDesk", "Stremio", "TeamViewer", "Team Viewer",
+    "Tailscale", "Telegram", "Telegram Desktop", "TelegramDesktop", "Trezor", "Trezor Suite", "TrezorSuite"
 )
 
 $SearchShortcutFolders = [System.Collections.Generic.List[string]]::new()

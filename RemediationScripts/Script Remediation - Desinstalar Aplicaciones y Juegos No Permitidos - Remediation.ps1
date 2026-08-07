@@ -89,8 +89,8 @@
 .NOTES
     Name: Script Remediation - Desinstalar Aplicaciones y Juegos No Permitidos - Remediation.ps1
     Author: Alejandro Suarez (@alexsf93)
-    Version: 1.8.0
-    Date: 2026-07-28
+    Version: 2.0.0
+    Date: 2026-07-29
     Context: System
 #>
 
@@ -229,10 +229,25 @@ $WildcardAppxNames = @(
     "*BlueStacksX*",
     "*OGStore*",
     "*nowgg*",
-    "*Xiph*"
+    "*Xiph*",
+    "*Nextcloud*",
+    "*ProtonDrive*",
+    "*Proton.Drive*",
+    "*ProtonVPN*",
+    "*Proton.VPN*",
+    "*ProtonMail*",
+    "*Proton.Mail*",
+    "*RustDesk*",
+    "*Stremio*",
+    "*TeamViewer*",
+    "*Tailscale*",
+    "*Telegram*",
+    "*TelegramDesktop*",
+    "*Trezor*",
+    "*TrezorSuite*"
 )
 
-# Nombres de procesos a finalizar
+# Nombres de procesos a finalizar (nombres exactos de ejecutables sin espacios ni palabras genericas del SO)
 $ProcessNamesToKill = @(
     "Minecraft", "MinecraftLauncher", "javaw", "MinecraftJavaEdition",
     "Minecraft.Windows", "MinecraftUWP",
@@ -242,20 +257,22 @@ $ProcessNamesToKill = @(
     "EpicGamesLauncher", "EpicWebHelper", "UnrealCEFSubProcess",
     "EADesktop", "EALauncher", "EABackgroundService", "Origin", "OriginWebHelperService", "OriginClientService",
     "RiotClientServices", "RiotClientUx", "RiotClient", "RiotClientUxRender",
-    "vgc", "vgk", "Valorant", "LeagueClient", "League of Legends",
+    "vgc", "vgk", "Valorant", "LeagueClient",
     "RocketLeague", "hytale-launcher", "hytale", "windspro", "windsprox",
-    "WinDSpro2", "WinDSpro3", "config", "Overwolf", "OverwolfLauncher",
+    "WinDSpro2", "WinDSpro3", "Overwolf", "OverwolfLauncher",
     "Porofessor", "Porofessor.gg", "WeMod", "Wand", "WeModAuxiliaryService",
     "wgc", "wgc_api", "WorldOfWarships", "WorldOfTanks", "WorldOfWarplanes",
     "hakchi", "hakchi2", "transmission-qt", "transmission-daemon", "qbittorrent", "tixati", "BiglyBT", "SideQuest",
-    "JDownloader", "JDownloader2", "Battle.net", "Battle.net Launcher", "Battle.net Helper", "Agent",
-    "AppleTV", "AppleTVWin", "Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment", "Update", "DroidKit", "iMobieDroidKit", "DroidKitComponent",
-    "AutoHotkey", "AutoHotkeyUX", "ahk2exe", "WindowSpy", "MoveMouse", "Move Mouse", "opautoclicker", "autoclicker", "AutoTap", "OPAutoClicker", "OP_AutoClicker", "AutoClicker3", "AutoClicker2", "OP_AutoClicker_3.0", "PlayStationAccessories", "PlayStationAccessoriesInstaller", "PSAInstall", "JiggleMouse", "Jiggle Mouse", "JiggleMouseApp",
+    "JDownloader", "JDownloader2", "Battle.net", "Battle.net Launcher", "Battle.net Helper",
+    "AppleTV", "AppleTVWin", "Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment", "DroidKit", "iMobieDroidKit", "DroidKitComponent",
+    "AutoHotkey", "AutoHotkeyUX", "ahk2exe", "WindowSpy", "MoveMouse", "opautoclicker", "autoclicker", "AutoTap", "OPAutoClicker", "OP_AutoClicker", "AutoClicker3", "AutoClicker2", "OP_AutoClicker_3.0", "PlayStationAccessories", "PlayStationAccessoriesInstaller", "PSAInstall", "JiggleMouse", "JiggleMouseApp",
     "HBOMax", "Max", "Netflix", "NetflixApp", "PrimeVideo", "AmazonPrimeVideo", "stremio", "Stremio", "Plex", "PlexMediaPlayer", "PlexDesktop", "PlexHTPC", "kodi", "Kodi",
     "DisneyPlus", "Disney", "Disney.37853FC22B2CE", "Twitch", "TikTok", "Crunchyroll", "HD-Player", "BlueStacks", "BlueStacksX", "BGAgent", "dnplayer", "ldplayer", "retroarch", "Dolphin", "pcsx2", "pcsx2-qt", "uTorrent", "uTorrentWeb", "utweb", "bittorrent", "MEGAsync",
-    "cheatengine-x86_64", "cheatengine-i386", "Cheat Engine", "CheatEngine", "Kindle", "AnyDesk", "anydesk", "bztransmit", "bzserv", "bzui", "bzdown2", "backblaze", "bdcam", "bdcam64", "bdcam32", "bandicam", "comet", "cometbrowser", "helium", "heliumbrowser",
-    "Dropbox", "DropboxUpdate", "DropboxSync", "GoogleDriveFS", "googledrivesync", "recorder", "icecream screen recorder", "icecream_screen_recorder", "iCloud", "iCloudServices", "iCloudDrive", "iCloudPhotos", "iCloudStat", "ApplePhotoStreams",
-    "BlueStacksX", "OGStore", "OGApp"
+    "cheatengine-x86_64", "cheatengine-i386", "CheatEngine", "Kindle", "AnyDesk", "anydesk", "bztransmit", "bzserv", "bzui", "bzdown2", "backblaze", "bdcam", "bdcam64", "bdcam32", "bandicam", "comet", "cometbrowser", "helium", "heliumbrowser",
+    "Dropbox", "DropboxUpdate", "DropboxSync", "GoogleDriveFS", "googledrivesync", "icecream_screen_recorder", "iCloud", "iCloudServices", "iCloudDrive", "iCloudPhotos", "iCloudStat", "ApplePhotoStreams",
+    "BlueStacksXServices", "BlueStacksXSetup", "BlueStacksWeb", "BlueStacks-X", "OGStore", "OGApp", "BlueStacksXUninstaller",
+    "nextcloud", "nextcloud_crash_handler", "ProtonDrive", "ProtonDrive.Service", "ProtonVPN", "ProtonVPN.Service", "ProtonVPN.WireGuard", "ProtonMail", "ProtonMail.Bridge", "ProtonMailBridge", "bridge", "rustdesk", "TeamViewer", "TeamViewer_Service", "TeamViewer_Desktop",
+    "tailscale", "tailscaled", "tailscale-ipn", "Telegram", "telegram", "Trezor-Suite", "TrezorSuite", "trezor-suite", "TrezorBridge"
 )
 
 $DisallowedAppNames = @(
@@ -377,13 +394,21 @@ foreach ($procName in $ProcessNamesToKill) {
             Write-Host "  Terminando proceso PowerShell: $($_.Name) (PID: $($_.Id))"
             Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue
         }
-        # Refuerzo forzado vía cmd/taskkill para procesos activos en sesiones de usuario cuando se corre como SYSTEM
-        cmd.exe /c "taskkill.exe /F /T /IM `${procName}.exe 2>nul" | Out-Null
+        # Refuerzo forzado vía cmd/taskkill para procesos activos en sesiones de usuario cuando se corre como SYSTEM (solo nombres seguros sin espacios ni wildcards)
+        if ($procName -notmatch "\s" -and $procName.Length -gt 2) {
+            cmd.exe /c "taskkill.exe /F /T /IM `"$procName.exe`" 2>nul" | Out-Null
+        }
     } catch {
         Write-Host "  Advertencia al terminar '$procName': $_"
     }
 }
 Start-Sleep -Seconds 2
+
+# Asegurar que Explorer.exe (interfaz gráfica del escritorio) esté en ejecución
+if (-not (Get-Process -Name "explorer" -ErrorAction SilentlyContinue)) {
+    Write-Host "  Restaurando interfaz de usuario Windows Explorer (explorer.exe)..."
+    Start-Process -FilePath "$env:SystemRoot\explorer.exe" -ErrorAction SilentlyContinue
+}
 
 # =============================================================================
 # PASO 2: Detener y eliminar servicios y controladores kernel no permitidos (Vanguard, BlueStacks, Google Drive, etc.)
@@ -392,7 +417,7 @@ Write-Host "--- Paso 2: Eliminando servicios y controladores kernel no permitido
 $DisallowedServices = @(
     "vgc", "vgk",
     "BstkDrv_nxt", "BstkDrv", "BSTAuxiliary", "BlueStacksService", "BlueStacksAndroidService", "BlueStacksHelper", "BGAgent",
-    "googledrivesync", "googledrivefs", "bzserv", "AnyDesk"
+    "googledrivesync", "googledrivefs", "bzserv", "AnyDesk", "Nextcloud", "ProtonVPNService", "ProtonDriveService", "ProtonMailBridge", "rustdesk", "TeamViewer", "tailscaled", "Tailscale", "TrezorBridge"
 )
 
 foreach ($svc in $DisallowedServices) {
@@ -538,13 +563,17 @@ foreach ($setup in $gdriveSetupFiles) {
 
 # 3.5 BlueStacks / BlueStacks X (Desinstalacion desatendida)
 $bluestacksUninstallers = @(
+    "${env:ProgramFiles(x86)}\BlueStacks X\BlueStacksXUninstaller.exe",
+    "$env:ProgramFiles\BlueStacks X\BlueStacksXUninstaller.exe",
     "$env:ProgramFiles\BlueStacks_nxt\HD-Uninstaller.exe",
     "${env:ProgramFiles(x86)}\BlueStacks\HD-Uninstaller.exe",
     "$env:ProgramFiles\BlueStacks_nxt\BSTCleaner.exe",
     "${env:ProgramFiles(x86)}\BlueStacks\BSTCleaner.exe",
     "$env:ProgramFiles\BlueStacksX\HD-Uninstaller.exe",
     "${env:ProgramFiles(x86)}\BlueStacksX\HD-Uninstaller.exe",
-    "$env:ProgramData\BlueStacksX\HD-Uninstaller.exe"
+    "$env:ProgramData\BlueStacksX\HD-Uninstaller.exe",
+    "$env:ProgramFiles\BlueStacksX\BlueStacksXUninstaller.exe",
+    "${env:ProgramFiles(x86)}\BlueStacksX\BlueStacksXUninstaller.exe"
 )
 foreach ($uninst in $bluestacksUninstallers) {
     if (Test-Path $uninst) {
@@ -560,7 +589,7 @@ foreach ($uninst in $bluestacksUninstallers) {
 
 # 3.6 Otras aplicaciones (incluyendo desinstaladores de usuario como Discord, DroidKit, AutoHotkey, Google Drive, Dropbox, BlueStacks, etc.)
 Write-Host "  Buscando desinstaladores para Discord, DroidKit, Apple TV, Steam, Epic Games, Riot, Torrent, Google Drive, Dropbox, launchers y herramientas en Registro (HKLM, HKCU, HKU)..."
-$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment", "Discord", "DroidKit", "iMobie DroidKit", "AutoHotkey", "Move Mouse", "MoveMouse", "OP Auto Clicker", "OPAutoClicker", "Auto Clicker", "PlayStation Accessories", "PlayStationAccessories", "JiggleMouse", "Jiggle Mouse", "HBO", "HBO Max", "Max", "Netflix", "Prime Video", "Amazon Prime Video", "Stremio", "Plex", "Plex Media Player", "Kodi", "Disney", "Disney+", "Disney Plus", "Disney.37853FC22B2CE", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "Cheat Engine", "CheatEngine", "Amstion", "Just Okay", "Kindle", "Amazon Kindle", "AnyDesk", "Backblaze", "Bandicam", "Bandisoft", "Comet", "Comet Browser", "Helium", "Helium Browser", "Dropbox", "Google Drive", "Icecream", "Icecream Screen Recorder", "iCloud", "BlueStacks X", "BlueStacksX", "OG Store", "OGStore", "now.gg", "Xiph.Org", "Xiph.Org Open Codecs", "Xiph")
+$OtherDisallowedApps = @("Hytale", "WinDS Pro", "Porofessor", "Overwolf", "WeMod", "Wand", "Wargaming", "World of Tanks", "World of Warships", "World of Warplanes", "Hakchi2", "Hakchi2 CE", "Transmission", "qBittorrent", "EA app", "Origin", "Electronic Arts", "Tixati", "BiglyBT", "SideQuest", "JDownloader", "JDownloader 2", "Battle.net", "Blizzard Entertainment", "Discord", "DroidKit", "iMobie DroidKit", "AutoHotkey", "Move Mouse", "MoveMouse", "OP Auto Clicker", "OPAutoClicker", "Auto Clicker", "PlayStation Accessories", "PlayStationAccessories", "JiggleMouse", "Jiggle Mouse", "HBO", "HBO Max", "Max", "Netflix", "Prime Video", "Amazon Prime Video", "Stremio", "Plex", "Plex Media Player", "Kodi", "Disney", "Disney+", "Disney Plus", "Disney.37853FC22B2CE", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "Cheat Engine", "CheatEngine", "Amstion", "Just Okay", "Kindle", "Amazon Kindle", "AnyDesk", "Backblaze", "Bandicam", "Bandisoft", "Comet", "Comet Browser", "Helium", "Helium Browser", "Dropbox", "Google Drive", "Icecream", "Icecream Screen Recorder", "iCloud", "BlueStacks X", "BlueStacksX", "OG Store", "OGStore", "now.gg", "Xiph.Org", "Xiph.Org Open Codecs", "Xiph", "Nextcloud", "Proton Drive", "ProtonDrive", "Proton VPN", "ProtonVPN", "Proton Mail", "ProtonMail", "RustDesk", "Stremio", "TeamViewer", "Tailscale", "Telegram", "Telegram Desktop", "Trezor", "Trezor Suite")
 foreach ($path in $registryUninstallPaths) {
     try {
         if (Test-Path $path) {
@@ -651,6 +680,67 @@ foreach ($path in $registryUninstallPaths) {
                                     $uninstallCommand = $uninstallString
                                 }
                             }
+                        } elseif ($displayName -like "*Proton*" -or $publisher -like "*Proton*") {
+                            if ($quietUninstallString) {
+                                $uninstallCommand = $quietUninstallString
+                            } elseif ($uninstallString) {
+                                if ($uninstallString -match '({[A-Z0-9\-]+})') {
+                                    $guid = $Matches[1]
+                                    $uninstallCommand = "msiexec.exe /X $guid /qn /norestart"
+                                } elseif ($uninstallString -like "*unins*.exe*") {
+                                    $cleanCmd = $uninstallString -replace '"', ''
+                                    $uninstallCommand = "`"$cleanCmd`" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
+                                } else {
+                                    $uninstallCommand = "$uninstallString /VERYSILENT /SILENT /qn /norestart"
+                                }
+                            }
+                        } elseif ($displayName -like "*RustDesk*") {
+                            if ($quietUninstallString) {
+                                $uninstallCommand = $quietUninstallString
+                            } elseif ($uninstallString) {
+                                $cleanCmd = $uninstallString -replace '"', ''
+                                if ($cleanCmd -notlike "*--silent*") {
+                                    $uninstallCommand = "`"$cleanCmd`" --silent"
+                                } else {
+                                    $uninstallCommand = $uninstallString
+                                }
+                            }
+                        } elseif ($displayName -like "*TeamViewer*") {
+                            if ($quietUninstallString) {
+                                $uninstallCommand = $quietUninstallString
+                            } elseif ($uninstallString) {
+                                $cleanCmd = $uninstallString -replace '"', ''
+                                if ($cleanCmd -notlike "*/S*" -and $cleanCmd -notlike "*/s*") {
+                                    $uninstallCommand = "`"$cleanCmd`" /S"
+                                } else {
+                                    $uninstallCommand = $uninstallString
+                                }
+                            }
+                        } elseif ($displayName -like "*Tailscale*" -or $publisher -like "*Tailscale*") {
+                            if ($quietUninstallString) {
+                                $uninstallCommand = $quietUninstallString
+                            } elseif ($uninstallString) {
+                                if ($uninstallString -match '({[A-Z0-9\-]+})') {
+                                    $guid = $Matches[1]
+                                    $uninstallCommand = "msiexec.exe /X $guid /qn /norestart"
+                                } else {
+                                    $uninstallCommand = "$uninstallString /quiet /norestart /S"
+                                }
+                            }
+                        } elseif ($displayName -like "*Telegram*") {
+                            if ($quietUninstallString) {
+                                $uninstallCommand = $quietUninstallString
+                            } elseif ($uninstallString) {
+                                $cleanCmd = $uninstallString -replace '"', ''
+                                $uninstallCommand = "`"$cleanCmd`" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
+                            }
+                        } elseif ($displayName -like "*Trezor*") {
+                            if ($quietUninstallString) {
+                                $uninstallCommand = $quietUninstallString
+                            } elseif ($uninstallString) {
+                                $cleanCmd = $uninstallString -replace '"', ''
+                                $uninstallCommand = "`"$cleanCmd`" /S /quiet"
+                            }
                         } elseif ($uninstallString -like "*--uninstall-app-id*" -or $uninstallString -like "*msedge*" -or $uninstallString -like "*chrome*") {
                             $uninstallCommand = $uninstallString
                         } elseif ($quietUninstallString) {
@@ -666,10 +756,10 @@ foreach ($path in $registryUninstallPaths) {
                                         $uninstallCommand = "$uninstallCommand /qn /norestart"
                                     }
                                 }
-                            } elseif ($uninstallString -like "*uninst.exe*" -or $uninstallString -like "*uninstall.exe*") {
+                            } elseif ($uninstallString -like "*unins*.exe*" -or $uninstallString -like "*uninstall.exe*") {
                                 $cleanUninstallString = $uninstallString -replace '"', ''
-                                if ($cleanUninstallString -notlike "*/S*" -and $cleanUninstallString -notlike "*/s*") {
-                                    $uninstallCommand = "`"$cleanUninstallString`" /S"
+                                if ($cleanUninstallString -notlike "*/S*" -and $cleanUninstallString -notlike "*/s*" -and $cleanUninstallString -notlike "*/VERYSILENT*") {
+                                    $uninstallCommand = "`"$cleanUninstallString`" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /S"
                                 } else {
                                     $uninstallCommand = $uninstallString
                                 }
@@ -890,6 +980,15 @@ $FoldersToDelete = @(
     "$env:ProgramData\BlueStacks",
     "C:\LDPlayer",
     "C:\XuanZhi",
+    "C:\XuanZhi14",
+    "C:\changzhi2",
+    "C:\lddownloader",
+    "$env:ProgramData\XuanZhi",
+    "$env:ProgramData\XuanZhi14",
+    "$env:ProgramData\changzhi2",
+    "$env:ProgramData\lddownloader",
+    "$env:ProgramData\MEGA",
+    "$env:ProgramData\Mega Limited",
     "$env:ProgramFiles\RetroArch-Win64",
     "${env:ProgramFiles(x86)}\RetroArch",
     "$env:ProgramFiles\Dolphin-x64",
@@ -931,6 +1030,8 @@ $FoldersToDelete = @(
     # --- BlueStacks X ---
     "$env:ProgramFiles\BlueStacksX",
     "${env:ProgramFiles(x86)}\BlueStacksX",
+    "$env:ProgramFiles\BlueStacks X",
+    "${env:ProgramFiles(x86)}\BlueStacks X",
     "$env:ProgramData\BlueStacksX",
     # --- OG Store ---
     "$env:ProgramFiles\OGStore",
@@ -938,7 +1039,40 @@ $FoldersToDelete = @(
     "$env:ProgramData\OGStore",
     # --- Xiph.Org Open Codecs ---
     "$env:ProgramFiles\Xiph.Org",
-    "${env:ProgramFiles(x86)}\Xiph.Org"
+    "${env:ProgramFiles(x86)}\Xiph.Org",
+    # --- Nextcloud ---
+    "$env:ProgramFiles\Nextcloud",
+    "${env:ProgramFiles(x86)}\Nextcloud",
+    # --- Proton ---
+    "$env:ProgramFiles\Proton",
+    "${env:ProgramFiles(x86)}\Proton",
+    "$env:ProgramFiles\ProtonMail Bridge",
+    "${env:ProgramFiles(x86)}\ProtonMail Bridge",
+    "$env:ProgramData\Proton",
+    # --- RustDesk ---
+    "$env:ProgramFiles\RustDesk",
+    "${env:ProgramFiles(x86)}\RustDesk",
+    "$env:ProgramData\RustDesk",
+    # --- Stremio ---
+    "$env:ProgramFiles\Stremio",
+    "${env:ProgramFiles(x86)}\Stremio",
+    # --- TeamViewer ---
+    "$env:ProgramFiles\TeamViewer",
+    "${env:ProgramFiles(x86)}\TeamViewer",
+    "$env:ProgramData\TeamViewer",
+    # --- Tailscale ---
+    "$env:ProgramFiles\Tailscale",
+    "${env:ProgramFiles(x86)}\Tailscale",
+    "$env:ProgramData\Tailscale",
+    # --- Telegram Desktop ---
+    "$env:ProgramFiles\Telegram Desktop",
+    "${env:ProgramFiles(x86)}\Telegram Desktop",
+    # --- Trezor Suite ---
+    "$env:ProgramFiles\Trezor Suite",
+    "${env:ProgramFiles(x86)}\Trezor Suite",
+    "$env:ProgramFiles\Trezor Bridge",
+    "${env:ProgramFiles(x86)}\Trezor Bridge",
+    "$env:ProgramData\Trezor Suite"
 )
 
 # Obtener perfiles de usuarios locales para AppData, Packages y Documentos
@@ -1191,12 +1325,92 @@ foreach ($userProfile in $userProfiles) {
             "C:\Users\$username\AppData\Roaming\OGStore",
             # --- Xiph.Org Open Codecs ---
             "C:\Users\$username\AppData\Roaming\Xiph.Org",
-            "C:\Users\$username\AppData\Local\Xiph.Org"
+            "C:\Users\$username\AppData\Local\Xiph.Org",
+            # --- Nextcloud ---
+            "C:\Users\$username\AppData\Local\Nextcloud",
+            "C:\Users\$username\AppData\Roaming\Nextcloud",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Nextcloud",
+            # --- Proton ---
+            "C:\Users\$username\AppData\Local\Proton",
+            "C:\Users\$username\AppData\Roaming\Proton",
+            "C:\Users\$username\AppData\Local\ProtonMail",
+            "C:\Users\$username\AppData\Roaming\ProtonMail",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Proton Drive",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Proton VPN",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Proton Mail",
+            # --- RustDesk ---
+            "C:\Users\$username\AppData\Local\RustDesk",
+            "C:\Users\$username\AppData\Roaming\RustDesk",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\RustDesk",
+            # --- Stremio ---
+            "C:\Users\$username\AppData\Local\Programs\Stremio",
+            "C:\Users\$username\AppData\Roaming\Stremio",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Stremio",
+            # --- LDPlayer / XuanZhi / changzhi2 ---
+            "C:\Users\$username\AppData\Local\XuanZhi",
+            "C:\Users\$username\AppData\Roaming\XuanZhi",
+            "C:\Users\$username\AppData\Local\XuanZhi14",
+            "C:\Users\$username\AppData\Roaming\XuanZhi14",
+            "C:\Users\$username\AppData\Local\changzhi2",
+            "C:\Users\$username\AppData\Roaming\changzhi2",
+            "C:\Users\$username\AppData\Local\lddownloader",
+            "C:\Users\$username\AppData\Roaming\lddownloader",
+            "C:\Users\$username\Documents\XuanZhi",
+            "C:\Users\$username\Documents\XuanZhi14",
+            "C:\Users\$username\Documents\changzhi2",
+            "C:\Users\$username\Documents\lddownloader",
+            "C:\Users\$username\Documents\LDPlayer",
+            # --- MEGA ---
+            "C:\Users\$username\AppData\Local\MEGA",
+            "C:\Users\$username\AppData\Roaming\MEGA",
+            "C:\Users\$username\AppData\Local\Mega Limited",
+            "C:\Users\$username\AppData\Roaming\Mega Limited",
+            "C:\Users\$username\Documents\MEGA",
+            "C:\Users\$username\Documents\MEGAsync",
+            # --- Proton Mail ---
+            "C:\Users\$username\AppData\Local\proton_mail",
+            "C:\Users\$username\AppData\Roaming\proton_mail",
+            "C:\Users\$username\Documents\Proton Mail",
+            "C:\Users\$username\Documents\ProtonMail",
+            # --- TeamViewer ---
+            "C:\Users\$username\AppData\Local\TeamViewer",
+            "C:\Users\$username\AppData\Roaming\TeamViewer",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\TeamViewer",
+            # --- Tailscale ---
+            "C:\Users\$username\AppData\Local\Tailscale",
+            "C:\Users\$username\AppData\Roaming\Tailscale",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Tailscale",
+            # --- Telegram Desktop ---
+            "C:\Users\$username\AppData\Local\Telegram Desktop",
+            "C:\Users\$username\AppData\Roaming\Telegram Desktop",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Telegram Desktop",
+            # --- Trezor Suite ---
+            "C:\Users\$username\AppData\Local\Programs\Trezor Suite",
+            "C:\Users\$username\AppData\Local\Trezor Suite",
+            "C:\Users\$username\AppData\Roaming\Trezor Suite",
+            "C:\Users\$username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Trezor Suite"
         )
+
+        # --- Buscar carpetas residuales en OneDrive (Personal y Corporativo) ---
+        # NOTA DE SEGURIDAD: En OneDrive se RESPETAN las carpetas de aplicaciones de sincronización de archivos (MEGA, Dropbox, Google Drive, Nextcloud, Proton Drive).
+        # Únicamente se eliminan carpetas residuales de aplicaciones no orientadas a sincronización de archivos (LDPlayer/XuanZhi, Proton Mail, Stremio, Kodi, etc.)
+        $oneDriveFolders = Get-ChildItem -Path "C:\Users\$username" -Directory -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -like "OneDrive*" }
+
+        foreach ($oneDrive in $oneDriveFolders) {
+            $subDirs = @("", "Documentos", "Documents", "Escritorio", "Desktop")
+            $oneDriveAppFolders = @("XuanZhi", "XuanZhi14", "changzhi2", "lddownloader", "LDPlayer", "LDPlayer9", "Proton Mail", "ProtonMail", "Icecream Screen Recorder", "Stremio", "Kodi", "Telegram Desktop", "Trezor Suite")
+            foreach ($sub in $subDirs) {
+                $baseDir = if ($sub) { "$($oneDrive.FullName)\$sub" } else { $oneDrive.FullName }
+                foreach ($appFolder in $oneDriveAppFolders) {
+                    $FoldersToDelete += "$baseDir\$appFolder"
+                }
+            }
+        }
 
         # Añadir carpetas de datos de AppX UWP residuales para streaming, comunicación, emuladores y P2P no permitidas
         $pkgFolders = Get-ChildItem -Path "C:\Users\$username\AppData\Local\Packages" -ErrorAction SilentlyContinue |
-            Where-Object { $_.Name -like "*Apple*TV*" -or $_.Name -like "*Discord*" -or $_.Name -like "*JiggleMouse*" -or $_.Name -like "*HBO*" -or $_.Name -like "*Netflix*" -or $_.Name -like "*PrimeVideo*" -or $_.Name -like "*Stremio*" -or $_.Name -like "*Plex*" -or $_.Name -like "*Kodi*" -or $_.Name -like "*Disney*" -or $_.Name -like "*Twitch*" -or $_.Name -like "*TikTok*" -or $_.Name -like "*Crunchyroll*" -or $_.Name -like "*BlueStacks*" -or $_.Name -like "*LDPlayer*" -or $_.Name -like "*RetroArch*" -or $_.Name -like "*uTorrent*" -or $_.Name -like "*BitTorrent*" -or $_.Name -like "*MEGAsync*" -or $_.Name -like "*CheatEngine*" -or $_.Name -like "*JustOkay*" -or $_.Name -like "*Kindle*" -or $_.Name -like "*AnyDesk*" -or $_.Name -like "*Backblaze*" -or $_.Name -like "*Bandicam*" -or $_.Name -like "*Comet*" -or $_.Name -like "*Helium*" -or $_.Name -like "*Dropbox*" -or $_.Name -like "*GoogleDrive*" -or $_.Name -like "*Icecream*" -or $_.Name -like "*iCloud*" -or $_.Name -like "*BlueStacksX*" -or $_.Name -like "*OGStore*" -or $_.Name -like "*Xiph*" }
+            Where-Object { $_.Name -like "*Apple*TV*" -or $_.Name -like "*Discord*" -or $_.Name -like "*JiggleMouse*" -or $_.Name -like "*HBO*" -or $_.Name -like "*Netflix*" -or $_.Name -like "*PrimeVideo*" -or $_.Name -like "*Stremio*" -or $_.Name -like "*Plex*" -or $_.Name -like "*Kodi*" -or $_.Name -like "*Disney*" -or $_.Name -like "*Twitch*" -or $_.Name -like "*TikTok*" -or $_.Name -like "*Crunchyroll*" -or $_.Name -like "*BlueStacks*" -or $_.Name -like "*LDPlayer*" -or $_.Name -like "*RetroArch*" -or $_.Name -like "*uTorrent*" -or $_.Name -like "*BitTorrent*" -or $_.Name -like "*MEGAsync*" -or $_.Name -like "*CheatEngine*" -or $_.Name -like "*JustOkay*" -or $_.Name -like "*Kindle*" -or $_.Name -like "*AnyDesk*" -or $_.Name -like "*Backblaze*" -or $_.Name -like "*Bandicam*" -or $_.Name -like "*Comet*" -or $_.Name -like "*Helium*" -or $_.Name -like "*Dropbox*" -or $_.Name -like "*GoogleDrive*" -or $_.Name -like "*Icecream*" -or $_.Name -like "*iCloud*" -or $_.Name -like "*BlueStacksX*" -or $_.Name -like "*OGStore*" -or $_.Name -like "*Xiph*" -or $_.Name -like "*Nextcloud*" -or $_.Name -like "*Proton*" -or $_.Name -like "*RustDesk*" -or $_.Name -like "*Stremio*" -or $_.Name -like "*TeamViewer*" -or $_.Name -like "*Tailscale*" -or $_.Name -like "*Telegram*" -or $_.Name -like "*Trezor*" }
         foreach ($pkgDir in $pkgFolders) {
             $FoldersToDelete += $pkgDir.FullName
         }
@@ -1237,18 +1451,30 @@ foreach ($path in $registryUninstallPaths) {
         if (Test-Path $path) {
             $subkeys = Get-ChildItem -Path $path -ErrorAction SilentlyContinue
             foreach ($subkey in $subkeys) {
-                $displayName = (Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue).DisplayName
-                if ($null -ne $displayName) {
-                    $match = $false
-                    foreach ($disallowedName in $DisallowedAppNames) {
-                        if ($displayName -like "*$disallowedName*" -and $displayName -notlike "*Teams*") {
-                            $match = $true
-                        }
+                $props = Get-ItemProperty -Path $subkey.PSPath -ErrorAction SilentlyContinue
+                $displayName = $props.DisplayName
+                $publisher   = $props.Publisher
+                $keyName     = $subkey.PSChildName
+
+                $match = $false
+                foreach ($disallowedName in $DisallowedAppNames) {
+                    if (($null -ne $displayName -and $displayName -like "*$disallowedName*" -and $displayName -notlike "*Teams*") -or
+                        ($null -ne $publisher -and $publisher -like "*$disallowedName*" -and $publisher -notlike "*Microsoft*") -or
+                        ($keyName -like "*$disallowedName*")) {
+                        $match = $true
+                        break
                     }
-                    if ($match) {
-                        Write-Host "  Eliminando clave de registro: $($subkey.PSPath)"
-                        Remove-Item -Path $subkey.PSPath -Recurse -Force -ErrorAction SilentlyContinue
+                }
+
+                if (-not $match) {
+                    if ($keyName -eq "Proton VPN_is1" -or $keyName -eq "proton_mail" -or $keyName -eq "RustDesk" -or $keyName -eq "TeamViewer" -or $keyName -like "*939C5A39-9609-40ED-AAD1-1879CDAC2E33*") {
+                        $match = $true
                     }
+                }
+
+                if ($match) {
+                    Write-Host "  Eliminando clave de registro de desinstalacion: $($subkey.PSPath)"
+                    Remove-Item -Path $subkey.PSPath -Recurse -Force -ErrorAction SilentlyContinue
                 }
             }
         }
@@ -1409,7 +1635,39 @@ $softwareKeys = @(
     "HKCU:\Software\OGStore",
     # --- Xiph.Org Open Codecs ---
     "HKLM:\SOFTWARE\Xiph.Org",
-    "HKLM:\SOFTWARE\Wow6432Node\Xiph.Org"
+    "HKLM:\SOFTWARE\Wow6432Node\Xiph.Org",
+    # --- Nextcloud ---
+    "HKLM:\SOFTWARE\Nextcloud",
+    "HKCU:\Software\Nextcloud",
+    # --- Proton ---
+    "HKLM:\SOFTWARE\Proton Technologies",
+    "HKLM:\SOFTWARE\Proton",
+    "HKLM:\SOFTWARE\ProtonMail",
+    "HKCU:\Software\Proton Technologies",
+    "HKCU:\Software\Proton",
+    "HKCU:\Software\ProtonMail",
+    # --- RustDesk ---
+    "HKLM:\SOFTWARE\RustDesk",
+    "HKCU:\Software\RustDesk",
+    # --- Stremio ---
+    "HKLM:\SOFTWARE\Stremio",
+    "HKCU:\Software\Stremio",
+    # --- TeamViewer ---
+    "HKLM:\SOFTWARE\TeamViewer",
+    "HKLM:\SOFTWARE\WOW6432Node\TeamViewer",
+    "HKCU:\Software\TeamViewer",
+    # --- Tailscale ---
+    "HKLM:\SOFTWARE\Tailscale",
+    "HKLM:\SOFTWARE\WOW6432Node\Tailscale",
+    "HKCU:\Software\Tailscale",
+    # --- Telegram Desktop ---
+    "HKLM:\SOFTWARE\Telegram Desktop",
+    "HKCU:\Software\Telegram Desktop",
+    # --- Trezor Suite ---
+    "HKLM:\SOFTWARE\Trezor Suite",
+    "HKLM:\SOFTWARE\SatoshiLabs",
+    "HKCU:\Software\Trezor Suite",
+    "HKCU:\Software\SatoshiLabs"
 )
 
 try {
@@ -1444,6 +1702,17 @@ try {
         $softwareKeys += "Registry::HKEY_USERS\$sid\Software\BlueStacksX"
         $softwareKeys += "Registry::HKEY_USERS\$sid\Software\OGStore"
         $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Xiph.Org"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Nextcloud"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Proton Technologies"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Proton"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\ProtonMail"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\RustDesk"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Stremio"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\TeamViewer"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Tailscale"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Telegram Desktop"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\Trezor Suite"
+        $softwareKeys += "Registry::HKEY_USERS\$sid\Software\SatoshiLabs"
     }
 } catch {}
 
@@ -1470,7 +1739,9 @@ $DisallowedShortcutKeywords = @(
     "Disney", "Disney+", "Disney Plus", "Twitch", "TikTok", "Crunchyroll", "BlueStacks", "LDPlayer", "RetroArch", "Dolphin", "PCSX2", "uTorrent", "BitTorrent", "MEGAsync", "MegaSync",
     "Cheat Engine", "CheatEngine", "Amstion", "Just Okay", "Kindle", "Amazon Kindle", "AnyDesk", "Backblaze", "Bandicam", "Comet", "Comet Browser", "Helium", "Helium Browser",
     "Dropbox", "Google Drive", "Icecream", "Icecream Screen Recorder", "iCloud",
-    "BlueStacks X", "BlueStacksX", "OG Store", "OGStore", "Xiph", "Xiph.Org"
+    "BlueStacks X", "BlueStacksX", "OG Store", "OGStore", "Xiph", "Xiph.Org",
+    "Nextcloud", "Proton Drive", "ProtonDrive", "Proton VPN", "ProtonVPN", "Proton Mail", "ProtonMail", "RustDesk", "Stremio", "TeamViewer", "Team Viewer",
+    "Tailscale", "Telegram", "Telegram Desktop", "TelegramDesktop", "Trezor", "Trezor Suite", "TrezorSuite"
 )
 
 $SearchShortcutFolders = [System.Collections.Generic.List[string]]::new()
@@ -1785,7 +2056,19 @@ $PhysicalPathsToCheck = @(
     "$env:ProgramFiles\Icecream Screen Recorder\recorder.exe",
     "${env:ProgramFiles(x86)}\Icecream Screen Recorder\recorder.exe",
     "$env:ProgramFiles\Common Files\Apple\Internet Services\iCloud.exe",
-    "${env:ProgramFiles(x86)}\Apple\iCloud\iCloud.exe"
+    "${env:ProgramFiles(x86)}\Apple\iCloud\iCloud.exe",
+    "${env:ProgramFiles(x86)}\BlueStacks X\BlueStacksXUninstaller.exe",
+    "$env:ProgramFiles\BlueStacks X\BlueStacksX.exe",
+    "${env:ProgramFiles(x86)}\BlueStacks X\BlueStacksX.exe",
+    "$env:ProgramFiles\Nextcloud\nextcloud.exe",
+    "$env:ProgramFiles\Proton\Drive\ProtonDrive.exe",
+    "$env:ProgramFiles\Proton\VPN\ProtonVPN.exe",
+    "$env:ProgramFiles\RustDesk\rustdesk.exe",
+    "$env:ProgramFiles\Stremio\stremio.exe",
+    "$env:ProgramFiles\TeamViewer\TeamViewer.exe",
+    "$env:ProgramFiles\Tailscale\tailscale.exe",
+    "$env:ProgramFiles\Telegram Desktop\Telegram.exe",
+    "$env:ProgramFiles\Trezor Suite\Trezor Suite.exe"
 )
 
 foreach ($pathPattern in $PhysicalPathsToCheck) {
@@ -1854,6 +2137,11 @@ foreach ($folderPath in $SearchShortcutFolders) {
             }
         }
     }
+}
+
+if (-not (Get-Process -Name "explorer" -ErrorAction SilentlyContinue)) {
+    Write-Host "Asegurando que la interfaz grafica (explorer.exe) este en ejecucion..."
+    Start-Process -FilePath "$env:SystemRoot\explorer.exe" -ErrorAction SilentlyContinue
 }
 
 if ($Failed) {
