@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    DETECTION SCRIPT: Â¿ES EL "PRIMARY USER" ADMINISTRADOR LOCAL?
+    DETECTION SCRIPT: ¿ES EL "PRIMARY USER" ADMINISTRADOR LOCAL?
 
 .DESCRIPTION
     Este script detecta si el usuario principal ("primary user") del dispositivo pertenece al grupo de 

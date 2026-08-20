@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     REMEDIATION SCRIPT: CREAR O AJUSTAR LA TAREA "ScheduledTask-Inkoova-MSDefender-Simple"
 
@@ -180,7 +180,7 @@ try {
         Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false | Out-Null
     }
     Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal | Out-Null
-    Write-Log "Tarea '$TaskName' creada o actualizada correctamente (2Âº y 4Âº viernes a las 13:00)."
+    Write-Log "Tarea '$TaskName' creada o actualizada correctamente (2º y 4º viernes a las 13:00)."
 }
 catch {
     Write-Log "ERROR creando la tarea: $($_.Exception.Message)"
