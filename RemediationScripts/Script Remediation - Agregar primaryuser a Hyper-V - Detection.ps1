@@ -13,7 +13,7 @@
     Executes as Intune Detection Script.
 
 .NOTES
-    Name: Script Remediation - Hyper-V Group - Detection.ps1
+    Name: Script Remediation - Agregar primaryuser a Hyper-V - Detection.ps1
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.1.0
     Date: 2026-08-25
