@@ -1,29 +1,29 @@
 <#
 .SYNOPSIS
-    Configuracion de informacion de soporte corporativo de Inkoova Digital Solutions en Windows.
+    Configuración de información de soporte corporativo OEM en Windows.
 
 .DESCRIPTION
-    Este script esta diseñado para ejecutarse como Platform Script en Microsoft Intune bajo contexto SYSTEM.
+    Este script está diseñado para ejecutarse como Platform Script en Microsoft Intune bajo contexto SYSTEM.
     Realiza las siguientes acciones:
     1. Configura las claves de soporte en HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation:
        - Manufacturer: Inkoova Digital Solutions
        - SupportHours: Lunes a Viernes 08:00 a 18:00
        - SupportPhone: Email: managedservices@inkoova.com
        - SupportURL: https://inkoova.soporte.inkoova.com/
-    2. Personaliza la ventana "Acerca de Windows" (winver) con el nombre de la organizacion.
+    2. Elimina cualquier clave antigua o residual de 'Logo' para mantener limpio el registro.
+    3. Personaliza la ventana "Acerca de Windows" (winver) con el nombre de la organización corporativa.
+
+.PARAMETER
+    Ninguno.
 
 .EXAMPLE
-    Ejecucion a traves de Intune Platform Scripts:
-    - Run this script using the logged on credentials: No (SYSTEM)
-    - Enforce script signature check: No
-    - Run script in 64 bit PowerShell Host: Yes
+    .\Script - Configuracion OEM Informacion Soporte.ps1
 
 .NOTES
-    Nombre:       Script - Configuracion_OEM_Informacion_Soporte.ps1
-    Autor:        Alejandro Suarez (@alexsf93)
-    Empresa:      Inkoova Digital Solutions
-    Version:      2.0 (Optimizada sin descarga de logo)
-    Requisitos:   PowerShell 5.1+, Windows 10/11, Contexto SYSTEM (Intune Platform Script / 64-bit).
+    Name: Script - Configuracion OEM Informacion Soporte.ps1
+    Author: Alejandro Suárez (@alexsf93)
+    Version: 1.0.0
+    Date: 2026-11-10
 #>
 
 [CmdletBinding()]
@@ -32,7 +32,7 @@ param()
 $ErrorActionPreference = 'Stop'
 
 try {
-    Write-Output "Iniciando configuracion de soporte corporativo para Inkoova Digital Solutions..."
+    Write-Output "Iniciando configuración de soporte corporativo para Inkoova Digital Solutions..."
 
     $regOEMPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
 
@@ -42,7 +42,7 @@ try {
     }
 
     # 2. Si existiera un valor antiguo de Logo, lo eliminamos para dejar el registro limpio
-    if ((Get-ItemProperty -Path $regOEMPath -Name "Logo" -ErrorAction SilentlyContinue)) {
+    if (Get-ItemProperty -Path $regOEMPath -Name "Logo" -ErrorAction SilentlyContinue) {
         Remove-ItemProperty -Path $regOEMPath -Name "Logo" -Force -ErrorAction SilentlyContinue
     }
 
@@ -63,12 +63,12 @@ try {
     $regWinverPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     Set-ItemProperty -Path $regWinverPath -Name "RegisteredOrganization" -Value "Inkoova Digital Solutions" -Force
     Set-ItemProperty -Path $regWinverPath -Name "RegisteredOwner" -Value "Dispositivo Corporativo" -Force
-    Write-Output "Datos de organizacion en winver actualizados con exito."
+    Write-Output "Datos de organización en winver actualizados con éxito."
 
-    Write-Output "Configuracion corporativa de soporte aplicada exitosamente."
+    Write-Output "Configuración corporativa de soporte aplicada exitosamente."
     exit 0
 }
 catch {
-    Write-Error "Error durante la aplicacion de la configuracion corporativa: $_"
+    Write-Error "Error durante la aplicación de la configuración corporativa: $_"
     exit 1
 }

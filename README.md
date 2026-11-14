@@ -26,6 +26,7 @@ Conjunto de pares de scripts (**Detección** y **Remediación**) optimizados par
 | **DNS Config** | Corrige DNS | Asegura el uso de DNS corporativos o específicos (Google/Cloudflare). |
 | **Intune Agent (IME)** | Actualiza IME | Compara la versión local de Intune Management Extension con la última oficial y la actualiza si está obsoleta. |
 | **Language Packs** | Instala Idioma | Instala y configura el idioma inglés (en-US) como predeterminado en el sistema. |
+| **MDM SyncML 404 Fix** | Repara CSP y WMI | Corrige fallos SyncML 404 en Device Health Attestation y BitLocker reparando el almacén de componentes (DISM/SFC). |
 | **OneDrive Startup** | Corrige Inicio | Asegura que OneDrive se inicie con Windows y configura SilentAccountConfig para M365. |
 | **Power Plans** | Restaura Planes | Detecta e importa los planes de energía predeterminados de Windows (Equilibrado, Alto rendimiento, Economizador) si faltan. |
 | **Scheduled Tasks** | Crea/Corrige Tarea | Garantiza que tareas críticas (limpieza de actualizaciones, actualización de software, escaneo Defender) existan y corran como SYSTEM. |
