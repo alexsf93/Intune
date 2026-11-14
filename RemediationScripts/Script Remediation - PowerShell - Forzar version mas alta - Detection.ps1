@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     DETECTION SCRIPT: VERIFICAR SI EL EQUIPO TIENE FORZADA LA VERSION MAS ALTA DE POWERSHELL
 
@@ -22,27 +22,30 @@
     Executes as Intune Detection Script.
 
 .NOTES
-    Name:       Script Remediation - Forzar version mas alta PowerShell - Detection.ps1
+    Name:       Script Remediation - PowerShell - Forzar version mas alta - Detection.ps1
     Author:     Alejandro Suarez (@alexsf93)
     Date:       2026-11-14
-    Version:    1.2.0
+    Version:    1.3.0
     Context:    System
 #>
 
 $ErrorActionPreference = 'SilentlyContinue'
 
 # --- 1. Deteccion exhaustiva de versiones de PowerShell ---
+# NOTA: Bajo SYSTEM, $env:LOCALAPPDATA y $env:APPDATA apuntan al perfil de SYSTEM,
+# no al perfil del usuario. Se usan rutas absolutas y enumeracion de C:\Users\* .
+
 $detected = [System.Collections.Generic.List[PSCustomObject]]::new()
 
+# Rutas MSI/Win32 en Program Files (siempre validas bajo SYSTEM)
 $searchPaths = @(
-    "$env:ProgramFiles\PowerShell\*\pwsh.exe",
-    "${env:ProgramFiles(x86)}\PowerShell\*\pwsh.exe",
     "C:\Program Files\PowerShell\*\pwsh.exe",
     "C:\Program Files (x86)\PowerShell\*\pwsh.exe"
 )
 
+# Rutas de instalacion por usuario (enumeracion explicita, NO $env:LOCALAPPDATA)
 Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | Where-Object {
-    $_.Name -notmatch '^(Public|All Users)$'
+    $_.Name -notmatch '^(Public|All Users|Default|Default User)$'
 } | ForEach-Object {
     $searchPaths += Join-Path $_.FullName "AppData\Local\Microsoft\PowerShell\*\pwsh.exe"
     $searchPaths += Join-Path $_.FullName "AppData\Local\Programs\PowerShell\*\pwsh.exe"
@@ -62,6 +65,7 @@ foreach ($path in $searchPaths) {
     }
 }
 
+# AppX / MSIX (Store) - Get-AppxPackage -AllUsers funciona bajo SYSTEM
 try {
     Get-AppxPackage -AllUsers -Name "*PowerShell*" -ErrorAction SilentlyContinue | ForEach-Object {
         $appxExe = Join-Path $_.InstallLocation "pwsh.exe"
@@ -78,6 +82,7 @@ try {
     }
 } catch {}
 
+# Windows PowerShell 5.1 (siempre disponible)
 $winPS = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
 if (Test-Path $winPS) {
     $psVerStr = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PowerShell\3\PowerShellEngine" -Name "PowerShellVersion" -ErrorAction SilentlyContinue).PowerShellVersion
@@ -124,14 +129,16 @@ foreach ($reg in $regPaths) {
 }
 
 # --- 3. Recopilar directorios de accesos directos ---
+# NOTA: NO se usa $env:APPDATA ni [Environment]::GetFolderPath() porque bajo
+# SYSTEM resuelven al perfil del sistema, no al perfil del usuario.
+
 $shortcutDirs = [System.Collections.Generic.List[string]]::new()
 $shortcutDirs.Add("$env:ProgramData\Microsoft\Windows\Start Menu\Programs")
 $shortcutDirs.Add("$env:PUBLIC\Desktop")
-$shortcutDirs.Add("$env:APPDATA\Microsoft\Windows\Start Menu\Programs")
-$shortcutDirs.Add([Environment]::GetFolderPath('Desktop'))
 
+# Enumeracion explicita de perfiles de usuario reales
 Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | Where-Object {
-    $_.Name -notmatch '^(Public|All Users)$'
+    $_.Name -notmatch '^(Public|All Users|Default|Default User)$'
 } | ForEach-Object {
     $shortcutDirs.Add((Join-Path $_.FullName "AppData\Roaming\Microsoft\Windows\Start Menu\Programs"))
     $shortcutDirs.Add((Join-Path $_.FullName "Desktop"))

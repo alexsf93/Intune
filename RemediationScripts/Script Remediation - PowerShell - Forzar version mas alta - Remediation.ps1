@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     REMEDIATION SCRIPT: FORZAR VERSION MAS ALTA DE POWERSHELL, LIMPIAR VERSIONES OBSOLETAS Y ACTUALIZAR ACCESOS E ICONOS
 
@@ -19,10 +19,10 @@
     Executes as Intune Remediation Script.
 
 .NOTES
-    Name:       Script Remediation - Forzar version mas alta PowerShell - Remediation.ps1
+    Name:       Script Remediation - PowerShell - Forzar version mas alta - Remediation.ps1
     Author:     Alejandro Suarez (@alexsf93)
     Date:       2026-11-14
-    Version:    1.2.0
+    Version:    1.3.0
     Context:    System
 #>
 
@@ -39,22 +39,53 @@ function Test-IsAdminOrSystem {
     }
 }
 
+# Funcion auxiliar: enumera perfiles de usuario reales (excluye Default, Public, etc.)
+# Usa el registro para ser mas fiable que solo enumerar C:\Users\*
+function Get-RealUserProfiles {
+    $profiles = [System.Collections.Generic.List[string]]::new()
+
+    # Metodo primario: Registro de perfiles de Windows
+    try {
+        Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" `
+            -ErrorAction SilentlyContinue | Where-Object {
+                $_.ProfileImagePath -like "C:\Users\*" -and
+                $_.ProfileImagePath -notmatch '\\(Public|All Users|Default|Default User)$'
+            } | ForEach-Object {
+                if (Test-Path $_.ProfileImagePath) {
+                    $profiles.Add($_.ProfileImagePath)
+                }
+            }
+    } catch {}
+
+    # Metodo de respaldo: enumeracion de directorio
+    if ($profiles.Count -eq 0) {
+        Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | Where-Object {
+            $_.Name -notmatch '^(Public|All Users|Default|Default User)$'
+        } | ForEach-Object {
+            $profiles.Add($_.FullName)
+        }
+    }
+
+    return $profiles
+}
+
 try {
     # --- 1. Deteccion exhaustiva de versiones instaladas ---
+    # NOTA: Bajo SYSTEM, $env:LOCALAPPDATA y $env:APPDATA apuntan al perfil de SYSTEM,
+    # no al perfil del usuario. Se usan rutas absolutas y enumeracion explicita de perfiles.
+
     $detected = [System.Collections.Generic.List[PSCustomObject]]::new()
 
+    # Rutas MSI/Win32 en Program Files (siempre validas bajo SYSTEM)
     $searchPaths = @(
-        "$env:ProgramFiles\PowerShell\*\pwsh.exe",
-        "${env:ProgramFiles(x86)}\PowerShell\*\pwsh.exe",
         "C:\Program Files\PowerShell\*\pwsh.exe",
         "C:\Program Files (x86)\PowerShell\*\pwsh.exe"
     )
 
-    Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | Where-Object {
-        $_.Name -notmatch '^(Public|All Users)$'
-    } | ForEach-Object {
-        $searchPaths += Join-Path $_.FullName "AppData\Local\Microsoft\PowerShell\*\pwsh.exe"
-        $searchPaths += Join-Path $_.FullName "AppData\Local\Programs\PowerShell\*\pwsh.exe"
+    # Rutas de instalacion por usuario (enumeracion explicita)
+    Get-RealUserProfiles | ForEach-Object {
+        $searchPaths += Join-Path $_ "AppData\Local\Microsoft\PowerShell\*\pwsh.exe"
+        $searchPaths += Join-Path $_ "AppData\Local\Programs\PowerShell\*\pwsh.exe"
     }
 
     foreach ($path in $searchPaths) {
@@ -72,7 +103,7 @@ try {
         }
     }
 
-    # AppX / MSIX / Store
+    # AppX / MSIX (Store) - Get-AppxPackage -AllUsers funciona bajo SYSTEM
     try {
         Get-AppxPackage -AllUsers -Name "*PowerShell*" -ErrorAction SilentlyContinue | ForEach-Object {
             $appxExe = Join-Path $_.InstallLocation "pwsh.exe"
@@ -150,17 +181,17 @@ try {
     }
 
     # --- 3. Limpiar accesos directos obsoletos x86 en todos los ambitos ---
+    # NOTA: NO se usa $env:APPDATA ni [Environment]::GetFolderPath() porque bajo
+    # SYSTEM resuelven al perfil del sistema, no al perfil del usuario real.
+
     $searchDirs = [System.Collections.Generic.List[string]]::new()
     $searchDirs.Add("$env:ProgramData\Microsoft\Windows\Start Menu\Programs")
     $searchDirs.Add("$env:PUBLIC\Desktop")
-    $searchDirs.Add("$env:APPDATA\Microsoft\Windows\Start Menu\Programs")
-    $searchDirs.Add([Environment]::GetFolderPath('Desktop'))
 
-    Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | Where-Object {
-        $_.Name -notmatch '^(Public|All Users)$'
-    } | ForEach-Object {
-        $searchDirs.Add((Join-Path $_.FullName "AppData\Roaming\Microsoft\Windows\Start Menu\Programs"))
-        $searchDirs.Add((Join-Path $_.FullName "Desktop"))
+    # Enumeracion explicita de perfiles de usuario reales
+    Get-RealUserProfiles | ForEach-Object {
+        $searchDirs.Add((Join-Path $_ "AppData\Roaming\Microsoft\Windows\Start Menu\Programs"))
+        $searchDirs.Add((Join-Path $_ "Desktop"))
     }
 
     $uniqueDirs = $searchDirs | Where-Object { Test-Path -Path $_ } | Select-Object -Unique
@@ -193,10 +224,8 @@ try {
 
     # --- 5. Configurar perfil predeterminado de Windows Terminal ---
     $pwshGuid = "{574e775e-4f2a-5b96-ac1e-a2962a402336}"
-    Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | Where-Object {
-        $_.Name -notmatch '^(Public|All Users)$'
-    } | ForEach-Object {
-        $settingsPath = Join-Path $_.FullName "AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+    Get-RealUserProfiles | ForEach-Object {
+        $settingsPath = Join-Path $_ "AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
         if (Test-Path $settingsPath) {
             try {
                 $raw = Get-Content -Path $settingsPath -Raw -ErrorAction SilentlyContinue

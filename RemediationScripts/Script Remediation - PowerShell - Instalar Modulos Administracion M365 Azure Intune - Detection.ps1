@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     DETECTION SCRIPT: VERIFICAR INSTALACION DE MODULOS POWERSHELL PARA ADMINISTRACION CLOUD (M365, AZURE, INTUNE)
 
@@ -27,7 +27,7 @@
     Name:       Script Remediation - PowerShell - Instalar Modulos Administracion M365 Azure Intune - Detection.ps1
     Author:     Alejandro Suarez (@alexsf93)
     Date:       2026-11-14
-    Version:    1.0.0
+    Version:    1.1.0
     Context:    System
 #>
 
@@ -50,12 +50,16 @@ function Test-ModuleInstalled {
         [string]$ModuleName
     )
 
-    # 1. Comprobacion directa en los directorios estandar del sistema (AllUsers)
-    # Evita falsos negativos en Windows PowerShell 5.1 con modulos compilados para Core/v7 (p. ej. PnP.PowerShell)
+    # 1. Comprobacion directa en rutas AllUsers (instalacion via -Scope AllUsers bajo SYSTEM)
+    # Incluye tanto PS 5.1 (WindowsPowerShell\Modules) como PS 7+ (PowerShell\Modules)
+    # NOTA: Se usan rutas absolutas. Bajo SYSTEM $env:ProgramFiles puede resolverse
+    # a 'C:\Program Files (x86)' si el proceso es 32-bit. Se incluyen ambas variantes.
     $standardDirs = @(
-        "$env:ProgramFiles\WindowsPowerShell\Modules\$ModuleName",
-        "$env:ProgramFiles\PowerShell\Modules\$ModuleName",
-        "$env:SystemRoot\system32\WindowsPowerShell\v1.0\Modules\$ModuleName"
+        "C:\Program Files\WindowsPowerShell\Modules\$ModuleName",
+        "C:\Program Files (x86)\WindowsPowerShell\Modules\$ModuleName",
+        "C:\Program Files\PowerShell\Modules\$ModuleName",
+        "C:\Program Files (x86)\PowerShell\Modules\$ModuleName",
+        "$env:SystemRoot\System32\WindowsPowerShell\v1.0\Modules\$ModuleName"
     )
 
     foreach ($dir in $standardDirs) {
@@ -73,16 +77,29 @@ function Test-ModuleInstalled {
         return $true
     }
 
-    # 3. Comprobacion mediante PowerShell 7 (si esta disponible)
+    # 3. Comprobacion mediante PowerShell 7 (si esta disponible en instalacion MSI/Win32)
+    # NOTA: NO se usa $env:LOCALAPPDATA ya que bajo SYSTEM apunta al perfil del sistema,
+    # no a la instalacion de pwsh del usuario. Solo se comprueban rutas de maquina.
     $pwshCandidates = @(
-        "$env:ProgramFiles\PowerShell\7\pwsh.exe",
-        "${env:ProgramFiles(x86)}\PowerShell\7\pwsh.exe",
-        (Join-Path $env:LOCALAPPDATA "Microsoft\WindowsApps\pwsh.exe")
+        "C:\Program Files\PowerShell\7\pwsh.exe",
+        "C:\Program Files (x86)\PowerShell\7\pwsh.exe"
     )
+
+    # Tambien se busca via AppX (instalacion desde Store) - funciona bajo SYSTEM con -AllUsers
+    try {
+        $appxPkg = Get-AppxPackage -AllUsers -Name "*PowerShell*" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($appxPkg) {
+            $appxExe = Join-Path $appxPkg.InstallLocation "pwsh.exe"
+            if (Test-Path $appxExe) {
+                $pwshCandidates += $appxExe
+            }
+        }
+    } catch {}
+
     foreach ($cand in $pwshCandidates) {
         if (Test-Path $cand) {
             try {
-                $verCheck = & $cand -NoProfile -Command "if (Get-Module -ListAvailable -Name '$ModuleName' -ErrorAction SilentlyContinue) { '1' }"
+                $verCheck = & $cand -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "if (Get-Module -ListAvailable -Name '$ModuleName' -ErrorAction SilentlyContinue) { '1' }"
                 if ($verCheck -match '1') {
                     return $true
                 }
