@@ -1,34 +1,34 @@
-<#
+﻿﻿<#
 .SYNOPSIS
-    Instalación y configuración desatendida de módulos de PowerShell para administración de Microsoft 365, Azure e Intune.
+    Instalacion y configuracion desatendida de modulos de PowerShell para administracion de Microsoft 365, Azure e Intune.
 
 .DESCRIPTION
-    Este script está diseñado para ejecutarse como Platform Script en Microsoft Intune bajo contexto SYSTEM
+    Este script esta disenado para ejecutarse como Platform Script en Microsoft Intune bajo contexto SYSTEM
     o manualmente por un administrador desde PowerShell o PowerShell ISE.
     
-    Verifica la existencia e instala automáticamente en el ámbito 'AllUsers' (para todos los usuarios) los módulos 
-    oficiales necesarios para la gestión completa de tenants cloud desde terminal:
-    1. Microsoft.Graph: Administración completa de Microsoft Entra ID (Azure AD), Intune y M365.
-    2. ExchangeOnlineManagement: Gestión moderna de Exchange Online, buzones y cumplimiento (v3+ REST).
-    3. Microsoft.Online.SharePoint.PowerShell: Administración de SharePoint Online y OneDrive for Business.
-    4. PnP.PowerShell: Automatización avanzada y aprovisionamiento de SharePoint / M365.
-    5. MicrosoftTeams: Gestión de Microsoft Teams, directivas y telefonía.
-    6. Az.Accounts y módulos esenciales de Azure: Autenticación y gestión de suscripciones y recursos en Azure.
+    Verifica la existencia e instala automaticamente en el ambito 'AllUsers' (para todos los usuarios) los modulos 
+    oficiales necesarios para la gestion completa de tenants cloud desde terminal:
+    1. Microsoft.Graph: Administracion completa de Microsoft Entra ID (Azure AD), Intune y M365.
+    2. ExchangeOnlineManagement: Gestion moderna de Exchange Online, buzones y cumplimiento (v3+ REST).
+    3. Microsoft.Online.SharePoint.PowerShell: Administracion de SharePoint Online y OneDrive for Business.
+    4. PnP.PowerShell: Automatizacion avanzada y aprovisionamiento de SharePoint / M365.
+    5. MicrosoftTeams: Gestion de Microsoft Teams, directivas y telefonia.
+    6. Az.Accounts y modulos esenciales de Azure: Autenticacion y gestion de suscripciones y recursos en Azure.
 
     Garantiza los requisitos previos:
     - Habilita protocolos de seguridad modernos TLS 1.2 / TLS 1.3.
     - Instala y actualiza de forma desatendida el proveedor de paquetes NuGet.
     - Configura el repositorio 'PSGallery' como de confianza para evitar prompts interactivos.
-    - Si detecta PowerShell 7 (pwsh), asegura la disponibilidad de los módulos en el nuevo entorno.
+    - Si detecta PowerShell 7 (pwsh), asegura la disponibilidad de los modulos en el nuevo entorno.
 
 .PARAMETER DryRun
-    Ejecuta el script en modo simulación (solo lectura), comprobando qué módulos faltan sin instalarlos.
+    Ejecuta el script en modo simulacion (solo lectura), comprobando que modulos faltan sin instalarlos.
 
 .PARAMETER Force
-    Fuerza la ejecución desatendida (requerido para despliegues de Intune).
+    Fuerza la ejecucion desatendida (requerido para despliegues de Intune).
 
 .PARAMETER UpdateExisting
-    Si un módulo ya está instalado, intenta actualizarlo a la versión más reciente disponible en la PSGallery. Por defecto: $false.
+    Si un modulo ya esta instalado, intenta actualizarlo a la version mas reciente disponible en la PSGallery. Por defecto: $false.
 
 .EXAMPLE
     .\Script - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1
@@ -41,7 +41,7 @@
 
 .NOTES
     Name:       Script - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1
-    Author:     Alejandro Suárez (@alexsf93)
+    Author:     Alejandro Suarez (@alexsf93)
     Date:       2026-11-14
     Version:    1.0.0
 #>
@@ -58,7 +58,7 @@ $ErrorActionPreference = 'Stop'
 $ScriptVersion = "1.0.0"
 $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 
-# Configuración de carpetas de log
+# Configuracion de carpetas de log
 if (-not (Test-Path -Path $LogDirectory)) {
     New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null
 }
@@ -94,7 +94,7 @@ function Test-IsAdmin {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# --- 1. Módulos esenciales para gestión Cloud ---
+# --- 1. Modulos esenciales para gestion Cloud ---
 $ModulesToManage = @(
     @{
         Name        = "Microsoft.Graph"
@@ -106,27 +106,27 @@ $ModulesToManage = @(
     },
     @{
         Name        = "Microsoft.Online.SharePoint.PowerShell"
-        Description = "Administración de SharePoint Online y OneDrive for Business"
+        Description = "Administracion de SharePoint Online y OneDrive for Business"
     },
     @{
         Name        = "PnP.PowerShell"
-        Description = "Automatización y administración avanzada de SharePoint / M365"
+        Description = "Automatizacion y administracion avanzada de SharePoint / M365"
     },
     @{
         Name        = "MicrosoftTeams"
-        Description = "Administración de Microsoft Teams, Directivas y Telefonía"
+        Description = "Administracion de Microsoft Teams, Directivas y Telefonia"
     },
     @{
         Name        = "Az.Accounts"
-        Description = "Autenticación centralizada y gestión de suscripciones en Azure"
+        Description = "Autenticacion centralizada y gestion de suscripciones en Azure"
     },
     @{
         Name        = "Az.Resources"
-        Description = "Gestión de grupos de recursos, despliegues y plantillas ARM/Bicep en Azure"
+        Description = "Gestion de grupos de recursos, despliegues y plantillas ARM/Bicep en Azure"
     }
 )
 
-# --- 2. Preparación del entorno y repositorios de paquetes ---
+# --- 2. Preparacion del entorno y repositorios de paquetes ---
 function Get-PowerShellCoreExe {
     $candidates = @(
         "$env:ProgramFiles\PowerShell\7\pwsh.exe",
@@ -164,12 +164,12 @@ function Initialize-PackageEnvironment {
 
     # Si Windows PowerShell 5.1 no tiene Install-Module funcional, instalar y aprovisionar el motor PowerShellGet 2.2.6
     if (-not $script:HasInstallModule) {
-        Write-Log "Windows PowerShell 5.1 no dispone del motor de paquetes PowerShellGet (Install-Module). Procediendo a su instalación y reparación..." 'INFO'
+        Write-Log "Windows PowerShell 5.1 no dispone del motor de paquetes PowerShellGet (Install-Module). Procediendo a su instalacion y reparacion..." 'INFO'
         if (-not $DryRun) {
             $targetDir = "$env:ProgramFiles\WindowsPowerShell\Modules"
             if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
 
-            # Estrategia 1: Si PowerShell 7 está disponible, usar pwsh para descargar PowerShellGet y PackageManagement en el repositorio común de 5.1
+            # Estrategia 1: Si PowerShell 7 esta disponible, usar pwsh para descargar PowerShellGet y PackageManagement en el repositorio comun de 5.1
             if ($script:PwshExe) {
                 try {
                     Write-Log "Aprovisionando motor PowerShellGet y PackageManagement en 5.1 mediante PowerShell 7 ($($script:PwshExe))..." 'INFO'
@@ -179,7 +179,7 @@ function Initialize-PackageEnvironment {
                     Write-Log "Aviso en aprovisionamiento mediante pwsh: $($_.Exception.Message)" 'WARN'
                 }
             } else {
-                # Estrategia 2: Fallback autónomo directo desde PSGallery vía TLS 1.2 sin requerir PowerShell 7
+                # Estrategia 2: Fallback autonomo directo desde PSGallery via TLS 1.2 sin requerir PowerShell 7
                 try {
                     Write-Log "Aprovisionando motor PowerShellGet mediante descarga directa segura desde PSGallery..." 'INFO'
                     $tempZip = Join-Path $env:TEMP "PowerShellGet_Bootstrap.zip"
@@ -195,22 +195,22 @@ function Initialize-PackageEnvironment {
                 }
             }
 
-            # Importar el nuevo motor reparado en la sesión
+            # Importar el nuevo motor reparado en la sesion
             Import-Module "$env:ProgramFiles\WindowsPowerShell\Modules\PowerShellGet" -ErrorAction SilentlyContinue
             $script:HasInstallModule = [bool](Get-Command Install-Module -ErrorAction SilentlyContinue)
             if ($script:HasInstallModule) {
-                Write-Log "Motor PowerShellGet (Install-Module) instalado y operativo con éxito en Windows PowerShell 5.1." 'SUCCESS'
+                Write-Log "Motor PowerShellGet (Install-Module) instalado y operativo con exito en Windows PowerShell 5.1." 'SUCCESS'
             }
         }
     } else {
-        # Si ya está presente, asegurar su carga y registrar versión
+        # Si ya esta presente, asegurar su carga y registrar version
         Import-Module PowerShellGet -ErrorAction SilentlyContinue
         $modVer = (Get-Module -Name PowerShellGet -ErrorAction SilentlyContinue | Select-Object -First 1).Version
         Write-Log "Motor PowerShellGet operativo en Windows PowerShell 5.1 (v$modVer)." 'INFO'
     }
 
     if (-not $DryRun) {
-        # Asegurar proveedor NuGet para instalación desatendida si el comando está disponible
+        # Asegurar proveedor NuGet para instalacion desatendida si el comando esta disponible
         if (Get-Command Get-PackageProvider -ErrorAction SilentlyContinue) {
             try {
                 $nuget = Get-PackageProvider -Name NuGet -ListAvailable -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -221,7 +221,7 @@ function Initialize-PackageEnvironment {
             } catch {}
         }
 
-        # Asegurar que PSGallery esté marcada como de confianza (evita prompts interactivos)
+        # Asegurar que PSGallery este marcada como de confianza (evita prompts interactivos)
         if (Get-Command Get-PSRepository -ErrorAction SilentlyContinue) {
             try {
                 $repo = Get-PSRepository -Name 'PSGallery' -ErrorAction SilentlyContinue
@@ -234,7 +234,7 @@ function Initialize-PackageEnvironment {
     }
 }
 
-# --- 3. Instalación y actualización de módulos ---
+# --- 3. Instalacion y actualizacion de modulos ---
 function Install-CloudModule {
     param (
         [string]$ModuleName,
@@ -243,10 +243,30 @@ function Install-CloudModule {
         [switch]$Update
     )
 
-    Write-Log "Verificando estado del módulo: $ModuleName ($Description)..." 'INFO'
+    Write-Log "Verificando estado del modulo: $ModuleName ($Description)..." 'INFO'
 
-    # Comprobar si ya está instalado en el sistema
-    $installed = Get-Module -ListAvailable -Name $ModuleName -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1
+    # Comprobar si ya esta instalado en el sistema mediante comprobacion directa en disco (evita falsos negativos en 5.1)
+    $standardDirs = @(
+        "$env:ProgramFiles\WindowsPowerShell\Modules\$ModuleName",
+        "$env:ProgramFiles\PowerShell\Modules\$ModuleName",
+        "$env:SystemRoot\system32\WindowsPowerShell\v1.0\Modules\$ModuleName"
+    )
+    foreach ($dir in $standardDirs) {
+        if (Test-Path -Path $dir) {
+            $hasFiles = Get-ChildItem -Path $dir -Filter "*.*" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($hasFiles) {
+                $verFolder = Get-ChildItem -Path $dir -Directory -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1
+                $verStr = if ($verFolder) { $verFolder.Name } else { "Instalado" }
+                $installed = [PSCustomObject]@{ Version = $verStr }
+                break
+            }
+        }
+    }
+
+    if (-not $installed) {
+        $installed = Get-Module -ListAvailable -Name $ModuleName -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1
+    }
+
     if (-not $installed -and $script:PwshExe) {
         try {
             $checkVer = & $script:PwshExe -NoProfile -Command "`$m = Get-Module -ListAvailable -Name '$ModuleName' -ErrorAction SilentlyContinue | Select-Object -First 1; if (`$m) { `$m.Version.ToString() }"
@@ -257,11 +277,11 @@ function Install-CloudModule {
     }
 
     if ($installed) {
-        Write-Log "El módulo '$ModuleName' ya está instalado (v$($installed.Version))." 'SUCCESS'
+        Write-Log "El modulo '$ModuleName' ya esta instalado (v$($installed.Version))." 'SUCCESS'
         
         if ($Update) {
             if ($DryRun) {
-                Write-Log "[SIMULACIÓN] Se actualizaría el módulo '$ModuleName' a la versión más reciente." 'DRYRUN'
+                Write-Log "[SIMULACION] Se actualizaria el modulo '$ModuleName' a la version mas reciente." 'DRYRUN'
                 return
             }
             try {
@@ -272,7 +292,7 @@ function Install-CloudModule {
                     $updateCmd = "Update-Module -Name '$ModuleName' -Force -Confirm:`$false"
                     Start-Process -FilePath $script:PwshExe -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", $updateCmd -Wait -NoNewWindow
                 }
-                Write-Log "Módulo '$ModuleName' actualizado correctamente." 'SUCCESS'
+                Write-Log "Modulo '$ModuleName' actualizado correctamente." 'SUCCESS'
             } catch {
                 Write-Log "Aviso al actualizar '$ModuleName': $($_.Exception.Message)" 'WARN'
             }
@@ -280,49 +300,49 @@ function Install-CloudModule {
         return
     }
 
-    # Si no está instalado, proceder con la instalación
+    # Si no esta instalado, proceder con la instalacion
     if ($DryRun) {
-        Write-Log "[SIMULACIÓN] El módulo '$ModuleName' no está presente. Se procedería a instalarlo en el ámbito AllUsers." 'DRYRUN'
+        Write-Log "[SIMULACION] El modulo '$ModuleName' no esta presente. Se procederia a instalarlo en el ambito AllUsers." 'DRYRUN'
         return
     }
 
     try {
-        Write-Log "Instalando módulo '$ModuleName' desde PSGallery (ámbito: AllUsers)..." 'INFO'
+        Write-Log "Instalando modulo '$ModuleName' desde PSGallery (ambito: AllUsers)..." 'INFO'
         
         if ($script:HasInstallModule) {
             Install-Module -Name $ModuleName -Scope AllUsers -Force -AllowClobber -Confirm:$false -ErrorAction Stop
         } elseif ($script:PwshExe) {
-            Write-Log "Ejecutando instalación mediante el motor de PowerShell 7..." 'INFO'
+            Write-Log "Ejecutando instalacion mediante el motor de PowerShell 7..." 'INFO'
             $pwshCmd = "Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted -ErrorAction SilentlyContinue; Install-Module -Name '$ModuleName' -Scope AllUsers -Force -AllowClobber -Confirm:`$false"
             $proc = Start-Process -FilePath $script:PwshExe -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", $pwshCmd -Wait -PassThru -NoNewWindow
             if ($proc.ExitCode -ne 0) {
-                throw "El proceso pwsh.exe finalizó con código de error $($proc.ExitCode)"
+                throw "El proceso pwsh.exe finalizo con codigo de error $($proc.ExitCode)"
             }
         } else {
-            throw "No se encontró ningún motor con 'Install-Module' disponible (ni en PowerShell 5.1 ni en PowerShell 7)."
+            throw "No se encontro ningun motor con 'Install-Module' disponible (ni en PowerShell 5.1 ni en PowerShell 7)."
         }
         
-        # Verificar instalación
+        # Verificar instalacion
         $verified = Get-Module -ListAvailable -Name $ModuleName -ErrorAction SilentlyContinue | Sort-Object Version -Descending | Select-Object -First 1
         if (-not $verified -and $script:PwshExe) {
             $verCheck = & $script:PwshExe -NoProfile -Command "`$m = Get-Module -ListAvailable -Name '$ModuleName' -ErrorAction SilentlyContinue | Select-Object -First 1; if (`$m) { `$m.Version.ToString() }"
             if ($verCheck) {
-                Write-Log "Módulo '$ModuleName' instalado y verificado con éxito en PowerShell 7 (v$($verCheck.Trim()))." 'SUCCESS'
+                Write-Log "Modulo '$ModuleName' instalado y verificado con exito en PowerShell 7 (v$($verCheck.Trim()))." 'SUCCESS'
                 return
             }
         }
 
         if ($verified) {
-            Write-Log "Módulo '$ModuleName' instalado con éxito (v$($verified.Version))." 'SUCCESS'
+            Write-Log "Modulo '$ModuleName' instalado con exito (v$($verified.Version))." 'SUCCESS'
         } else {
-            Write-Log "El módulo '$ModuleName' se instaló pero no se pudo verificar en el catálogo." 'WARN'
+            Write-Log "El modulo '$ModuleName' se instalo pero no se pudo verificar en el catalogo." 'WARN'
         }
     } catch {
-        Write-Log "Error al instalar el módulo '$ModuleName': $($_.Exception.Message)" 'ERROR'
+        Write-Log "Error al instalar el modulo '$ModuleName': $($_.Exception.Message)" 'ERROR'
     }
 }
 
-# --- 4. Soporte para PowerShell 7 (si está instalado en el equipo) ---
+# --- 4. Soporte para PowerShell 7 (si esta instalado en el equipo) ---
 function Sync-ModulesWithPowerShellCore {
     param (
         [switch]$DryRun
@@ -345,15 +365,15 @@ function Sync-ModulesWithPowerShellCore {
     }
 
     if ($pwshExe) {
-        Write-Log "Detectado PowerShell 7 ($pwshExe). Verificando compatibilidad de módulos..." 'INFO'
-        # En Windows, PowerShell 7 incluye automáticamente C:\Program Files\WindowsPowerShell\Modules en $env:PSModulePath,
-        # por lo que los módulos instalados en AllUsers están inmediatamente disponibles para pwsh.
-        Write-Log "Los módulos instalados en AllUsers son accesibles de forma nativa por PowerShell 7." 'SUCCESS'
+        Write-Log "Detectado PowerShell 7 ($pwshExe). Verificando compatibilidad de modulos..." 'INFO'
+        # En Windows, PowerShell 7 incluye automaticamente C:\Program Files\WindowsPowerShell\Modules en $env:PSModulePath,
+        # por lo que los modulos instalados en AllUsers estan inmediatamente disponibles para pwsh.
+        Write-Log "Los modulos instalados en AllUsers son accesibles de forma nativa por PowerShell 7." 'SUCCESS'
     }
 }
 
 # ==============================================================================
-# EJECUCIÓN PRINCIPAL
+# EJECUCION PRINCIPAL
 # ==============================================================================
 
 # Control de modo interactivo (ISE) vs Desatendido (Intune)
@@ -366,42 +386,61 @@ if (-not $isISE -or $isSystem) {
 
 if (-not $Force -and -not $DryRun) {
     Write-Host "`nModo interactivo de pruebas detectado (PowerShell ISE):" -ForegroundColor Cyan
-    Write-Host " [S] Instalar módulos ausentes ahora" -ForegroundColor White
-    Write-Host " [D] Modo simulación (Dry Run / Solo comprobar)" -ForegroundColor White
+    Write-Host " [S] Instalar modulos ausentes ahora" -ForegroundColor White
+    Write-Host " [D] Modo simulacion (Dry Run / Solo comprobar)" -ForegroundColor White
     Write-Host " [C] Cancelar" -ForegroundColor White
 
-    $resp = Read-Host "Selecciona una opción [S/D/C] (por defecto: S)"
+    $resp = Read-Host "Selecciona una opcion [S/D/C] (por defecto: S)"
     if ([string]::IsNullOrWhiteSpace($resp)) { $resp = 'S' }
 
     switch ($resp.ToUpper()) {
         'S' { $DryRun = $false }
-        'D' { $DryRun = $true; Write-Log "Iniciando en modo Simulación..." 'DRYRUN' }
-        default { Write-Log "Operación cancelada por el usuario." 'INFO'; exit 0 }
+        'D' { $DryRun = $true; Write-Log "Iniciando en modo Simulacion..." 'DRYRUN' }
+        default { Write-Log "Operacion cancelada por el usuario." 'INFO'; exit 0 }
     }
 }
 
-Write-Log "Iniciando verificación e instalación de módulos cloud M365 / Azure / Intune..." 'INFO'
+Write-Log "Iniciando verificacion e instalacion de modulos cloud M365 / Azure / Intune..." 'INFO'
 
 if (-not (Test-IsAdmin)) {
-    Write-Log "Aviso: No se ejecuta como Administrador. La instalación en AllUsers requiere elevación." 'WARN'
+    Write-Log "Aviso: No se ejecuta como Administrador. La instalacion en AllUsers requiere elevacion." 'WARN'
 }
 
 # Inicializar TLS y repositorios
 Initialize-PackageEnvironment -DryRun:$DryRun
 
-# Procesar cada módulo de la lista
+# Procesar cada modulo de la lista
 foreach ($item in $ModulesToManage) {
     Install-CloudModule -ModuleName $item.Name -Description $item.Description -DryRun:$DryRun -Update:$UpdateExisting
 }
 
-# Sincronización con PowerShell 7
+# Sincronizacion con PowerShell 7
 Sync-ModulesWithPowerShellCore -DryRun:$DryRun
 
-# Resumen de módulos instalados al finalizar
-Write-Host "`n--- ESTADO FINAL DE MÓDULOS DE ADMINISTRACIÓN CLOUD ---" -ForegroundColor Yellow
+# Resumen de modulos instalados al finalizar
+Write-Host "`n--- ESTADO FINAL DE MODULOS DE ADMINISTRACION CLOUD ---" -ForegroundColor Yellow
 $summary = [System.Collections.Generic.List[PSCustomObject]]::new()
 foreach ($item in $ModulesToManage) {
-    $found = Get-Module -ListAvailable -Name $item.Name -ErrorAction SilentlyContinue | Sort-Object Version -Descending | Select-Object -First 1
+    $standardDirs = @(
+        "$env:ProgramFiles\WindowsPowerShell\Modules\$($item.Name)",
+        "$env:ProgramFiles\PowerShell\Modules\$($item.Name)",
+        "$env:SystemRoot\system32\WindowsPowerShell\v1.0\Modules\$($item.Name)"
+    )
+    $found = $null
+    foreach ($dir in $standardDirs) {
+        if (Test-Path -Path $dir) {
+            $hasFiles = Get-ChildItem -Path $dir -Filter "*.*" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($hasFiles) {
+                $verFolder = Get-ChildItem -Path $dir -Directory -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1
+                $verStr = if ($verFolder) { $verFolder.Name } else { "Instalado" }
+                $found = [PSCustomObject]@{ Version = $verStr }
+                break
+            }
+        }
+    }
+    if (-not $found) {
+        $found = Get-Module -ListAvailable -Name $item.Name -ErrorAction SilentlyContinue | Sort-Object Version -Descending | Select-Object -First 1
+    }
     if (-not $found -and $script:PwshExe) {
         try {
             $vCheck = & $script:PwshExe -NoProfile -Command "`$m = Get-Module -ListAvailable -Name '$($item.Name)' -ErrorAction SilentlyContinue | Select-Object -First 1; if (`$m) { `$m.Version.ToString() }"
@@ -409,13 +448,13 @@ foreach ($item in $ModulesToManage) {
         } catch {}
     }
     $summary.Add([PSCustomObject]@{
-        "Módulo"      = $item.Name
-        "Instalado"   = if ($found) { "Sí" } else { "No" }
-        "Versión"     = if ($found) { $found.Version.ToString() } else { "-" }
-        "Descripción" = $item.Description
+        "Modulo"      = $item.Name
+        "Instalado"   = if ($found) { "Si" } else { "No" }
+        "Version"     = if ($found) { $found.Version.ToString() } else { "-" }
+        "Descripcion" = $item.Description
     })
 }
 $summary | Format-Table -AutoSize | Out-String | Write-Host
 
-Write-Log "Proceso finalizado con éxito. Fichero de log: $LogFile" 'SUCCESS'
+Write-Log "Proceso finalizado con exito. Fichero de log: $LogFile" 'SUCCESS'
 exit 0

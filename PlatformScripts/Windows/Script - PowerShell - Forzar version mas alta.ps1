@@ -1,44 +1,44 @@
-<#
+﻿<#
 .SYNOPSIS
-    Detección y forzado de la versión más alta de PowerShell en Windows para Intune.
+    Deteccion y forzado de la version mas alta de PowerShell en Windows para Intune.
 
 .DESCRIPTION
-    Este script está diseñado para ejecutarse como Platform Script en Microsoft Intune bajo contexto SYSTEM
+    Este script esta disenado para ejecutarse como Platform Script en Microsoft Intune bajo contexto SYSTEM
     o manualmente por un administrador desde PowerShell ISE.
     
     Realiza las siguientes acciones:
     1. Detecta todas las instalaciones de PowerShell en el equipo (MSI, Win32, AppX y Windows PowerShell 5.1).
-    2. Determina de forma precisa la versión más alta disponible sin falsos positivos de compilación de Windows.
-    3. Elimina versiones intermedias obsoletas de PowerShell 7 (MSI), manteniendo únicamente PowerShell 5.1 y la más reciente.
-    4. Limpia los accesos directos obsoletos de 32 bits (x86) para evitar duplicados y confusión en la búsqueda de Windows.
+    2. Determina de forma precisa la version mas alta disponible sin falsos positivos de compilacion de Windows.
+    3. Elimina versiones intermedias obsoletas de PowerShell 7 (MSI), manteniendo unicamente PowerShell 5.1 y la mas reciente.
+    4. Limpia los accesos directos obsoletos de 32 bits (x86) para evitar duplicados y confusion en la busqueda de Windows.
     5. Actualiza los accesos directos del sistema y de los perfiles de usuario garantizando el icono corporativo nativo.
-    6. Antepone el directorio de la versión más alta a la variable de entorno PATH (Sistema y Usuario) y notifica al shell en caliente.
-    7. Configura Windows Terminal para establecer la versión moderna como perfil predeterminado.
-    8. Dispone de modo simulación (-DryRun) y sistema de reversión de accesos directos (-Restore).
+    6. Antepone el directorio de la version mas alta a la variable de entorno PATH (Sistema y Usuario) y notifica al shell en caliente.
+    7. Configura Windows Terminal para establecer la version moderna como perfil predeterminado.
+    8. Dispone de modo simulacion (-DryRun) y sistema de reversion de accesos directos (-Restore).
 
 .PARAMETER DryRun
-    Ejecuta el script en modo de simulación (solo lectura), detallando las acciones sin realizar cambios en el sistema.
+    Ejecuta el script en modo de simulacion (solo lectura), detallando las acciones sin realizar cambios en el sistema.
 
 .PARAMETER Force
-    Aplica todos los cambios de forma desatendida sin solicitar confirmación interactiva (requerido para despliegues de Intune).
+    Aplica todos los cambios de forma desatendida sin solicitar confirmacion interactiva (requerido para despliegues de Intune).
 
 .PARAMETER Restore
-    Restaura los accesos directos originales desde la última copia de seguridad guardada.
+    Restaura los accesos directos originales desde la ultima copia de seguridad guardada.
 
 .PARAMETER IconStyle
     Define el estilo del icono del acceso directo. Opciones: 'ClassicBlue' (icono azul tradicional de Windows PowerShell) o 'PowerShell7' (icono oscuro oficial). Por defecto: ClassicBlue.
 
 .PARAMETER RemoveX86Shortcuts
-    Elimina los accesos directos obsoletos de Windows PowerShell (x86) de los perfiles de usuario y Menú Inicio. Por defecto: $true.
+    Elimina los accesos directos obsoletos de Windows PowerShell (x86) de los perfiles de usuario y Menu Inicio. Por defecto: $true.
 
 .PARAMETER RemoveIntermediateVersions
-    Desinstala versiones intermedias obsoletas de PowerShell 7.x dejando solo la 5.1 y la más alta. Por defecto: $true.
+    Desinstala versiones intermedias obsoletas de PowerShell 7.x dejando solo la 5.1 y la mas alta. Por defecto: $true.
 
 .PARAMETER IncludeISE
-    Si se especifica, actualiza también el acceso directo de Windows PowerShell ISE. Por defecto: $false para preservar el entorno de desarrollo.
+    Si se especifica, actualiza tambien el acceso directo de Windows PowerShell ISE. Por defecto: $false para preservar el entorno de desarrollo.
 
 .PARAMETER UpdateTerminal
-    Si se detecta Windows Terminal, establece la versión más alta de PowerShell como perfil predeterminado. Por defecto: $true.
+    Si se detecta Windows Terminal, establece la version mas alta de PowerShell como perfil predeterminado. Por defecto: $true.
 
 .EXAMPLE
     .\Script - PowerShell - Forzar version mas alta.ps1
@@ -54,7 +54,7 @@
 
 .NOTES
     Name:       Script - PowerShell - Forzar version mas alta.ps1
-    Author:     Alejandro Suárez (@alexsf93)
+    Author:     Alejandro Suarez (@alexsf93)
     Date:       2026-11-14
     Version:    1.1.0
 #>
@@ -78,7 +78,7 @@ $ErrorActionPreference = 'Stop'
 $ScriptVersion = "1.1.0"
 $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 
-# Configuración de carpetas de soporte y log
+# Configuracion de carpetas de soporte y log
 if (-not (Test-Path -Path $LogDirectory)) {
     New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null
 }
@@ -114,12 +114,12 @@ function Test-IsAdmin {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# --- 1. Detección de versiones instaladas de PowerShell ---
+# --- 1. Deteccion de versiones instaladas de PowerShell ---
 function Get-InstalledPowerShellVersions {
     Write-Log "Buscando versiones de PowerShell instaladas en el equipo..." 'INFO'
     $detected = [System.Collections.Generic.List[PSCustomObject]]::new()
 
-    # 1.1. Rutas estándar en Program Files (MSI / Win32)
+    # 1.1. Rutas estandar en Program Files (MSI / Win32)
     $searchPaths = @(
         "$env:ProgramFiles\PowerShell\*\pwsh.exe",
         "${env:ProgramFiles(x86)}\PowerShell\*\pwsh.exe",
@@ -202,7 +202,7 @@ function Get-InstalledPowerShellVersions {
     # 1.4. Windows PowerShell 5.1 integrado en el sistema
     $winPS = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
     if (Test-Path $winPS) {
-        # Se obtiene la versión real del motor en registro para evitar el build number 10.0 de Win 10/11
+        # Se obtiene la version real del motor en registro para evitar el build number 10.0 de Win 10/11
         $psVerStr = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PowerShell\3\PowerShellEngine" -Name "PowerShellVersion" -ErrorAction SilentlyContinue).PowerShellVersion
         if (-not $psVerStr) { $psVerStr = "5.1.0" }
 
@@ -223,7 +223,7 @@ function Get-InstalledPowerShellVersions {
     return ($detected | Sort-Object -Property Version -Descending)
 }
 
-# --- 2. Desinstalación de versiones intermedias obsoletas ---
+# --- 2. Desinstalacion de versiones intermedias obsoletas ---
 function Remove-IntermediatePowerShellVersions {
     param (
         [Parameter(Mandatory = $true)]
@@ -249,18 +249,18 @@ function Remove-IntermediatePowerShellVersions {
                     $found = $true
                     $name = $_.DisplayName
                     $code = $_.PSChildName
-                    Write-Log "Versión intermedia detectada para desinstalar: $name (v$instVer)" 'WARN'
+                    Write-Log "Version intermedia detectada para desinstalar: $name (v$instVer)" 'WARN'
 
                     if ($DryRun) {
-                        Write-Log "[SIMULACIÓN] Se desinstalaría: $name (ProductCode: $code)" 'DRYRUN'
+                        Write-Log "[SIMULACION] Se desinstalaria: $name (ProductCode: $code)" 'DRYRUN'
                     } else {
                         try {
-                            Write-Log "Ejecutando desinstalación silenciosa de $name..." 'INFO'
+                            Write-Log "Ejecutando desinstalacion silenciosa de $name..." 'INFO'
                             $proc = Start-Process -FilePath "msiexec.exe" -ArgumentList "/x $code /qn /norestart" -Wait -PassThru
                             if ($proc.ExitCode -eq 0) {
-                                Write-Log "Desinstalación correcta: $name" 'SUCCESS'
+                                Write-Log "Desinstalacion correcta: $name" 'SUCCESS'
                             } else {
-                                Write-Log "Aviso: msiexec finalizó con código $($proc.ExitCode) para $name" 'WARN'
+                                Write-Log "Aviso: msiexec finalizo con codigo $($proc.ExitCode) para $name" 'WARN'
                             }
                         } catch {
                             Write-Log "Error al desinstalar $name`: $($_.Exception.Message)" 'ERROR'
@@ -281,9 +281,9 @@ function Remove-IntermediatePowerShellVersions {
             $ps2 = Get-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2Root" -ErrorAction SilentlyContinue
             if ($ps2 -and $ps2.State -eq 'Enabled') {
                 if ($DryRun) {
-                    Write-Log "[SIMULACIÓN] Se deshabilitaría la característica obsoleta PowerShell 2.0." 'DRYRUN'
+                    Write-Log "[SIMULACION] Se deshabilitaria la caracteristica obsoleta PowerShell 2.0." 'DRYRUN'
                 } else {
-                    Write-Log "Deshabilitando característica obsoleta PowerShell 2.0..." 'INFO'
+                    Write-Log "Deshabilitando caracteristica obsoleta PowerShell 2.0..." 'INFO'
                     Disable-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2Root" -NoRestart -ErrorAction SilentlyContinue | Out-Null
                     Write-Log "PowerShell 2.0 deshabilitado correctamente." 'SUCCESS'
                 }
@@ -322,7 +322,7 @@ function Remove-PowerShellX86Shortcuts {
 
             $lnkPath = $_.FullName
             if ($DryRun) {
-                Write-Log "[SIMULACIÓN] Se eliminaría acceso directo x86: $lnkPath" 'DRYRUN'
+                Write-Log "[SIMULACION] Se eliminaria acceso directo x86: $lnkPath" 'DRYRUN'
             } else {
                 try {
                     if (-not (Test-Path -Path $BackupDirectory)) {
@@ -342,7 +342,7 @@ function Remove-PowerShellX86Shortcuts {
     }
 }
 
-# --- 4. Búsqueda de accesos directos candidatos a redirigir ---
+# --- 4. Busqueda de accesos directos candidatos a redirigir ---
 function Get-PowerShellShortcuts {
     param (
         [switch]$IncludeISE
@@ -401,7 +401,7 @@ function Get-PowerShellShortcuts {
     return $shortcutList
 }
 
-# --- 5. Actualización de accesos directos ---
+# --- 5. Actualizacion de accesos directos ---
 function Update-PowerShellShortcutItem {
     param (
         [Parameter(Mandatory = $true)]
@@ -416,7 +416,7 @@ function Update-PowerShellShortcutItem {
     $wshShell = New-Object -ComObject WScript.Shell
     $newTarget = $TargetPowerShell.ExecutablePath
 
-    # Resolución del icono para garantizar que siempre se muestre nítido
+    # Resolucion del icono para garantizar que siempre se muestre nitido
     $newIcon = if ($IconStyle -eq 'ClassicBlue') {
         Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe,0"
     } else {
@@ -440,7 +440,7 @@ function Update-PowerShellShortcutItem {
     }
 
     if ($DryRun) {
-        Write-Log "[SIMULACIÓN] Acceso directo: $lnkPath" 'DRYRUN'
+        Write-Log "[SIMULACION] Acceso directo: $lnkPath" 'DRYRUN'
         Write-Log "  Target actual: '$($ShortcutInfo.CurrentTarget)' --> Nuevo: '$newTarget'" 'DRYRUN'
         Write-Log "  Icono actual:  '$($ShortcutInfo.CurrentIcon)'   --> Nuevo: '$newIcon'" 'DRYRUN'
         return
@@ -467,7 +467,7 @@ function Update-PowerShellShortcutItem {
     }
 }
 
-# --- 6. Actualización de variables de entorno PATH ---
+# --- 6. Actualizacion de variables de entorno PATH ---
 function Update-EnvironmentVariables {
     param (
         [Parameter(Mandatory = $true)]
@@ -487,10 +487,10 @@ function Update-EnvironmentVariables {
             $newMachinePath = ($targetDir, $filtered) -join ';'
 
             if ($DryRun) {
-                Write-Log "[SIMULACIÓN] Se antepondrá '$targetDir' al PATH del Sistema." 'DRYRUN'
+                Write-Log "[SIMULACION] Se antepondra '$targetDir' al PATH del Sistema." 'DRYRUN'
             } else {
                 [Environment]::SetEnvironmentVariable("Path", $newMachinePath, [EnvironmentVariableTarget]::Machine)
-                Write-Log "PATH del Sistema actualizado con éxito." 'SUCCESS'
+                Write-Log "PATH del Sistema actualizado con exito." 'SUCCESS'
             }
         } catch {
             Write-Log "Error al actualizar PATH del Sistema: $($_.Exception.Message)" 'ERROR'
@@ -505,19 +505,19 @@ function Update-EnvironmentVariables {
         $newUserPath = ($targetDir, $filteredUser) -join ';'
 
         if ($DryRun) {
-            Write-Log "[SIMULACIÓN] Se antepondrá '$targetDir' al PATH del Usuario." 'DRYRUN'
+            Write-Log "[SIMULACION] Se antepondra '$targetDir' al PATH del Usuario." 'DRYRUN'
         } else {
             [Environment]::SetEnvironmentVariable("Path", $newUserPath, [EnvironmentVariableTarget]::User)
-            Write-Log "PATH del Usuario actualizado con éxito." 'SUCCESS'
+            Write-Log "PATH del Usuario actualizado con exito." 'SUCCESS'
         }
     } catch {
         Write-Log "Error al actualizar PATH del Usuario: $($_.Exception.Message)" 'ERROR'
     }
 
-    # Sesión actual
+    # Sesion actual
     $env:PATH = "$targetDir;$env:PATH"
 
-    # Notificación de actualización al sistema operativo (WM_SETTINGCHANGE)
+    # Notificacion de actualizacion al sistema operativo (WM_SETTINGCHANGE)
     if (-not $DryRun) {
         try {
             $broadcastCode = @"
@@ -543,7 +543,7 @@ public class EnvironmentNotifier {
     }
 }
 
-# --- 7. Configuración de Windows Terminal ---
+# --- 7. Configuracion de Windows Terminal ---
 function Update-WindowsTerminalDefaultProfile {
     param (
         [switch]$DryRun
@@ -569,7 +569,7 @@ function Update-WindowsTerminalDefaultProfile {
                 if ($pwshProfile -and $pwshProfile.guid) {
                     if ($settings.defaultProfile -ne $pwshProfile.guid) {
                         if ($DryRun) {
-                            Write-Log "[SIMULACIÓN] Windows Terminal: defaultProfile cambiaría a $($pwshProfile.name)" 'DRYRUN'
+                            Write-Log "[SIMULACION] Windows Terminal: defaultProfile cambiaria a $($pwshProfile.name)" 'DRYRUN'
                         } else {
                             $settings.defaultProfile = $pwshProfile.guid
                             $newJson = ConvertTo-Json -InputObject $settings -Depth 10
@@ -583,7 +583,7 @@ function Update-WindowsTerminalDefaultProfile {
     }
 }
 
-# --- 8. Notificación y refresco de iconos de Windows ---
+# --- 8. Notificacion y refresco de iconos de Windows ---
 function Refresh-WindowsIconCache {
     try {
         $shellCode = @"
@@ -606,13 +606,13 @@ public class ShellIconRefresher {
     }
 }
 
-# --- 9. Reversión / Restauración desde Backup ---
+# --- 9. Reversion / Restauracion desde Backup ---
 function Restore-OriginalShortcuts {
-    Write-Log "Iniciando restauración de accesos directos desde copia de seguridad..." 'INFO'
+    Write-Log "Iniciando restauracion de accesos directos desde copia de seguridad..." 'INFO'
     $indexPath = Join-Path $BackupDirectory "backup_index.txt"
 
     if (-not (Test-Path $indexPath)) {
-        Write-Log "No se encontró el archivo de índice de respaldos en: $indexPath" 'ERROR'
+        Write-Log "No se encontro el archivo de indice de respaldos en: $indexPath" 'ERROR'
         return
     }
 
@@ -637,11 +637,11 @@ function Restore-OriginalShortcuts {
     }
 
     Refresh-WindowsIconCache
-    Write-Log "Restauración completada. Total ficheros recuperados: $count" 'SUCCESS'
+    Write-Log "Restauracion completada. Total ficheros recuperados: $count" 'SUCCESS'
 }
 
 # ==============================================================================
-# EJECUCIÓN PRINCIPAL
+# EJECUCION PRINCIPAL
 # ==============================================================================
 
 if ($Restore) {
@@ -649,33 +649,33 @@ if ($Restore) {
     exit 0
 }
 
-Write-Log "Iniciando comprobación y optimización de versiones de PowerShell..." 'INFO'
+Write-Log "Iniciando comprobacion y optimizacion de versiones de PowerShell..." 'INFO'
 
-# 1. Comprobar elevación
+# 1. Comprobar elevacion
 if (-not (Test-IsAdmin)) {
-    Write-Log "Aviso: El script se ejecuta sin privilegios de administrador. Las claves globales de sistema requerirán elevación." 'WARN'
+    Write-Log "Aviso: El script se ejecuta sin privilegios de administrador. Las claves globales de sistema requeriran elevacion." 'WARN'
 }
 
-# 2. Detección de versiones instaladas
+# 2. Deteccion de versiones instaladas
 $versions = Get-InstalledPowerShellVersions
 if ($versions.Count -eq 0) {
-    Write-Log "No se encontró ninguna versión operativa de PowerShell." 'ERROR'
+    Write-Log "No se encontro ninguna version operativa de PowerShell." 'ERROR'
     exit 1
 }
 
 $highest = $versions | Select-Object -First 1
-Write-Log "Versión más alta seleccionada: v$($highest.Version) ($($highest.InstallType)) en $($highest.ExecutablePath)" 'SUCCESS'
+Write-Log "Version mas alta seleccionada: v$($highest.Version) ($($highest.InstallType)) en $($highest.ExecutablePath)" 'SUCCESS'
 
 # 3. Localizar accesos directos
 $shortcuts = Get-PowerShellShortcuts -IncludeISE:$IncludeISE
 Write-Log "Accesos directos candidatos detectados: $($shortcuts.Count)" 'INFO'
 
-# 4. Control de ejecución: Pruebas interactivas (PowerShell ISE) vs Desatendido (Intune)
-# En Intune (ejecutado por el agente IME bajo SYSTEM o Usuario), el script NUNCA debe pausarse ni esperar confirmación.
+# 4. Control de ejecucion: Pruebas interactivas (PowerShell ISE) vs Desatendido (Intune)
+# En Intune (ejecutado por el agente IME bajo SYSTEM o Usuario), el script NUNCA debe pausarse ni esperar confirmacion.
 $isISE = ($null -ne $psISE) -or ($Host.Name -match "ISE")
 $isSystem = [Security.Principal.WindowsIdentity]::GetCurrent().IsSystem
 
-# Si se ejecuta desde Intune o en segundo plano (fuera de ISE), forzar modo automático desatendido
+# Si se ejecuta desde Intune o en segundo plano (fuera de ISE), forzar modo automatico desatendido
 if (-not $isISE -or $isSystem) {
     $Force = $true
 }
@@ -683,16 +683,16 @@ if (-not $isISE -or $isSystem) {
 if (-not $Force -and -not $DryRun) {
     Write-Host "`nModo interactivo de pruebas detectado (PowerShell ISE):" -ForegroundColor Cyan
     Write-Host " [S] Aplicar cambios en este equipo" -ForegroundColor White
-    Write-Host " [D] Ejecutar simulación (Dry Run)" -ForegroundColor White
+    Write-Host " [D] Ejecutar simulacion (Dry Run)" -ForegroundColor White
     Write-Host " [C] Cancelar" -ForegroundColor White
 
-    $resp = Read-Host "Selecciona una opción [S/D/C] (por defecto: D)"
+    $resp = Read-Host "Selecciona una opcion [S/D/C] (por defecto: D)"
     if ([string]::IsNullOrWhiteSpace($resp)) { $resp = 'D' }
 
     switch ($resp.ToUpper()) {
         'S' { $DryRun = $false }
-        'D' { $DryRun = $true; Write-Log "Iniciando en modo Simulación..." 'DRYRUN' }
-        default { Write-Log "Operación cancelada por el usuario." 'INFO'; exit 0 }
+        'D' { $DryRun = $true; Write-Log "Iniciando en modo Simulacion..." 'DRYRUN' }
+        default { Write-Log "Operacion cancelada por el usuario." 'INFO'; exit 0 }
     }
 }
 
@@ -706,7 +706,7 @@ if ($RemoveX86Shortcuts) {
     Remove-PowerShellX86Shortcuts -DryRun:$DryRun
 }
 
-# 7. Actualizar accesos directos a la versión más alta
+# 7. Actualizar accesos directos a la version mas alta
 foreach ($sc in $shortcuts) {
     Update-PowerShellShortcutItem -ShortcutInfo $sc -TargetPowerShell $highest -IconStyle $IconStyle -DryRun:$DryRun
 }
@@ -719,16 +719,16 @@ if ($UpdateTerminal) {
     Update-WindowsTerminalDefaultProfile -DryRun:$DryRun
 }
 
-# 10. Finalización y refresco de caché
+# 10. Finalizacion y refresco de cache
 if (-not $DryRun) {
     Refresh-WindowsIconCache
     $scriptName = if ($PSCommandPath) { Split-Path $PSCommandPath -Leaf } else { 'Script - PowerShell - Forzar version mas alta.ps1' }
-    Write-Host "`nProceso completado con éxito." -ForegroundColor Green
+    Write-Host "`nProceso completado con exito." -ForegroundColor Green
     Write-Host "Copia de seguridad guardada en: $BackupDirectory" -ForegroundColor Gray
     Write-Host "Fichero de log: $LogFile" -ForegroundColor Gray
     Write-Host "Para revertir los cambios: .\$scriptName -Restore`n" -ForegroundColor Gray
     exit 0
 } else {
-    Write-Host "`nSimulación finalizada sin cambios en el equipo.`n" -ForegroundColor Magenta
+    Write-Host "`nSimulacion finalizada sin cambios en el equipo.`n" -ForegroundColor Magenta
     exit 0
 }
