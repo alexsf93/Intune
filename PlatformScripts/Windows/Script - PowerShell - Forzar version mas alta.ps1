@@ -56,7 +56,7 @@
     Name:       Script - PowerShell - Forzar version mas alta.ps1
     Author:     Alejandro Suarez (@alexsf93)
     Date:       2026-11-14
-    Version:    1.1.0
+    Version:    1.2.0
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
@@ -75,7 +75,7 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
-$ScriptVersion = "1.1.0"
+$ScriptVersion = "1.2.0"
 $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 
 # Configuracion de carpetas de soporte y log
@@ -108,10 +108,39 @@ function Write-Log {
     } catch {}
 }
 
-function Test-IsAdmin {
-    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+function Test-IsAdminOrSystemOrSystem {
+    try {
+        $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+        if ($identity.IsSystem) { return $true }
+        $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+        return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    } catch {
+        return $false
+    }
+}
+
+function Get-RealUserProfiles {
+    $profiles = [System.Collections.Generic.List[string]]::new()
+    try {
+        Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" `
+            -ErrorAction SilentlyContinue | Where-Object {
+                $_.ProfileImagePath -like "C:\Users\*" -and
+                $_.ProfileImagePath -notmatch '\\(Public|All Users|Default|Default User)$'
+            } | ForEach-Object {
+                if (Test-Path $_.ProfileImagePath) {
+                    $profiles.Add($_.ProfileImagePath)
+                }
+            }
+    } catch {}
+
+    if ($profiles.Count -eq 0) {
+        Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | Where-Object {
+            $_.Name -notmatch '^(Public|All Users|Default|Default User)$'
+        } | ForEach-Object {
+            $profiles.Add($_.FullName)
+        }
+    }
+    return $profiles
 }
 
 # --- 1. Deteccion de versiones instaladas de PowerShell ---
@@ -180,7 +209,7 @@ function Get-InstalledPowerShellVersions {
 
     # 1.3. Paquetes AppX / Store
     try {
-        Get-AppxPackage -Name "*PowerShell*" -ErrorAction SilentlyContinue | ForEach-Object {
+        Get-AppxPackage -AllUsers -Name "*PowerShell*" -ErrorAction SilentlyContinue | ForEach-Object {
             $appxExe = Join-Path $_.InstallLocation "pwsh.exe"
             if (Test-Path $appxExe) {
                 if ($_.Version -match '^(\d+(\.\d+){1,3})') {
@@ -276,7 +305,7 @@ function Remove-IntermediatePowerShellVersions {
     }
 
     # Desactivar motor heredado e inseguro PowerShell 2.0 si se ejecuta con permisos de administrador
-    if (Test-IsAdmin) {
+    if (Test-IsAdminOrSystem) {
         try {
             $ps2 = Get-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2Root" -ErrorAction SilentlyContinue
             if ($ps2 -and $ps2.State -eq 'Enabled') {
@@ -301,17 +330,11 @@ function Remove-PowerShellX86Shortcuts {
     Write-Log "Comprobando y limpiando accesos directos obsoletos x86..." 'INFO'
     $searchDirs = [System.Collections.Generic.List[string]]::new()
     $searchDirs.Add("$env:ProgramData\Microsoft\Windows\Start Menu\Programs")
-    $searchDirs.Add("$env:APPDATA\Microsoft\Windows\Start Menu\Programs")
     $searchDirs.Add("$env:PUBLIC\Desktop")
-    $searchDirs.Add([Environment]::GetFolderPath('Desktop'))
 
-    if (Test-IsAdmin) {
-        Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | Where-Object {
-            $_.Name -notmatch '^(Public|Default User|All Users)$'
-        } | ForEach-Object {
-            $searchDirs.Add((Join-Path $_.FullName "AppData\Roaming\Microsoft\Windows\Start Menu\Programs"))
-            $searchDirs.Add((Join-Path $_.FullName "Desktop"))
-        }
+    Get-RealUserProfiles | ForEach-Object {
+        $searchDirs.Add((Join-Path $_ "AppData\Roaming\Microsoft\Windows\Start Menu\Programs"))
+        $searchDirs.Add((Join-Path $_ "Desktop"))
     }
 
     $uniqueDirs = $searchDirs | Where-Object { Test-Path -Path $_ } | Select-Object -Unique
@@ -354,20 +377,12 @@ function Get-PowerShellShortcuts {
 
     $candidateFolders.Add("$env:ProgramData\Microsoft\Windows\Start Menu\Programs")
     $candidateFolders.Add("$env:PUBLIC\Desktop")
-    $candidateFolders.Add("$env:APPDATA\Microsoft\Windows\Start Menu\Programs")
-    $candidateFolders.Add([Environment]::GetFolderPath('Desktop'))
-    $candidateFolders.Add("$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar")
-    $candidateFolders.Add("$env:APPDATA\Microsoft\Internet Explorer\Quick Launch")
 
-    if (Test-IsAdmin) {
-        Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | Where-Object {
-            $_.Name -notmatch '^(Public|Default User|All Users)$'
-        } | ForEach-Object {
-            $userBase = $_.FullName
-            $candidateFolders.Add((Join-Path $userBase "AppData\Roaming\Microsoft\Windows\Start Menu\Programs"))
-            $candidateFolders.Add((Join-Path $userBase "Desktop"))
-            $candidateFolders.Add((Join-Path $userBase "AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"))
-        }
+    Get-RealUserProfiles | ForEach-Object {
+        $userBase = $_
+        $candidateFolders.Add((Join-Path $userBase "AppData\Roaming\Microsoft\Windows\Start Menu\Programs"))
+        $candidateFolders.Add((Join-Path $userBase "Desktop"))
+        $candidateFolders.Add((Join-Path $userBase "AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"))
     }
 
     $uniqueFolders = $candidateFolders | Where-Object { Test-Path -Path $_ } | Select-Object -Unique
@@ -479,7 +494,7 @@ function Update-EnvironmentVariables {
     Write-Log "Actualizando variable PATH con el directorio: $targetDir" 'INFO'
 
     # PATH de Sistema (Machine)
-    if (Test-IsAdmin) {
+    if (Test-IsAdminOrSystem) {
         try {
             $machinePath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)
             $entries = $machinePath -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
@@ -497,21 +512,24 @@ function Update-EnvironmentVariables {
         }
     }
 
-    # PATH de Usuario
-    try {
-        $userPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
-        $userEntries = $userPath -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-        $filteredUser = @($userEntries | Where-Object { $_.TrimEnd('\') -ine $targetDir.TrimEnd('\') })
-        $newUserPath = ($targetDir, $filteredUser) -join ';'
+    # PATH de Usuario (solo se aplica en ejecucion interactiva de usuario, no bajo SYSTEM)
+    $isSystem = [Security.Principal.WindowsIdentity]::GetCurrent().IsSystem
+    if (-not $isSystem) {
+        try {
+            $userPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
+            $userEntries = $userPath -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+            $filteredUser = @($userEntries | Where-Object { $_.TrimEnd('\') -ine $targetDir.TrimEnd('\') })
+            $newUserPath = (@($targetDir) + $filteredUser) -join ';'
 
-        if ($DryRun) {
-            Write-Log "[SIMULACION] Se antepondra '$targetDir' al PATH del Usuario." 'DRYRUN'
-        } else {
-            [Environment]::SetEnvironmentVariable("Path", $newUserPath, [EnvironmentVariableTarget]::User)
-            Write-Log "PATH del Usuario actualizado con exito." 'SUCCESS'
+            if ($DryRun) {
+                Write-Log "[SIMULACION] Se antepondra '$targetDir' al PATH del Usuario." 'DRYRUN'
+            } else {
+                [Environment]::SetEnvironmentVariable("Path", $newUserPath, [EnvironmentVariableTarget]::User)
+                Write-Log "PATH del Usuario actualizado con exito." 'SUCCESS'
+            }
+        } catch {
+            Write-Log "Error al actualizar PATH del Usuario: $($_.Exception.Message)" 'ERROR'
         }
-    } catch {
-        Write-Log "Error al actualizar PATH del Usuario: $($_.Exception.Message)" 'ERROR'
     }
 
     # Sesion actual
@@ -549,15 +567,18 @@ function Update-WindowsTerminalDefaultProfile {
         [switch]$DryRun
     )
 
-    $terminalPackages = Get-ChildItem -Path (Join-Path $env:LOCALAPPDATA "Packages") -Filter "Microsoft.WindowsTerminal*" -Directory -ErrorAction SilentlyContinue
-    if (-not $terminalPackages) { return }
+    Get-RealUserProfiles | ForEach-Object {
+        $userPackages = Join-Path $_ "AppData\Local\Packages"
+        if (-not (Test-Path $userPackages)) { return }
 
-    foreach ($pkg in $terminalPackages) {
-        $settingsPath = Join-Path $pkg.FullName "LocalState\settings.json"
-        if (Test-Path -Path $settingsPath) {
-            try {
-                $rawContent = [System.IO.File]::ReadAllText($settingsPath, [System.Text.Encoding]::UTF8)
-                $settings = ConvertFrom-Json -InputObject $rawContent
+        $terminalPackages = Get-ChildItem -Path $userPackages -Filter "Microsoft.WindowsTerminal*" -Directory -ErrorAction SilentlyContinue
+        foreach ($pkg in $terminalPackages) {
+            $settingsPath = Join-Path $pkg.FullName "LocalState\settings.json"
+            if (Test-Path -Path $settingsPath) {
+                try {
+                    $rawContent = [System.IO.File]::ReadAllText($settingsPath, [System.Text.Encoding]::UTF8)
+                    $cleanJson = $rawContent -replace '(?m)^\s*//.*$', ''
+                    $settings = ConvertFrom-Json -InputObject $cleanJson
 
                 $profilesList = $settings.profiles.list
                 $pwshProfile = $profilesList | Where-Object {
@@ -580,6 +601,7 @@ function Update-WindowsTerminalDefaultProfile {
                 }
             } catch {}
         }
+    }
     }
 }
 
@@ -652,7 +674,7 @@ if ($Restore) {
 Write-Log "Iniciando comprobacion y optimizacion de versiones de PowerShell..." 'INFO'
 
 # 1. Comprobar elevacion
-if (-not (Test-IsAdmin)) {
+if (-not (Test-IsAdminOrSystem)) {
     Write-Log "Aviso: El script se ejecuta sin privilegios de administrador. Las claves globales de sistema requeriran elevacion." 'WARN'
 }
 

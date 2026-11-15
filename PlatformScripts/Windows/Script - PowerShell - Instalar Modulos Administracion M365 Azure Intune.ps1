@@ -43,7 +43,7 @@
     Name:       Script - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1
     Author:     Alejandro Suarez (@alexsf93)
     Date:       2026-11-14
-    Version:    1.0.0
+    Version:    1.1.0
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
@@ -55,7 +55,8 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
-$ScriptVersion = "1.0.0"
+$ConfirmPreference     = 'None'
+$ScriptVersion = "1.1.0"
 $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 
 # Configuracion de carpetas de log
@@ -88,10 +89,15 @@ function Write-Log {
     } catch {}
 }
 
-function Test-IsAdmin {
-    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+function Test-IsAdminOrSystemOrSystem {
+    try {
+        $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+        if ($identity.IsSystem) { return $true }
+        $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+        return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    } catch {
+        return $false
+    }
 }
 
 # --- 1. Modulos esenciales para gestion Cloud ---
@@ -129,20 +135,25 @@ $ModulesToManage = @(
 # --- 2. Preparacion del entorno y repositorios de paquetes ---
 function Get-PowerShellCoreExe {
     $candidates = @(
-        "$env:ProgramFiles\PowerShell\7\pwsh.exe",
-        "${env:ProgramFiles(x86)}\PowerShell\7\pwsh.exe",
-        (Join-Path $env:LOCALAPPDATA "Microsoft\WindowsApps\pwsh.exe")
+        "C:\Program Files\PowerShell\7\pwsh.exe",
+        "C:\Program Files (x86)\PowerShell\7\pwsh.exe"
     )
+    Get-Item -Path "C:\Program Files\PowerShell\*\pwsh.exe" -ErrorAction SilentlyContinue |
+        Sort-Object { $_.VersionInfo.FileVersion } -Descending |
+        ForEach-Object { $candidates += $_.FullName }
+
+    try {
+        $appx = Get-AppxPackage -AllUsers -Name "*PowerShell*" -ErrorAction SilentlyContinue |
+            Sort-Object Version -Descending | Select-Object -First 1
+        if ($appx) {
+            $cand = Join-Path $appx.InstallLocation "pwsh.exe"
+            if (Test-Path $cand) { $candidates += $cand }
+        }
+    } catch {}
+
     foreach ($cand in $candidates) {
         if (Test-Path $cand) { return $cand }
     }
-    try {
-        $appx = Get-AppxPackage -Name "*PowerShell*" -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($appx) {
-            $cand = Join-Path $appx.InstallLocation "pwsh.exe"
-            if (Test-Path $cand) { return $cand }
-        }
-    } catch {}
     return $null
 }
 
@@ -174,7 +185,7 @@ function Initialize-PackageEnvironment {
                 try {
                     Write-Log "Aprovisionando motor PowerShellGet y PackageManagement en 5.1 mediante PowerShell 7 ($($script:PwshExe))..." 'INFO'
                     $repairCmd = "Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted -ErrorAction SilentlyContinue; Save-Module -Name PowerShellGet -Path '$targetDir' -Force -ErrorAction SilentlyContinue; Save-Module -Name PackageManagement -Path '$targetDir' -Force -ErrorAction SilentlyContinue"
-                    Start-Process -FilePath $script:PwshExe -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", $repairCmd -Wait -NoNewWindow
+                    Start-Process -FilePath $script:PwshExe -ArgumentList "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", $repairCmd -Wait -NoNewWindow
                 } catch {
                     Write-Log "Aviso en aprovisionamiento mediante pwsh: $($_.Exception.Message)" 'WARN'
                 }
@@ -210,26 +221,52 @@ function Initialize-PackageEnvironment {
     }
 
     if (-not $DryRun) {
-        # Asegurar proveedor NuGet para instalacion desatendida si el comando esta disponible
+        # Asegurar proveedor NuGet para instalacion desatendida bajo SYSTEM
         if (Get-Command Get-PackageProvider -ErrorAction SilentlyContinue) {
             try {
                 $nuget = Get-PackageProvider -Name NuGet -ListAvailable -ErrorAction SilentlyContinue | Select-Object -First 1
                 if (-not $nuget -or $nuget.Version -lt [System.Version]"2.8.5.201") {
-                    Write-Log "Instalando/actualizando proveedor NuGet para descargas desatendidas..." 'INFO'
-                    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
+                    Write-Log "Instalando/actualizando proveedor NuGet (desatendido)..." 'INFO'
+                    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope AllUsers -Force -ForceBootstrap -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
                 }
-            } catch {}
+            } catch {
+                Write-Log "Aviso en proveedor NuGet: $($_.Exception.Message)" 'WARN'
+            }
         }
 
-        # Asegurar que PSGallery este marcada como de confianza (evita prompts interactivos)
+        # Asegurar que PSGallery este registrada y marcada como de confianza (Trusted)
         if (Get-Command Get-PSRepository -ErrorAction SilentlyContinue) {
             try {
                 $repo = Get-PSRepository -Name 'PSGallery' -ErrorAction SilentlyContinue
-                if ($repo -and $repo.InstallationPolicy -ne 'Trusted') {
-                    Write-Log "Estableciendo repositorio 'PSGallery' como de confianza (Trusted)..." 'INFO'
-                    Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted -ErrorAction SilentlyContinue
+                if ($repo) {
+                    if ($repo.InstallationPolicy -ne 'Trusted') {
+                        Write-Log "Estableciendo repositorio 'PSGallery' como de confianza (Trusted)..." 'INFO'
+                        Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted -ErrorAction SilentlyContinue
+                    }
+                } else {
+                    Write-Log "Registrando repositorio 'PSGallery' por defecto (Trusted)..." 'INFO'
+                    Register-PSRepository -Default -InstallationPolicy Trusted -ErrorAction SilentlyContinue
                 }
-            } catch {}
+            } catch {
+                Write-Log "Aviso en repositorio PSGallery: $($_.Exception.Message)" 'WARN'
+            }
+        }
+
+        # Actualizar PowerShellGet v1 (v1.0.0.1 en Windows 11) a v2.x si es necesario
+        if ($script:HasInstallModule) {
+            $loadedPSGet = Get-Module -Name PowerShellGet -ErrorAction SilentlyContinue | Select-Object -First 1
+            $psgetVer = if ($loadedPSGet) { $loadedPSGet.Version } else { [version]"0.0" }
+            if ($psgetVer -lt [version]"2.0") {
+                Write-Log "Actualizando PowerShellGet a v2.x para compatibilidad con PSGallery moderno..." 'INFO'
+                try {
+                    Install-Module -Name PowerShellGet -Force -Scope AllUsers -AllowClobber -ErrorAction Stop -Confirm:$false
+                    Remove-Module -Name PowerShellGet -Force -ErrorAction SilentlyContinue
+                    Import-Module PowerShellGet -ErrorAction SilentlyContinue
+                    Write-Log "PowerShellGet actualizado con exito." 'SUCCESS'
+                } catch {
+                    Write-Log "Aviso al actualizar PowerShellGet: $($_.Exception.Message)" 'WARN'
+                }
+            }
         }
     }
 }
@@ -290,7 +327,7 @@ function Install-CloudModule {
                     Update-Module -Name $ModuleName -Force -Confirm:$false -ErrorAction Stop
                 } elseif ($script:PwshExe) {
                     $updateCmd = "Update-Module -Name '$ModuleName' -Force -Confirm:`$false"
-                    Start-Process -FilePath $script:PwshExe -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", $updateCmd -Wait -NoNewWindow
+                    Start-Process -FilePath $script:PwshExe -ArgumentList "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", $updateCmd -Wait -NoNewWindow
                 }
                 Write-Log "Modulo '$ModuleName' actualizado correctamente." 'SUCCESS'
             } catch {
@@ -314,7 +351,7 @@ function Install-CloudModule {
         } elseif ($script:PwshExe) {
             Write-Log "Ejecutando instalacion mediante el motor de PowerShell 7..." 'INFO'
             $pwshCmd = "Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted -ErrorAction SilentlyContinue; Install-Module -Name '$ModuleName' -Scope AllUsers -Force -AllowClobber -Confirm:`$false"
-            $proc = Start-Process -FilePath $script:PwshExe -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", $pwshCmd -Wait -PassThru -NoNewWindow
+            $proc = Start-Process -FilePath $script:PwshExe -ArgumentList "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", $pwshCmd -Wait -PassThru -NoNewWindow
             if ($proc.ExitCode -ne 0) {
                 throw "El proceso pwsh.exe finalizo con codigo de error $($proc.ExitCode)"
             }
@@ -348,21 +385,7 @@ function Sync-ModulesWithPowerShellCore {
         [switch]$DryRun
     )
 
-    $pwshCandidates = @(
-        "$env:ProgramFiles\PowerShell\7\pwsh.exe",
-        "$env:LOCALAPPDATA\Microsoft\WindowsApps\pwsh.exe"
-    )
-    $pwshExe = $null
-    foreach ($cand in $pwshCandidates) {
-        if (Test-Path $cand) { $pwshExe = $cand; break }
-    }
-    if (-not $pwshExe) {
-        $appx = Get-AppxPackage -Name "*PowerShell*" -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($appx) {
-            $testExe = Join-Path $appx.InstallLocation "pwsh.exe"
-            if (Test-Path $testExe) { $pwshExe = $testExe }
-        }
-    }
+    $pwshExe = Get-PowerShellCoreExe
 
     if ($pwshExe) {
         Write-Log "Detectado PowerShell 7 ($pwshExe). Verificando compatibilidad de modulos..." 'INFO'
@@ -402,7 +425,7 @@ if (-not $Force -and -not $DryRun) {
 
 Write-Log "Iniciando verificacion e instalacion de modulos cloud M365 / Azure / Intune..." 'INFO'
 
-if (-not (Test-IsAdmin)) {
+if (-not (Test-IsAdminOrSystem)) {
     Write-Log "Aviso: No se ejecuta como Administrador. La instalacion en AllUsers requiere elevacion." 'WARN'
 }
 
