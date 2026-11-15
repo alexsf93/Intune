@@ -10,10 +10,10 @@
     Lista personalizada de aplicaciones a excluir (opcional).
 
 .EXAMPLE
-    .\Script - Forzar modo oscuro.ps1
+    .\Script Platform - Forzar modo oscuro.ps1
 
 .NOTES
-    Name: Script - Forzar modo oscuro.ps1
+    Name: Script Platform - Forzar modo oscuro.ps1
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21

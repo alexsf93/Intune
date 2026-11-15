@@ -10,10 +10,10 @@
     Ninguno.
 
 .EXAMPLE
-    .\Script - Hyper-V - Habilitar caracteristica Hyper-V.ps1
+    .\Script Platform - Hyper-V - Habilitar caracteristica Hyper-V.ps1
 
 .NOTES
-    Name: Script - Hyper-V - Habilitar caracteristica Hyper-V.ps1
+    Name: Script Platform - Hyper-V - Habilitar caracteristica Hyper-V.ps1
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21

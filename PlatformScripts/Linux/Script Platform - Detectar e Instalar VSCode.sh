@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # ==============================================================================
-# Nombre:       Script - Detectar e Instalar VSCode.sh
+# Nombre:       Script Platform - Detectar e Instalar VSCode.sh
 # Descripción:  Comprueba si Visual Studio Code está instalado (por binario, DEB o Snap).
 #               Si no está presente, lo instala desde el repositorio oficial de Microsoft.
 # Autor:        Alejandro Suárez (@alexsf93)
 # Versión:      1.0.0
-# Uso:          ./Script - Detectar e Instalar VSCode.sh
+# Uso:          ./Script Platform - Detectar e Instalar VSCode.sh
 # Notas:        Compatible con Ubuntu Desktop 20.04+. Detecta instalaciones tipo Snap/Flatpak para evitar duplicados.
 # ==============================================================================
 set -e

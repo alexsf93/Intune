@@ -41,19 +41,19 @@
     Si se detecta Windows Terminal, establece la version mas alta de PowerShell como perfil predeterminado. Por defecto: $true.
 
 .EXAMPLE
-    .\Script - PowerShell - Forzar version mas alta.ps1
+    .\Script Platform - PowerShell - Forzar version mas alta.ps1
 
 .EXAMPLE
-    .\Script - PowerShell - Forzar version mas alta.ps1 -Force -IconStyle ClassicBlue
+    .\Script Platform - PowerShell - Forzar version mas alta.ps1 -Force -IconStyle ClassicBlue
 
 .EXAMPLE
-    powershell.exe -ExecutionPolicy Bypass -File ".\Script - PowerShell - Forzar version mas alta.ps1" -Force
+    powershell.exe -ExecutionPolicy Bypass -File ".\Script Platform - PowerShell - Forzar version mas alta.ps1" -Force
 
 .EXAMPLE
-    .\Script - PowerShell - Forzar version mas alta.ps1 -Restore
+    .\Script Platform - PowerShell - Forzar version mas alta.ps1 -Restore
 
 .NOTES
-    Name:       Script - PowerShell - Forzar version mas alta.ps1
+    Name:       Script Platform - PowerShell - Forzar version mas alta.ps1
     Author:     Alejandro Suarez (@alexsf93)
     Date:       2026-11-14
     Version:    1.2.0
@@ -744,7 +744,7 @@ if ($UpdateTerminal) {
 # 10. Finalizacion y refresco de cache
 if (-not $DryRun) {
     Refresh-WindowsIconCache
-    $scriptName = if ($PSCommandPath) { Split-Path $PSCommandPath -Leaf } else { 'Script - PowerShell - Forzar version mas alta.ps1' }
+    $scriptName = if ($PSCommandPath) { Split-Path $PSCommandPath -Leaf } else { 'Script Platform - PowerShell - Forzar version mas alta.ps1' }
     Write-Host "`nProceso completado con exito." -ForegroundColor Green
     Write-Host "Copia de seguridad guardada en: $BackupDirectory" -ForegroundColor Gray
     Write-Host "Fichero de log: $LogFile" -ForegroundColor Gray

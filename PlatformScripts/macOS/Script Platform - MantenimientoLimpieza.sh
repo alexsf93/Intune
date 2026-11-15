@@ -1,12 +1,12 @@
 #!/bin/zsh
 
 # ==============================================================================
-# Nombre:        Script - MantenimientoLimpieza.sh
+# Nombre:        Script Platform - MantenimientoLimpieza.sh
 # Descripción:   Fuerza los scripts periódicos, limpia caches globales, logs de
 #                usuarios, purga snapshots de APFS y optimiza la RAM en macOS.
 # Autor:         Alejandro Suárez (@alexsf93)
 # Versión:       1.2.0
-# Uso:           ./Script - MantenimientoLimpieza.sh
+# Uso:           ./Script Platform - MantenimientoLimpieza.sh
 # Notas:         Optimiza el espacio y rendimiento de forma silenciosa.
 # ==============================================================================
 

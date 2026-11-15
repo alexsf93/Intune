@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # ==============================================================================
-# Nombre:       Script - Updates Segundo Martes Cada mes.sh
+# Nombre:       Script Platform - Updates Segundo Martes Cada mes.sh
 # Descripción:  Ejecuta la actualización del sistema (apt update/upgrade/autoremove) solo
 #               si es el segundo martes del mes, registrando todo en /var/log/intune.log.
 #               Pensado para su uso en despliegues automatizados con Microsoft Intune.
 # Autor:        Alejandro Suárez (@alexsf93)
 # Versión:      1.0.0
-# Uso:          ./Script - Updates Segundo Martes Cada mes.sh
+# Uso:          ./Script Platform - Updates Segundo Martes Cada mes.sh
 # Notas:        Log: /var/log/intune.log. Compatible con Ubuntu Desktop.
 # ==============================================================================
 

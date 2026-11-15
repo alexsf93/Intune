@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # ==============================================================================
-# Nombre:       Script - Firewall.sh
+# Nombre:       Script Platform - Firewall.sh
 # Descripción:  Verifica si el firewall de macOS está habilitado.
 #               Si no lo está, lo activa automáticamente.
 # Autor:        Alejandro Suárez (@alexsf93)
 # Versión:      1.0.0
-# Uso:          ./Script - Firewall.sh
+# Uso:          ./Script Platform - Firewall.sh
 # Notas:        Requiere privilegios de administrador.
 # ==============================================================================
 

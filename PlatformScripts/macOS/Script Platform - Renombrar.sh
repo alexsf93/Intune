@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # ==============================================================================
-# Nombre:       Script - Renombrar.sh
+# Nombre:       Script Platform - Renombrar.sh
 # Descripción:  Obtiene el número de serie del Mac y configura el nombre
 #               del equipo con el prefijo "INKOOVA" seguido del número de serie.
 #               Actualiza ComputerName, LocalHostName y HostName en macOS.
 # Autor:        Alejandro Suárez (@alexsf93)
 # Versión:      1.0.0
-# Uso:          ./Script - Renombrar.sh
+# Uso:          ./Script Platform - Renombrar.sh
 # Notas:        El nombre final será INKOOVA[NUMERO_SERIE]. Requiere privilegios de admin.
 # ==============================================================================
 

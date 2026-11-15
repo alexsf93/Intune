@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # ==============================================================================
-# Nombre:       Script - Check SSH.sh
+# Nombre:       Script Platform - Check SSH.sh
 # Descripción:  Verifica si el servicio SSH está instalado, lo instala si es necesario,
 #               y asegura que esté activo y habilitado en Ubuntu Desktop 24.04.
 #               Pensado para ejecución automática mediante Microsoft Intune.
 # Autor:        Alejandro Suárez (@alexsf93)
 # Versión:      1.0.0
-# Uso:          ./Script - Check SSH.sh
+# Uso:          ./Script Platform - Check SSH.sh
 # Notas:        Guarda el log en /var/log/ssh_deployment.log. Compatible con Ubuntu Desktop.
 # ==============================================================================
 

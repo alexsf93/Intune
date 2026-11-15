@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # ==============================================================================
-# Nombre:       Script - Full cleanup (para updates programado).sh
+# Nombre:       Script Platform - Full cleanup (para updates programado).sh
 # Descripción:  Limpia silenciosamente en Linux artefactos de actualizaciones obsoletos
 #               y recreables (APT, DNF, Snap, Flatpak, Journal).
 #               Crea una tarea temporal one-shot (systemd) para la limpieza.
 # Autor:        Alejandro Suárez (@alexsf93)
 # Versión:      1.0.0
-# Uso:          ./Script - Full cleanup (para updates programado).sh [--run]
+# Uso:          ./Script Platform - Full cleanup (para updates programado).sh [--run]
 # Notas:        Log en /var/log/cleanup_linux_updates.log. Usa systemd-run transient si es posible.
 # ==============================================================================
 

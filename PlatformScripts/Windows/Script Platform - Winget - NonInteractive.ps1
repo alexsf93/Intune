@@ -8,7 +8,7 @@
     local y mantiene los ficheros de log generados.
 
 .NOTES
-    Nombre:     Script - Winget - NonInteractive.ps1
+    Nombre:     Script Platform - Winget - NonInteractive.ps1
     Autor:      Alejandro Suarez (@alexsf93)
     Fecha:      2026-06-15
     Version:    2.8 (Sanitized Key Fix)

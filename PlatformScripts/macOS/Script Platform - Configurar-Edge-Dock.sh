@@ -1,11 +1,11 @@
 #!/bin/bash
 # ==============================================================================
-# Nombre:        Configurar-Edge-Dock.sh
+# Nombre:        Script Platform - Configurar-Edge-Dock.sh
 # Descripción:   Añade Microsoft Edge al Dock de macOS de forma nativa
 #                y lo posiciona automáticamente al lado de Safari.
 # Autor:         Alejandro Suárez
 # Versión:       1.0.0
-# Uso:           ./Configurar-Edge-Dock.sh
+# Uso:           ./Script Platform - Configurar-Edge-Dock.sh
 # Notas:         Se ejecuta en el contexto del usuario conectado. No requiere
 #                herramientas de terceros (como dockutil) ni Python.
 # ==============================================================================

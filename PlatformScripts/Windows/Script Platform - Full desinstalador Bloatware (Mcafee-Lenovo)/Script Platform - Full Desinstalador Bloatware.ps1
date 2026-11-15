@@ -10,11 +10,11 @@
     (Opcional) Lista de aplicaciones a excluir de la desinstalación.
 
 .EXAMPLE
-    .\Script - Full Desinstalador Bloatware.ps1
-    .\Script - Full Desinstalador Bloatware.ps1 -customwhitelist "App1","App2"
+    .\Script Platform - Full Desinstalador Bloatware.ps1
+    .\Script Platform - Full Desinstalador Bloatware.ps1 -customwhitelist "App1","App2"
 
 .NOTES
-    Name: Script - Full Desinstalador Bloatware.ps1
+    Name: Script Platform - Full Desinstalador Bloatware.ps1
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21

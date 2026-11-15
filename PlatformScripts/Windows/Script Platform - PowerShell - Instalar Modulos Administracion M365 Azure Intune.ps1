@@ -31,16 +31,16 @@
     Si un modulo ya esta instalado, intenta actualizarlo a la version mas reciente disponible en la PSGallery. Por defecto: $false.
 
 .EXAMPLE
-    .\Script - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1
+    .\Script Platform - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1
 
 .EXAMPLE
-    .\Script - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1 -Force -UpdateExisting
+    .\Script Platform - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1 -Force -UpdateExisting
 
 .EXAMPLE
-    powershell.exe -ExecutionPolicy Bypass -File ".\Script - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1" -Force
+    powershell.exe -ExecutionPolicy Bypass -File ".\Script Platform - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1" -Force
 
 .NOTES
-    Name:       Script - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1
+    Name:       Script Platform - PowerShell - Instalar Modulos Administracion M365 Azure Intune.ps1
     Author:     Alejandro Suarez (@alexsf93)
     Date:       2026-11-14
     Version:    1.1.0

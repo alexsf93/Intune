@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # ==============================================================================
-# Nombre:       Script - Check UFW.sh
+# Nombre:       Script Platform - Check UFW.sh
 # Descripción:  Verifica si el firewall UFW está instalado en el sistema Linux.
 #               Si no está instalado, lo instala automáticamente.
 #               Si no está habilitado, configura las reglas básicas y lo habilita.
 # Autor:        Alejandro Suárez (@alexsf93)
 # Versión:      1.0.0
-# Uso:          ./Script - Check UFW.sh
+# Uso:          ./Script Platform - Check UFW.sh
 # Notas:        Permite conexiones SSH antes de habilitar UFW. Compatible con apt, dnf, yum, pacman, zypper.
 # ==============================================================================
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# Nombre:       Script - Full cleanup (para updates programado).sh
+# Nombre:       Script Platform - Full cleanup (para updates programado).sh
 # Descripción:  Limpia silenciosamente en macOS únicamente artefactos de
 #               actualizaciones obsoletos y recreables:
 #                 - Descargas de softwareupdate en /Library/Updates
@@ -9,7 +9,7 @@
 #               Se ejecuta mediante una tarea temporal (LaunchDaemon one-shot).
 # Autor:        Alejandro Suárez (@alexsf93)
 # Versión:      1.0.0
-# Uso:          ./Script - Full cleanup (para updates programado).sh [--run]
+# Uso:          ./Script Platform - Full cleanup (para updates programado).sh [--run]
 # Notas:        Log limpieza: /var/log/cleanup_macos.log. Log daemon: /var/log/inkoova_cleanup.*.log.
 # ==============================================================================
 

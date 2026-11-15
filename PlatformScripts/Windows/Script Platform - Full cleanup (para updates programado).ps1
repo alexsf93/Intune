@@ -11,10 +11,10 @@
     Ninguno.
 
 .EXAMPLE
-    .\Script - Full cleanup (para updates).ps1
+    .\Script Platform - Full cleanup (para updates programado).ps1
 
 .NOTES
-    Name: Script - Full cleanup (para updates) (Windows).ps1
+    Name: Script Platform - Full cleanup (para updates programado).ps1
     Author: Alejandro Suárez (@alexsf93)
     Version: 1.0.0
     Date: 2026-01-21
